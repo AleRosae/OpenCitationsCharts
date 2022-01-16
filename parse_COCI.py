@@ -48,12 +48,12 @@ def parse_data(data, n = None, asjc_fields = False, most_cited = False,
   output_dict = {}
   counting_all = {}
   if most_cited: #only gets the articles that have been cited
-    for key, item in data.items():
+    for item in data:
       for k in item['has_cited_n_times']:
         issn = re.sub('-', "", k)
         counting_all[issn] = counting_all[issn] + item['has_cited_n_times'][k] 
   else:  
-    for key, item in data.items():
+    for item in data:
       issn = item['issn']
       issn = re.sub('-', "", issn)
       counting_all[issn] = 1
@@ -152,7 +152,7 @@ def self_citation(data, asjc_fields = None, specific_field = None):
   if asjc_fields:
     return get_issn_self_citation(data)
   else:
-    for key, item in data.items():
+    for item in data:
       for k in item['has_cited_n_times'].keys(): 
         if item['issn'] == k:
           counter_self += item['has_cited_n_times'][k]
@@ -172,7 +172,7 @@ def get_issn_self_citation(data, specific_field = None): #particolarmente pesant
   df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
   df_issn.set_index('Print-ISSN', inplace=True)
   results = {}
-  for key, value in data.items():
+  for value in data:
     try:
       search_issn = re.sub("'", "", value['issn'])
       search_issn = re.sub("-", "", search_issn)

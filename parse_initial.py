@@ -14,7 +14,7 @@ def initial_parsing(data, asjc_fields = None):
   list_cited = []
   n_citations = []
   cited_also_citing = []
-  for key, item in data.items():
+  for item in data:
     issn = item['issn']
     list_citing.append(issn)
     n_citations.append(sum(item['has_cited_n_times'].values()))

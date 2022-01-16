@@ -12,7 +12,7 @@ from zipfile import ZipFile
 st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
 st.write('''
          # Demo
-         ### This is a premimilary version of the OpenCitations web platform for visualizing statistics
+         ### This is a premimilary version of the OpenCitations web platform for visualizing statistics.
          The first time you open the app it takes some time to load the entire dataset, don't worry.
          ''')
 st.write('''By default the main page loads some statistics about the whole OpenCitations dataset.
@@ -38,14 +38,15 @@ else:
   init = st.session_state['init']
 
 if 'header' not in st.session_state:
-  header = (f"There are {str(init['journals'])} unique journals in the COCI dataset and {sum(init['tot_citations_distribution'])} citations")
+  header = (f"There are {str(init['journals'])} unique journals in the COCI dataset and a total of {sum(init['tot_citations_distribution'])} citations. ")
   st.session_state['header'] = header
 else:
   header = st.session_state['header']
 
 st.sidebar.header('Retrieve journals of specific fields')
 st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have most citations')
-input_journal = st.sidebar.text_input('Journal field', '')
+input_journal = st.sidebar.text_input('Journal field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                      You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
 col5, col6 = st.columns([3, 1])
 if input_journal != '':
   result = parse_COCI.parse_data(data, asjc_fields=True, specific_field=input_journal)
@@ -80,8 +81,9 @@ if input_journal != '':
 else:
   pass
 st.sidebar.header('Compare different fields')
-st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields')
-input_compare_field = st.sidebar.text_input('Fields (separate with comma and space)', '')
+st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare.')
+input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                            You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
 if input_compare_field != '':
   render = True
   mistakes = {}
