@@ -44,6 +44,7 @@ if 'header' not in st.session_state:
 else:
   header = st.session_state['header']
 
+expand_global = st.sidebar.radio('Display global statistics?', ['Yes', 'No'])
 st.sidebar.header('Retrieve journals of specific fields')
 st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have most citations')
 input_journal = st.sidebar.text_input('Journal field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
@@ -60,7 +61,8 @@ if input_journal != '':
       st.sidebar.write(f"Can't find {input_journal}. Check the spelling")
   else:
     with col8:
-      st.write(f'''There are {str(len(result.keys()))} journals related to {input_journal} , for a total of {str(sum(result.values()))} articles''')
+      st.write(f'''There are {str(len(result.keys()))} journals related to {input_journal} , for a total of {str(sum(result.values()))} citations.
+      The most important journal is {list(result.keys())[0]}.''')
     with col7:
       source = pd.DataFrame({'journals': list(result.keys())[:9], 'values': list(result.values())[:9]})
       bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
@@ -117,11 +119,12 @@ if input_compare_field != '':
         ).encode(
         text='values')
     st.altair_chart(bars+text, use_container_width=True)
-if 'expanded_state' not in st.session_state:
-  expanded_state = True
+
+if expand_global == 'Yes':
+  expanded_value = True
 else:
-  expanded_state = st.session_state['expanded_state']
-with st.expander("Global statistics", expanded=expanded_state): #dovrebbe diventare false quando si cerca qualcosa ma non viene compressa idk
+  expanded_value = False
+with st.expander("Global statistics", expanded=expanded_value ): #dovrebbe diventare false quando si cerca qualcosa ma non viene compressa idk
   st.write(header)
   col1, col2 = st.columns(2)
   with col2:
@@ -151,8 +154,12 @@ with st.expander("Global statistics", expanded=expanded_state): #dovrebbe divent
 
   col3, col4 = st.columns(2)
   with col3:
+    if 'df_distribution' not in st.session_state:
+      df_distribution = pd.DataFrame({'d_citations': init['tot_citations_distribution']})
+      st.session_state['df_distribution'] = df_distribution
+    else:
+      df_distribution = st.session_state['df_distribution']
     st.header(f"Distribution of citations")
-    df_distribution = pd.DataFrame({'d_citations': init['tot_citations_distribution']})
     df_distribution = df_distribution.apply(stats.zscore)
     base = alt.Chart(df_distribution)
     bar = base.mark_bar().encode(
@@ -161,25 +168,29 @@ with st.expander("Global statistics", expanded=expanded_state): #dovrebbe divent
     )
     st.altair_chart(bar, use_container_width=True)
     st.write(f'''Distribution of the number of citations for each citing article, converted in z-scores and then plotted with a logarithmic scale.
-             The average number of citations for citing articles is {init['average_citations']}, the mode is {mode(init['tot_citations_distribution'])}.''')
+            The average number of citations for citing articles is {init['average_citations']}, the mode is {mode(init['tot_citations_distribution'])}.''')
   with col4:
     st.header('Unique journals')
     tot_set = init['citing_set'] + init['cited_set'] + init['cited_also_citing']
     df_unique_journals = pd.DataFrame({'category': ['Only citing ('+str(round((init['citing_set']/tot_set) * 100))+'%)', 
                                                     'Only cited ('+str(round((init['cited_set']/tot_set) * 100))+'%)'
                                                     , 'cited also citing ('+str(round((init['cited_also_citing']/tot_set) * 100))+'%)'], 
-                                       'value': [init['citing_set'], init['cited_set'], init['cited_also_citing']]})
+                                      'value': [init['citing_set'], init['cited_set'], init['cited_also_citing']]})
     st.altair_chart(alt.Chart(df_unique_journals).mark_arc().encode(
         theta=alt.Theta(field="value", type="quantitative"),
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
     st.write('''Whether each unique journal appears only as a citing article (and do not receive citation), as a cited article (and do not cite other articles)
-             or both (articles that both cite other articles and receive citations)''')
+            or both (articles that both cite other articles and receive citations)''')
   col5, col6 = st.columns(2)
   with col5:
+    if 'source_journals' not in st.session_state:
+      source_journals = parse_COCI.parse_data(data)
+      st.session_state['source_journals'] = source_journals
+    else:
+      source_journals = st.session_state['source_journals']
     st.header('Most important journals')
-    source = parse_COCI.parse_data(data)
-    source = pd.DataFrame({'journals': source.keys(), 'values': source.values()})
-    bars = alt.Chart(source).mark_bar(size=20, align="center", binSpacing=1).encode(
+    source_journals = pd.DataFrame({'journals': source_journals.keys(), 'values': source_journals.values()})
+    bars = alt.Chart(source_journals).mark_bar(size=20, align="center", binSpacing=1).encode(
         x=alt.X('journals', sort='-y'),
         y='values'
     ).properties(height=600)
@@ -193,10 +204,15 @@ with st.expander("Global statistics", expanded=expanded_state): #dovrebbe divent
     st.altair_chart(bars+text, use_container_width=True)
     st.write('''Top 10 of the most important journals for number of articles (either citing or cited) in the dataset.''')
   with col6:
+    if 'source_fields' not in st.session_state:
+      source_fields = parse_COCI.parse_data(data, asjc_fields=True)
+      st.session_state['source_fields'] = source_fields
+    else:
+      source_fields = st.session_state['source_fields']
+    st.header('Most important journals')
     st.header('''Most frequent academic fields''')
-    source = parse_COCI.parse_data(data, asjc_fields=True)
-    source = pd.DataFrame({'fields': source.keys(), 'values': source.values()})
-    bars = alt.Chart(source).mark_bar(size=20, align="center", binSpacing=0.5).encode(
+    source_fields = pd.DataFrame({'fields': source_fields.keys(), 'values': source_fields.values()})
+    bars = alt.Chart(source_fields).mark_bar(size=20, align="center", binSpacing=0.5).encode(
         x=alt.X('fields', sort='-y'),
         y='values'
     ).properties(height=600)
@@ -209,4 +225,3 @@ with st.expander("Global statistics", expanded=expanded_state): #dovrebbe divent
     #(bars + text).properties(width=600, height=600)
     st.altair_chart(bars+text, use_container_width=True)
     st.write('''Top 10 of the most important fields for number of articles (either citing or cited) in the dataset.''')
-  
