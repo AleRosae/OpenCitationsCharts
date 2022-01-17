@@ -36,7 +36,6 @@ def initial_parsing(data, asjc_fields = None):
   output_dict['citing_set'] = len(citing_set)
   output_dict['cited_set'] = len(cited_set)
 
-
   return output_dict
 
 def plot_initial(d, articles = None): #l'informazione dei doi citati è stata persa quindi forse questo grafico non ha molto senso

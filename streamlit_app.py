@@ -10,6 +10,7 @@ import altair as alt
 import scipy.stats as stats
 from statistics import mode
 from zipfile import ZipFile
+
 st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
 st.write('''
          # Demo
