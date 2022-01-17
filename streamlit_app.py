@@ -48,24 +48,20 @@ st.sidebar.header('Retrieve journals of specific fields')
 st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have most citations')
 input_journal = st.sidebar.text_input('Journal field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
                                       You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
-col5, col6 = st.columns([3, 1])
+col7, col8 = st.columns([3, 1])
 if input_journal != '':
   result = parse_COCI.parse_data(data, asjc_fields=True, specific_field=input_journal)
-  if len(result.keys()) == 0: #metodo poco efficiente. Sarebbe meglio fare una funzione che prende la lista di ASJC codes (vale anche per sotto)
-    result = parse_COCI.parse_data(data, asjc_fields=True, n='all')
-    mistakes_list = []
-    for key in result.keys():
-      if input_journal.lower() in key.lower():
-        mistakes_list.append(key)
-    if len(mistakes_list) > 0:
-      item = str(mistakes_list).strip('][')
-      st.sidebar.write(f"Can't find {input_journal}. Did you mean one of the following: {item} ?")
+  if len(result.keys()) == 0: 
+    result_mistakes = parse_COCI.spelling_mistakes(input_journal)
+    if result_mistakes != None:
+      result_mistakes = str(result_mistakes[input_journal]).strip('][')
+      st.sidebar.write(f"Can't find {input_journal}. Did you mean one of the following: {result_mistakes} ?")
     else:
       st.sidebar.write(f"Can't find {input_journal}. Check the spelling")
   else:
-    with col6:
+    with col8:
       st.write(f'''There are {str(len(result.keys()))} journals related to {input_journal} , for a total of {str(sum(result.values()))} articles''')
-    with col5:
+    with col7:
       source = pd.DataFrame({'journals': list(result.keys())[:9], 'values': list(result.values())[:9]})
       bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
           x=alt.X('journals', sort='-y'),
@@ -86,24 +82,28 @@ st.sidebar.write('Use the box below to make comparison between the number of cit
 input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
 if input_compare_field != '':
+  cant_find = []
   render = True
-  mistakes = {}
-  input = input_compare_field.split(', ')
-  result = parse_COCI.parse_data(data, asjc_fields=True, n="all")
-  output = {}
-  result = {k.lower():v for k, v in result.items()}
-  for item in input:
-    try:
-      output[item.capitalize()] = result[item.lower()]
-    except KeyError:
-      output[item.capitalize()] = 0
-  for key, item in output.items():
-    if item == 0:
-      render = False
-      mistakes[key] = []
-      for k in result.keys():
-        if key.lower() in k.lower():
-          mistakes[key].append(k)
+  check_spelling = parse_COCI.spelling_mistakes(input_compare_field, list_input=True)
+  if check_spelling == None:
+    input = input_compare_field.split(', ')
+    result = parse_COCI.parse_data(data, asjc_fields=True, n="all")
+    output = {}
+    result = {k.lower():v for k, v in result.items()}
+    for item in input:
+      try:
+        output[item.capitalize()] = result[item.lower()]
+      except KeyError:
+        cant_find.append(item.capitalize)
+  elif check_spelling == None and len(cant_find) == 0:
+    cant_find = str(cant_find).strip('][')
+    st.sidebar.write(f"Can't find {cant_find}. Check the spelling")
+    render = False
+  else:
+      for input_key, mistake_value in check_spelling.items():
+        mistake_value = str(mistake_value).strip('][')
+        st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
+        render = False
   if render == True:
     source = pd.DataFrame({'fields': output.keys(), 'values': output.values()})
     bars = alt.Chart(source).mark_bar(size=40, align="center", binSpacing=1).encode(
@@ -116,15 +116,7 @@ if input_compare_field != '':
       color = 'white'
         ).encode(
         text='values')
-#(bars + text).properties(width=600, height=600)
     st.altair_chart(bars+text, use_container_width=True)
-  else:
-    for key, item in mistakes.items():
-      item = str(item).strip('][')
-      if len(item) > 0:
-        st.sidebar.write(f"Can't find {key}. Did you mean one of the following: {item} ?")
-      else:
-        st.sidebar.write(f"Can't find {key}. Check the spelling")
 if 'expanded_state' not in st.session_state:
   expanded_state = True
 else:
@@ -132,7 +124,7 @@ else:
 with st.expander("Global statistics", expanded=expanded_state): #dovrebbe diventare false quando si cerca qualcosa ma non viene compressa idk
   st.write(header)
   col1, col2 = st.columns(2)
-  with col1:
+  with col2:
     if 'self_citations' not in st.session_state:
       d_self_citations = parse_COCI.self_citation(data)
       st.session_state['self_citations'] = d_self_citations
@@ -143,8 +135,8 @@ with st.expander("Global statistics", expanded=expanded_state): #dovrebbe divent
     st.altair_chart(alt.Chart(df_d).mark_arc().encode(
         theta=alt.Theta(field="value", type="quantitative"),
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
-    st.write('Articles that cite publications that belong to the same journal of the citing article')
-  with col2:
+    st.write('Articles that cite publications that belong to the same journal of the citing article.')
+  with col1:
     if 'self_citations_asjc' not in st.session_state:
       d_self_citations_asjc = parse_COCI.self_citation(data, asjc_fields=True)
       st.session_state['self_citations_asjc'] = d_self_citations_asjc
@@ -155,7 +147,7 @@ with st.expander("Global statistics", expanded=expanded_state): #dovrebbe divent
     st.altair_chart(alt.Chart(df_d).mark_arc().encode(
         theta=alt.Theta(field="value", type="quantitative"),
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
-    st.write('Articles that cite publications of the same academic field or of similar academic field (according to ASJC classification)')
+    st.write('Articles that cite publications of the same academic field or of similar academic field (according to ASJC classification).')
 
   col3, col4 = st.columns(2)
   with col3:

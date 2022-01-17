@@ -89,7 +89,7 @@ def parse_data(data, n = None, asjc_fields = False, most_cited = False,
         break
   return output_dict
 
-
+ #deprecated
 def plot_statistics(data, most_cited = None, asjc_fields = None, specific_field = None, comparison = None):
   if most_cited and asjc_fields:
     x_label= 'Fields'
@@ -220,6 +220,28 @@ def load_data(path):
     with zip.open('output_2020-04-25T04_48_36_1.json') as infile:
       data = json.load(infile)
       return data
+
+def spelling_mistakes(input_data, list_input=None):
+    df_asjc = pd.read_csv(r'scopus_asjc.csv')
+    ajsc = df_asjc['Description'].tolist()
+    result = {}
+    if list_input:
+      input = input_data.split(', ')
+    else:
+      input= [input_data]
+    for mistake in input:
+      for el in ajsc:
+        if mistake.lower() == el.lower():
+          pass
+        elif mistake.lower() in el.lower() and mistake in result.keys():
+          result[mistake].append(el)
+        elif mistake.lower() in el.lower() and mistake not in result.keys():
+          result[mistake] = []
+          result[mistake].append(el)
+    if len(result.keys()) == 0:
+      result = None
+    return result
+
 
 #data = load_data('output_2020-04-25T04_48_36_1.zip')
 #print(parse_data(data, asjc_fields=True))
