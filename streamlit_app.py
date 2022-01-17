@@ -45,22 +45,15 @@ if 'header' not in st.session_state:
 else:
   header = st.session_state['header']
 
-expand_global = st.sidebar.radio('Display global statistics?', ['Yes', 'No'])
 st.sidebar.header('Retrieve journals of specific fields')
 st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have most citations')
 input_journal = st.sidebar.text_input('Journal field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
                                       You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
 col7, col8 = st.columns([3, 1])
 if input_journal != '':
-  result = parse_COCI.parse_data(data, asjc_fields=True, specific_field=input_journal)
-  if len(result.keys()) == 0: 
-    result_mistakes = parse_COCI.spelling_mistakes(input_journal)
-    if result_mistakes != None:
-      result_mistakes = str(result_mistakes[input_journal]).strip('][')
-      st.sidebar.write(f"Can't find {input_journal}. Did you mean one of the following: {result_mistakes} ?")
-    else:
-      st.sidebar.write(f"Can't find {input_journal}. Check the spelling")
-  else:
+  result_mistakes = parse_COCI.spelling_mistakes(input_journal)
+  if result_mistakes == False:
+    result = parse_COCI.parse_data(data)
     with col8:
       st.write(f'''There are {str(len(result.keys()))} journals related to {input_journal} , for a total of {str(sum(result.values()))} citations.
       The most important journal is {list(result.keys())[0]}.''')
@@ -76,19 +69,22 @@ if input_journal != '':
           color = 'white'
       ).encode(
           text='values')
-      #(bars + text).properties(width=600, height=600)
       st.altair_chart(bars+text, use_container_width=True)
-else:
-  pass
+  elif result_mistakes == None:
+    st.sidebar.write(f"Can't find {input_journal}. Check the spelling")
+  else:
+    result_mistakes = str(result_mistakes[input_journal]).strip('][')
+    st.sidebar.write(f"Can't find {input_journal}. Did you mean one of the following: {result_mistakes} ?")
+
 st.sidebar.header('Compare different fields')
 st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare.')
 input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
-if input_compare_field != '':
+if input_compare_field != '': 
   cant_find = []
   render = True
-  check_spelling = parse_COCI.spelling_mistakes(input_compare_field, list_input=True)
-  if check_spelling == None:
+  check_spelling = parse_COCI.spelling_mistakes(input_compare_field, list_input=True) #ha bisogno di qualche fix questo
+  if check_spelling == False:
     input = input_compare_field.split(', ')
     result = parse_COCI.parse_data(data, asjc_fields=True, n="all")
     output = {}
@@ -98,7 +94,7 @@ if input_compare_field != '':
         output[item.capitalize()] = result[item.lower()]
       except KeyError:
         cant_find.append(item.capitalize)
-  elif check_spelling == None and len(cant_find) == 0:
+  elif check_spelling == None:
     cant_find = str(cant_find).strip('][')
     st.sidebar.write(f"Can't find {cant_find}. Check the spelling")
     render = False
@@ -119,13 +115,33 @@ if input_compare_field != '':
       color = 'white'
         ).encode(
         text='values')
-    st.altair_chart(bars+text, use_container_width=True)
+    with col7:
+      st.altair_chart(bars+text, use_container_width=True)
 
-if expand_global == 'Yes':
-  expanded_value = True
-else:
-  expanded_value = False
-with st.expander("Global statistics", expanded=expanded_value ): #dovrebbe diventare false quando si cerca qualcosa ma non viene compressa idk
+st.sidebar.header('Self citation by field')
+st.sidebar.write('''Use the box below to search for a specific field and see how it tends to mention.
+                  works belonging to the same fields''')
+input_selfcitation_field = st.sidebar.text_input('Field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                            You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+if input_selfcitation_field != '':
+  check_spelling_selfcit = parse_COCI.spelling_mistakes(input_selfcitation_field)
+  if check_spelling_selfcit == False:
+    self_citation_field = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input_selfcitation_field)
+    df_selfcit = pd.DataFrame({'category': self_citation_field.keys(), 'value': self_citation_field.values()})
+    with col7:
+      st.header(f'Self citations of {input_selfcitation_field}')
+      st.altair_chart(alt.Chart(df_selfcit).mark_arc().encode(
+          theta=alt.Theta(field="value", type="quantitative"),
+          color=alt.Color(field="category", type="nominal")), use_container_width=True)
+      st.write(f'''How much articles belonging to{input_selfcitation_field} tend to mention
+                articles related to the same field''')
+  elif check_spelling_selfcit == None:
+    st.sidebar.write(f"Can't find {input_selfcitation_field}. Check the spelling.")
+  else:
+    check_spelling_selfcit = str(check_spelling_selfcit[input_selfcitation_field]).strip('][')
+    st.sidebar.write(f"Can't find {input_selfcitation_field}. Did you mean one of the following: {check_spelling_selfcit} ?")
+
+with st.expander("Global statistics", expanded=True): #dovrebbe diventare false quando si cerca qualcosa ma non viene compressa idk
   st.write(header)
   col1, col2 = st.columns(2)
   with col2:

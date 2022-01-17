@@ -149,7 +149,9 @@ def self_citation(data, asjc_fields = None, specific_field = None):
   output_dict = {}
   counter_self = 0
   counter_others = 0
-  if asjc_fields:
+  if specific_field != None and asjc_fields:
+      return get_issn_self_citation(data, specific_field=specific_field)
+  elif asjc_fields:
     return get_issn_self_citation(data)
   else:
     for item in data:
@@ -171,6 +173,8 @@ def get_issn_self_citation(data, specific_field = None): #particolarmente pesant
   df_issn = pd.read_csv(r'scopus_issn.csv')
   df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
   df_issn.set_index('Print-ISSN', inplace=True)
+  df_asjc = pd.read_csv(r'scopus_asjc.csv') #carica entrambi i csv perché servono per cercare field specifico
+  df_asjc.set_index('Code', inplace=True)  
   results = {}
   for value in data:
     try:
@@ -193,21 +197,27 @@ def get_issn_self_citation(data, specific_field = None): #particolarmente pesant
               not_self_citations += value['has_cited_n_times'][k]
           except KeyError:
             not_found += value['has_cited_n_times'][k]
-      else:
-          df_asjc = pd.read_csv(r'scopus_asjc.csv')
-          df_asjc.set_index('Code', inplace=True)
-          field_citing =  df_asjc.at[int(citing_code.strip()), 'Description'] #only gets the first disciplinary field, which should be the primary one
-          if specific_field != None:
-            if field_citing.lower() == specific_field.lower():
-              results[df_issn.at[search_issn, 'Title']] = int(value)
-          else:
-            if field_citing in results.keys():
-              results[field_citing] = int(results[field_citing]) + int(value)
+      else:        
+        for k in value['has_cited_n_times'].keys():  
+          try:          
+            search_cited= re.sub("'", "", k)
+            search_cited = re.sub("-", "", search_cited)
+            cited_code = df_issn.at[search_cited, 'ASJC']
+            cited_code = cited_code.split(';')[0]
+            field =  df_asjc.at[int(citing_code.strip()), 'Description'] #only gets the first disciplinary field, which should be the primary one
+            if field.lower() == specific_field.lower():#prendi solo quelli che hanno field uguale a quello di input
+              if citing_code == cited_code:
+                self_citations += value['has_cited_n_times'][k]
+              elif citing_code[:1] == cited_code[:1]:
+                partial_self_citations += value['has_cited_n_times'][k]
+              else:
+                not_self_citations += value['has_cited_n_times'][k]
             else:
-              results[field_citing] =  int(value)
+              continue  
+          except KeyError:
+              not_found += value['has_cited_n_times'][k]
     except KeyError:
-      for k in value['has_cited_n_times'].keys(): 
-        not_found += value['has_cited_n_times'][k]
+      continue        
   tot = self_citations + partial_self_citations + not_self_citations
   results['self ('+str(round((self_citations/tot) * 100))+'%)'] = self_citations
   results['partial self ('+str(round((partial_self_citations/tot) * 100))+'%)'] = partial_self_citations
@@ -224,24 +234,30 @@ def load_data(path):
 def spelling_mistakes(input_data, list_input=None):
     df_asjc = pd.read_csv(r'scopus_asjc.csv')
     ajsc = df_asjc['Description'].tolist()
+    asjc = [x.lower() for x in ajsc]
     result = {}
     if list_input:
       input = input_data.split(', ')
     else:
       input= [input_data]
     for mistake in input:
-      for el in ajsc:
-        if mistake.lower() == el.lower():
-          pass
-        elif mistake.lower() in el.lower() and mistake in result.keys():
-          result[mistake].append(el)
-        elif mistake.lower() in el.lower() and mistake not in result.keys():
-          result[mistake] = []
-          result[mistake].append(el)
+        if mistake.lower() in asjc:
+          result[mistake] = False
+        else:
+          for el in asjc:
+            if mistake.lower() in el.lower() and mistake not in result.keys():
+              result[mistake] = []
+              result[mistake].append(el)
+            elif mistake.lower() in el.lower() and mistake in result.keys():
+              result[mistake].append(el)
     if len(result.keys()) == 0:
       result = None
+    elif not any(result.values()) and not type(list(result.values())[0]) == str:
+      result = False
     return result
 
 
 #data = load_data('output_2020-04-25T04_48_36_1.zip')
 #print(parse_data(data, asjc_fields=True))
+#print(self_citation(data, asjc_fields=True, specific_field='Philosophy'))
+#print(spelling_mistakes('medicine'))
