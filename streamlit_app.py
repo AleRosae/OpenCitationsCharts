@@ -7,6 +7,7 @@ from streamlit.type_util import Key
 import parse_COCI
 import parse_initial
 import altair as alt
+import scipy.stats as stats
 from statistics import mode
 from zipfile import ZipFile
 st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
@@ -18,7 +19,7 @@ st.write('''
 st.write('''By default the main page loads some statistics about the whole OpenCitations dataset.
          You can use the sidebar to visualize more specific information, either using journals or academic fields
          as discriminators. The charts you ask for appear below the global statistics container. You can minimize this container whenever you want by clicking on the small dash
-         here on the right''')
+         here on the right.''')
 @st.cache()
 def load_data(path):
   with ZipFile(path, 'r') as zip:
@@ -159,15 +160,15 @@ with st.expander("Global statistics", expanded=expanded_state): #dovrebbe divent
   col3, col4 = st.columns(2)
   with col3:
     st.header(f"Distribution of citations")
-    list_distribution = [n for n in init['tot_citations_distribution'] if n!=1 and n!=0]
-    df_distribution = pd.DataFrame({'d_citations': list_distribution})
+    df_distribution = pd.DataFrame({'d_citations': init['tot_citations_distribution']})
+    df_distribution = df_distribution.apply(stats.zscore)
     base = alt.Chart(df_distribution)
     bar = base.mark_bar().encode(
-        x=alt.X('d_citations:Q', scale=alt.Scale(type='symlog'), bin = alt.BinParams(nice=True, maxbins=500), title='Distribution on log scale'),
+        x=alt.X('d_citations:Q', scale=alt.Scale(type='symlog'), bin = alt.BinParams(nice=True, maxbins=300), title='Distribution on log scale of z-scores'),
         y='count()'
     )
     st.altair_chart(bar, use_container_width=True)
-    st.write(f'''Distribution of the number of citations for each citing article.
+    st.write(f'''Distribution of the number of citations for each citing article, converted in z-scores and then plotted with a logarithmic scale.
              The average number of citations for citing articles is {init['average_citations']}, the mode is {mode(init['tot_citations_distribution'])}.''')
   with col4:
     st.header('Unique journals')
