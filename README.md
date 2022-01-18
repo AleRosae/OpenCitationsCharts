@@ -4,4 +4,4 @@ Repository for the web application that displays statistics about the OpenCitati
 The parsing functions and the web app have been developed by using a rather small portion of the COCI dataset (i.e. file "020-04-25T04:48:36_1.csv"), which has been compressed in a .zip file to deal with GitHub files' size limits. 
 The Crossref dataset has been cleaned to optmize the seach process. You can find more information about this on the notebooks that have run on Google Colab to process the data. 
 
-You can check the Streamlit demo here: https://share.streamlit.io/alerosae/opencitationscharts
+You can check the Streamlit demo here: https://share.streamlit.io/alerosae/opencitationscharts/main
