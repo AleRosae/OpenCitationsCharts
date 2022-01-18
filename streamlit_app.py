@@ -81,28 +81,26 @@ st.sidebar.write('Use the box below to make comparison between the number of cit
 input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
 if input_compare_field != '': 
-  cant_find = []
   render = True
-  check_spelling = parse_COCI.spelling_mistakes(input_compare_field, list_input=True) #ha bisogno di qualche fix questo
-  if check_spelling == False:
-    input = input_compare_field.split(', ')
+  input = input_compare_field.split(', ')
+  check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
+  dict_spelling = [el for el in check_spelling if type(el) == dict]
+  if None in check_spelling:
+    index_cantfind = check_spelling.index(None)
+    st.sidebar.write(f"Can't find {input[index_cantfind]}. Check the spelling")
+    render = False
+  elif len(dict_spelling)> 0:
+    for dic in dict_spelling:
+      for input_key, mistake_value in dic.items():
+        mistake_value = str(mistake_value).strip('][')
+        st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
+        render = False    
+  else: 
     result = parse_COCI.parse_data(data, asjc_fields=True, n="all")
     output = {}
     result = {k.lower():v for k, v in result.items()}
     for item in input:
-      try:
-        output[item.capitalize()] = result[item.lower()]
-      except KeyError:
-        cant_find.append(item.capitalize)
-  elif check_spelling == None:
-    cant_find = str(cant_find).strip('][')
-    st.sidebar.write(f"Can't find {cant_find}. Check the spelling")
-    render = False
-  else:
-      for input_key, mistake_value in check_spelling.items():
-        mistake_value = str(mistake_value).strip('][')
-        st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
-        render = False
+      output[item.capitalize()] = result[item.lower()]
   if render == True:
     source = pd.DataFrame({'fields': output.keys(), 'values': output.values()})
     bars = alt.Chart(source).mark_bar(size=40, align="center", binSpacing=1).encode(

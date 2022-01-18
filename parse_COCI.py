@@ -231,25 +231,20 @@ def load_data(path):
       data = json.load(infile)
       return data
 
-def spelling_mistakes(input_data, list_input=None):
+def spelling_mistakes(input_data):
     df_asjc = pd.read_csv(r'scopus_asjc.csv')
     ajsc = df_asjc['Description'].tolist()
     asjc = [x.lower() for x in ajsc]
     result = {}
-    if list_input:
-      input = input_data.split(', ')
+    if input_data.lower() in asjc:
+      result[input_data] = False
     else:
-      input= [input_data]
-    for mistake in input:
-        if mistake.lower() in asjc:
-          result[mistake] = False
-        else:
-          for el in asjc:
-            if mistake.lower() in el.lower() and mistake not in result.keys():
-              result[mistake] = []
-              result[mistake].append(el)
-            elif mistake.lower() in el.lower() and mistake in result.keys():
-              result[mistake].append(el)
+      for el in asjc:
+        if input_data.lower() in el.lower() and input_data not in result.keys():
+          result[input_data] = []
+          result[input_data].append(el)
+        elif input_data.lower() in el.lower() and input_data in result.keys():
+          result[input_data].append(el)
     if len(result.keys()) == 0:
       result = None
     elif not any(result.values()) and not type(list(result.values())[0]) == str:
