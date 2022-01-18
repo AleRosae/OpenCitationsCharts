@@ -1,6 +1,7 @@
 from altair.vegalite.v4.schema.core import Align
 from pandas.core.algorithms import mode
 import streamlit as st
+import re
 import json
 import pandas as pd
 from streamlit.type_util import Key
@@ -44,6 +45,12 @@ if 'header' not in st.session_state:
   st.session_state['header'] = header
 else:
   header = st.session_state['header']
+
+if 'self_citations_asjc' not in st.session_state:
+  d_self_citations_asjc = parse_COCI.self_citation(data, asjc_fields=True)
+  st.session_state['self_citations_asjc'] = d_self_citations_asjc
+else:
+  d_self_citations_asjc = st.session_state['self_citations_asjc']
 
 st.sidebar.header('Retrieve journals of specific fields')
 st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have most citations')
@@ -119,7 +126,7 @@ if input_compare_field != '':
 st.sidebar.header('Self citation by field')
 st.sidebar.write('''Use the box below to search for a specific field and see how it tends to mention.
                   works belonging to the same fields''')
-input_selfcitation_field = st.sidebar.text_input('Field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
+input_selfcitation_field = st.sidebar.text_input('Journal field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
 if input_selfcitation_field != '':
   check_spelling_selfcit = parse_COCI.spelling_mistakes(input_selfcitation_field)
@@ -131,15 +138,21 @@ if input_selfcitation_field != '':
       st.altair_chart(alt.Chart(df_selfcit).mark_arc().encode(
           theta=alt.Theta(field="value", type="quantitative"),
           color=alt.Color(field="category", type="nominal")), use_container_width=True)
-      st.write(f'''How much articles belonging to{input_selfcitation_field} tend to mention
+      st.write(f'''How many articles belonging to {input_selfcitation_field} tend to mention
                 articles related to the same field''')
+    with col8:
+      global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
+      st.write()
+      st.write(f'''In {input_selfcitation_field} there are {df_selfcit.iloc[0,1]} self citations (globa is {global_percentages[0]}),
+       {df_selfcit.iloc[1,1]} partial self-citations (global is {global_percentages[1]})
+      and {df_selfcit.iloc[2,1]} not self citations (global is {global_percentages[2]}).''')
   elif check_spelling_selfcit == None:
     st.sidebar.write(f"Can't find {input_selfcitation_field}. Check the spelling.")
   else:
     check_spelling_selfcit = str(check_spelling_selfcit[input_selfcitation_field]).strip('][')
     st.sidebar.write(f"Can't find {input_selfcitation_field}. Did you mean one of the following: {check_spelling_selfcit} ?")
 
-with st.expander("Global statistics", expanded=True): #dovrebbe diventare false quando si cerca qualcosa ma non viene compressa idk
+with st.expander("Global statistics", expanded=True):
   st.write(header)
   col1, col2 = st.columns(2)
   with col2:
@@ -155,11 +168,6 @@ with st.expander("Global statistics", expanded=True): #dovrebbe diventare false 
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
     st.write('Articles that cite publications that belong to the same journal of the citing article.')
   with col1:
-    if 'self_citations_asjc' not in st.session_state:
-      d_self_citations_asjc = parse_COCI.self_citation(data, asjc_fields=True)
-      st.session_state['self_citations_asjc'] = d_self_citations_asjc
-    else:
-      d_self_citations_asjc = st.session_state['self_citations_asjc']
     st.header('Self citations (by academic field)')
     df_d = pd.DataFrame({'category': d_self_citations_asjc.keys(), 'value': d_self_citations_asjc.values()})
     st.altair_chart(alt.Chart(df_d).mark_arc().encode(
@@ -175,13 +183,12 @@ with st.expander("Global statistics", expanded=True): #dovrebbe diventare false 
     else:
       df_distribution = st.session_state['df_distribution']
     st.header(f"Distribution of citations")
-    df_distribution = df_distribution.apply(stats.zscore)
-    base = alt.Chart(df_distribution)
-    bar = base.mark_bar().encode(
-        x=alt.X('d_citations:Q', scale=alt.Scale(type='symlog'), bin = alt.BinParams(nice=True, maxbins=300), title='Distribution on log scale of z-scores'),
-        y='count()'
-    )
-    st.altair_chart(bar, use_container_width=True)
+    brush = alt.selection(type='interval')
+    points = alt.Chart(df_distribution).mark_point().encode(
+      x=alt.X('d_citations:Q', scale = alt.Scale(type='symlog'), title='Citations distribution on a log scale'),
+      y=alt.Y('count()',scale = alt.Scale(type='symlog'))).add_selection(brush)
+    
+    st.altair_chart(points, use_container_width=True)
     st.write(f'''Distribution of the number of citations for each citing article, converted in z-scores and then plotted with a logarithmic scale.
             The average number of citations for citing articles is {init['average_citations']}, the mode is {mode(init['tot_citations_distribution'])}.''')
   with col4:
@@ -215,7 +222,6 @@ with st.expander("Global statistics", expanded=True): #dovrebbe diventare false 
         color = 'white'
     ).encode(
         text='values')
-    #(bars + text).properties(width=600, height=600)
     st.altair_chart(bars+text, use_container_width=True)
     st.write('''Top 10 of the most important journals for number of articles (either citing or cited) in the dataset.''')
   with col6:
