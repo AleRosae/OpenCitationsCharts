@@ -52,17 +52,26 @@ if 'self_citations_asjc' not in st.session_state:
 else:
   d_self_citations_asjc = st.session_state['self_citations_asjc']
 
-st.sidebar.header('Retrieve journals of specific fields')
-st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have most citations')
-input_journal = st.sidebar.text_input('Journal field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                      You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
 col7, col8 = st.columns([3, 1])
-if input_journal != '':
-  result_mistakes = parse_COCI.spelling_mistakes(input_journal)
+st.sidebar.header('Single field search')
+single_search = st.sidebar.radio(
+     "What do you want to search for?",
+     ('Top journals of a field', 'Self citations of a field', ''))
+if single_search == 'Top journals of a field':
+  st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have received more citations.')
+  input_field = st.sidebar.text_input('Journal field', '', key=1234, help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                        You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+elif single_search == 'Self citations of a field':
+  st.sidebar.write('''Use the box below to search for a specific field and see how it tends to mention.
+                  works belonging to the same fields''')
+  input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                            You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+if input_field != '' and single_search == 'Top journals of a field':
+  result_mistakes = parse_COCI.spelling_mistakes(input_field)
   if result_mistakes == False:
-    result = parse_COCI.parse_data(data, asjc_fields = True, specific_field=input_journal)
+    result = parse_COCI.parse_data(data, asjc_fields = True, specific_field=input_field)
     with col8:
-      st.write(f'''There are {str(len(result.keys()))} journals related to {input_journal} , for a total of {str(sum(result.values()))} citations.
+      st.write(f'''There are {str(len(result.keys()))} journals related to {input_field} , for a total of {str(sum(result.values()))} citations.
       The most important journal is {list(result.keys())[0]}.''')
     with col7:
       source = pd.DataFrame({'journals': list(result.keys())[:9], 'values': list(result.values())[:9]})
@@ -79,11 +88,34 @@ if input_journal != '':
           text='values')
       st.altair_chart(bars+text, use_container_width=True)
   elif result_mistakes == None:
-    st.sidebar.write(f"Can't find {input_journal}. Check the spelling")
+    st.sidebar.write(f"Can't find {input_field}. Check the spelling")
   else:
-    result_mistakes = str(result_mistakes[input_journal]).strip('][')
-    st.sidebar.write(f"Can't find {input_journal}. Did you mean one of the following: {result_mistakes} ?")
+    result_mistakes = str(result_mistakes[input_field]).strip('][')
+    st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {result_mistakes} ?")
 
+elif input_field != "" and single_search == 'Self citations of a field':
+  check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
+  if check_spelling_selfcit == False:
+    self_citation_field = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input_field)
+    df_selfcit = pd.DataFrame({'category': self_citation_field.keys(), 'value': self_citation_field.values()})
+    with col7:
+      st.header(f'Self citations of {input_field}')
+      st.altair_chart(alt.Chart(df_selfcit).mark_arc().encode(
+          theta=alt.Theta(field="value", type="quantitative"),
+          color=alt.Color(field="category", type="nominal")), use_container_width=True)
+      st.write(f'''How many articles belonging to {input_field} tend to mention
+                articles related to the same field''')
+    with col8:
+      global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
+      st.markdown('***')
+      st.write(f'''In {input_field} there are {df_selfcit.iloc[0,1]} self citations (globa is {global_percentages[0]}),
+       {df_selfcit.iloc[1,1]} partial self-citations (global is {global_percentages[1]})
+      and {df_selfcit.iloc[2,1]} not self citations (global is {global_percentages[2]}).''')
+  elif check_spelling_selfcit == None:
+    st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
+  else:
+    check_spelling_selfcit = str(check_spelling_selfcit[input_field]).strip('][')
+    st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?")
 st.sidebar.header('Compare different fields')
 st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare.')
 input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
@@ -124,36 +156,7 @@ if input_compare_field != '':
     with col7:
       st.altair_chart(bars+text, use_container_width=True)
 
-st.sidebar.header('Self citation by field')
-st.sidebar.write('''Use the box below to search for a specific field and see how it tends to mention.
-                  works belonging to the same fields''')
-input_selfcitation_field = st.sidebar.text_input('Journal field', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                            You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
-if input_selfcitation_field != '':
-  check_spelling_selfcit = parse_COCI.spelling_mistakes(input_selfcitation_field)
-  if check_spelling_selfcit == False:
-    self_citation_field = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input_selfcitation_field)
-    df_selfcit = pd.DataFrame({'category': self_citation_field.keys(), 'value': self_citation_field.values()})
-    with col7:
-      st.header(f'Self citations of {input_selfcitation_field}')
-      st.altair_chart(alt.Chart(df_selfcit).mark_arc().encode(
-          theta=alt.Theta(field="value", type="quantitative"),
-          color=alt.Color(field="category", type="nominal")), use_container_width=True)
-      st.write(f'''How many articles belonging to {input_selfcitation_field} tend to mention
-                articles related to the same field''')
-    with col8:
-      global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
-      st.markdown('***')
-      st.write(f'''In {input_selfcitation_field} there are {df_selfcit.iloc[0,1]} self citations (globa is {global_percentages[0]}),
-       {df_selfcit.iloc[1,1]} partial self-citations (global is {global_percentages[1]})
-      and {df_selfcit.iloc[2,1]} not self citations (global is {global_percentages[2]}).''')
-  elif check_spelling_selfcit == None:
-    st.sidebar.write(f"Can't find {input_selfcitation_field}. Check the spelling.")
-  else:
-    check_spelling_selfcit = str(check_spelling_selfcit[input_selfcitation_field]).strip('][')
-    st.sidebar.write(f"Can't find {input_selfcitation_field}. Did you mean one of the following: {check_spelling_selfcit} ?")
-
-with st.expander("Global statistics", expanded=True):
+with st.expander("Global statistics", expanded=True): #global statistics start here
   st.write(header)
   col1, col2 = st.columns(2)
   with col2:
