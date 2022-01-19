@@ -60,7 +60,7 @@ col7, col8 = st.columns([3, 1])
 if input_journal != '':
   result_mistakes = parse_COCI.spelling_mistakes(input_journal)
   if result_mistakes == False:
-    result = parse_COCI.parse_data(data)
+    result = parse_COCI.parse_data(data, asjc_fields = True, specific_field=input_journal)
     with col8:
       st.write(f'''There are {str(len(result.keys()))} journals related to {input_journal} , for a total of {str(sum(result.values()))} citations.
       The most important journal is {list(result.keys())[0]}.''')
@@ -68,12 +68,13 @@ if input_journal != '':
       source = pd.DataFrame({'journals': list(result.keys())[:9], 'values': list(result.values())[:9]})
       bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
           x=alt.X('journals', sort='-y'),
-          y='values'
+          y='values',
+          color=alt.Color('values')
       ).properties(height=800)
       text = bars.mark_text(
           align='center',
           baseline='middle',
-          color = 'white'
+          color = 'grey'
       ).encode(
           text='values')
       st.altair_chart(bars+text, use_container_width=True)
@@ -142,7 +143,7 @@ if input_selfcitation_field != '':
                 articles related to the same field''')
     with col8:
       global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
-      st.write()
+      st.markdown('***')
       st.write(f'''In {input_selfcitation_field} there are {df_selfcit.iloc[0,1]} self citations (globa is {global_percentages[0]}),
        {df_selfcit.iloc[1,1]} partial self-citations (global is {global_percentages[1]})
       and {df_selfcit.iloc[2,1]} not self citations (global is {global_percentages[2]}).''')
