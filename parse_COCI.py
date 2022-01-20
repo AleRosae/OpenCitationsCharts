@@ -203,12 +203,14 @@ def spelling_mistakes(input_data):
 
 
 def citations_flow(data, specific_field = None):
-  output_dict = {}
+  output_dict = {'fields':{}, 'groups':{}, 'supergroups': {}}
   df_issn = pd.read_csv(r'scopus_issn.csv')
   df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
   df_issn.set_index('Print-ISSN', inplace=True)
   df_asjc = pd.read_csv(r'scopus_asjc.csv')
   df_asjc.set_index('Code', inplace=True)
+  df_supergroups = pd.read_csv(r'supergroups.csv')
+  df_supergroups.set_index('code', inplace=True)
   for item in data:
     issn = item['issn']
     search_issn = re.sub("'", "", issn)
@@ -229,17 +231,33 @@ def citations_flow(data, specific_field = None):
           continue
         tmp_cited = tmp_cited.split(';')
         field_cited =  df_asjc.at[int(tmp_cited[0].strip()), 'Description']
-        if field_cited in output_dict.keys():
-          output_dict[field_cited] += item['has_cited_n_times'][k]
+        group = df_supergroups.at[str(tmp_cited[0].strip())[:2]+'**', 'Description']
+        supergroup = df_supergroups.at[str(tmp_cited[0].strip())[:2]+'**', 'Supergroup']
+        if field_cited in output_dict['fields'].keys():
+          output_dict['fields'][field_cited] += item['has_cited_n_times'][k]
         else:
-          output_dict[field_cited] = item['has_cited_n_times'][k]
+          output_dict['fields'][field_cited] = item['has_cited_n_times'][k]           
+        if group in output_dict['groups'].keys():
+          output_dict['groups'][group] += item['has_cited_n_times'][k]
+        else:
+          output_dict['groups'][group] = item['has_cited_n_times'][k]      
+        if supergroup in output_dict['supergroups'].keys():
+          output_dict['supergroups'][supergroup] += item['has_cited_n_times'][k]
+        else:    
+          output_dict['supergroups'][supergroup] =  item['has_cited_n_times'][k]  
     else:
       continue
-  output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
+  output_dict['fields'] = dict(sorted(output_dict['fields'].items(), key=lambda item: item[1], reverse = True))
+  output_dict['groups'] = dict(sorted(output_dict['groups'].items(), key=lambda item: item[1], reverse = True))
+  output_dict['supergroups'] = dict(sorted(output_dict['supergroups'].items(), key=lambda item: item[1], reverse = True))
   return output_dict
 
 #data = load_data('output_2020-04-25T04_48_36_1.zip')
 #cit_flow = citations_flow(data, specific_field = 'philosophy')
+#print(cit_flow['fields'])
+#print(cit_flow['groups'])
+#print(cit_flow['supergroups'])
+
 #supergroups = get_journal_issn(cit_flow, asjc=True, supergroups=True)
 #print(supergroups)
 #result = parse_data(data, asjc_fields=True, specific_field='philosophy')

@@ -81,7 +81,7 @@ if input_field != '' and single_search == 'Top journals of a field':
       st.write(f'''There are {str(len(result[input_field].keys()))} journals related to {input_field} , for a total of {str(sum(result[input_field].values()))} citations.
       The most important journal is {list(result.keys())[0]}.''')
     with col7:
-      source = pd.DataFrame({'journals': list(result[input_field].keys())[:9], 'values': list(result[input_field].values())[:9]})
+      source = pd.DataFrame({'journals': list(result[input_field].keys())[:10], 'values': list(result[input_field].values())[:10]})
       bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
           x=alt.X('journals', sort='-y'),
           y='values',
@@ -119,12 +119,13 @@ elif input_field != "" and single_search == 'Self citations of a field':
     st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?")
 
 elif input_field != '' and single_search == 'Citations flow':
+  col7, col8 = st.columns([2, 1])
   check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
   if check_spelling_selfcit == False:
     source_citflow = parse_COCI.citations_flow(data, specific_field=input_field)
-    df_citflow = pd.DataFrame({'fields': list(source_citflow.keys())[:9], 'values': list(source_citflow.values())[:9]})
+    df_citflow = pd.DataFrame({'fields': list(source_citflow['fields'].keys())[:10], 'values': list(source_citflow['fields'].values())[:10]})
     with col7:
-      st.header(f'Citations flow {input_field}')
+      st.header(f'Citations flow in {input_field}')
       bars = alt.Chart(df_citflow).mark_bar(size=30, align="center", binSpacing=1).encode(
           x=alt.X('fields', sort='-y'),
           y='values',
@@ -132,8 +133,28 @@ elif input_field != '' and single_search == 'Citations flow':
       ).properties(height=800)
       st.altair_chart(bars, use_container_width=True)
     with col8:
-      st.write(f'''Which are the fields that articles from {input_field} tend to mention
-                more often''')
+      tot_cit_supergroups = sum(source_citflow['supergroups'].values())
+      cit_supergroups_categories = [el + ' (' + str(round((source_citflow['supergroups'][el]/tot_cit_supergroups) * 100))+'%)' for el in source_citflow['supergroups'].keys()]
+      df_cit_source_supergroups = pd.DataFrame({'category': cit_supergroups_categories, 
+                                      'values': source_citflow['supergroups'].values()})
+      st.header(f'''Groups and supergroups subdivision''')
+      st.altair_chart(alt.Chart(df_cit_source_supergroups).mark_arc().encode(
+        theta=alt.Theta(field="values", type="quantitative"),
+        color=alt.Color(field="category", type="nominal")), use_container_width=True)
+      
+      #voglio solo i primi 10 categorie/valori, il resto va nella categoria others
+      tot_cit_groups = sum(source_citflow['groups'].values())
+      cit_groups_categories = [el + ' (' + str(round((source_citflow['groups'][el]/tot_cit_groups) * 100))+'%)' for el in source_citflow['groups'].keys()][:10]
+      cit_groups_values = list(source_citflow['groups'].values())[:10]
+      cit_groups_others = sum(list(source_citflow['groups'].values())[10:])
+      cit_groups_categories.append('other (' + str(round((cit_groups_others/tot_cit_groups) * 100))+'%)')
+      cit_groups_values.append(cit_groups_others)
+      df_cit_source_groups = pd.DataFrame({'category': cit_groups_categories, 
+                                      'values': cit_groups_values})
+      st.altair_chart(alt.Chart(df_cit_source_groups).mark_arc().encode(
+        theta=alt.Theta(field="values", type="quantitative"),
+        color=alt.Color(field="category", type="nominal")), use_container_width=True)
+
   elif check_spelling_selfcit == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
   else:
@@ -214,8 +235,8 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
     st.header(f"Distribution of citations")
     brush = alt.selection(type='interval')
     points = alt.Chart(df_distribution).mark_point().encode(
-      x=alt.X('d_citations:Q', scale = alt.Scale(type='symlog'), title='Citations distribution on a log scale'),
-      y=alt.Y('count()',scale = alt.Scale(type='symlog'))).add_selection(brush)
+      x=alt.X('d_citations:Q', title='Citations distribution on a log scale'),
+      y=alt.Y('count()',)).add_selection(brush)
     
     st.altair_chart(points, use_container_width=True)
     st.write(f'''Distribution of the number of citations for each citing article, converted in z-scores and then plotted with a logarithmic scale.
@@ -240,7 +261,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
     else:
       source_journals = st.session_state['source_journals']
     st.header('Most important journals')
-    source_journals = pd.DataFrame({'journals': list(source_journals.keys())[:9], 'values': list(source_journals.values())[:9]})
+    source_journals = pd.DataFrame({'journals': list(source_journals.keys())[:10], 'values': list(source_journals.values())[:10]}) #prendo solo i primi 10
     bars = alt.Chart(source_journals).mark_bar(size=20, align="center", binSpacing=1).encode(
         x=alt.X('journals', sort='-y'),
         y='values',
@@ -255,7 +276,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
     else:
       source_fields = st.session_state['source_fields']
     st.header('''Most frequent academic fields''')
-    df_source_fields = pd.DataFrame({'fields': list(source_fields['fields'].keys())[:9], 'values': list(source_fields['fields'].values())[:9]})
+    df_source_fields = pd.DataFrame({'fields': list(source_fields['fields'].keys())[:10], 'values': list(source_fields['fields'].values())[:10]})
     bars = alt.Chart(df_source_fields).mark_bar(size=20, align="center", binSpacing=0.5).encode(
         x=alt.X('fields', sort='-y'),
         y='values',
