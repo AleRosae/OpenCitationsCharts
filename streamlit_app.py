@@ -78,10 +78,10 @@ if input_field != '' and single_search == 'Top journals of a field':
   if result_mistakes == False:
     result = parse_COCI.parse_data(data, asjc_fields = True, specific_field=input_field)
     with col8:
-      st.write(f'''There are {str(len(result.keys()))} journals related to {input_field} , for a total of {str(sum(result.values()))} citations.
+      st.write(f'''There are {str(len(result[input_field].keys()))} journals related to {input_field} , for a total of {str(sum(result[input_field].values()))} citations.
       The most important journal is {list(result.keys())[0]}.''')
     with col7:
-      source = pd.DataFrame({'journals': list(result.keys())[:9], 'values': list(result.values())[:9]})
+      source = pd.DataFrame({'journals': list(result[input_field].keys())[:9], 'values': list(result[input_field].values())[:9]})
       bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
           x=alt.X('journals', sort='-y'),
           y='values',
@@ -161,7 +161,7 @@ if input_compare_field != '':
         st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
         render = False    
   else: 
-    result = parse_COCI.parse_data(data, asjc_fields=True)
+    result = parse_COCI.parse_data(data, asjc_fields=True)['fields']
     output = {}
     result = {k.lower():v for k, v in result.items()}
     for item in input:
@@ -243,15 +243,10 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
     source_journals = pd.DataFrame({'journals': list(source_journals.keys())[:9], 'values': list(source_journals.values())[:9]})
     bars = alt.Chart(source_journals).mark_bar(size=20, align="center", binSpacing=1).encode(
         x=alt.X('journals', sort='-y'),
-        y='values'
+        y='values',
+        color=alt.Color('values')
     ).properties(height=600)
-    text = bars.mark_text(
-        align='center',
-        baseline='middle',
-        color = 'white'
-    ).encode(
-        text='values')
-    st.altair_chart(bars+text, use_container_width=True)
+    st.altair_chart(bars, use_container_width=True)
     st.write('''Top 10 of the most important journals for number of articles (either citing or cited) in the dataset.''')
   with col6:
     if 'source_fields' not in st.session_state:
@@ -259,19 +254,36 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
       st.session_state['source_fields'] = source_fields
     else:
       source_fields = st.session_state['source_fields']
-    st.header('Most important journals')
     st.header('''Most frequent academic fields''')
-    source_fields = pd.DataFrame({'fields': list(source_fields.keys())[:9], 'values': list(source_fields.values())[:9]})
-    bars = alt.Chart(source_fields).mark_bar(size=20, align="center", binSpacing=0.5).encode(
+    df_source_fields = pd.DataFrame({'fields': list(source_fields['fields'].keys())[:9], 'values': list(source_fields['fields'].values())[:9]})
+    bars = alt.Chart(df_source_fields).mark_bar(size=20, align="center", binSpacing=0.5).encode(
         x=alt.X('fields', sort='-y'),
-        y='values'
+        y='values',
+        color=alt.Color('values')
     ).properties(height=600)
-    text = bars.mark_text(
-        align='center',
-        baseline='middle',
-        color='white'
-    ).encode(
-        text='values')
-    #(bars + text).properties(width=600, height=600)
-    st.altair_chart(bars+text, use_container_width=True)
+    st.altair_chart(bars, use_container_width=True)
     st.write('''Top 10 of the most important fields for number of articles (either citing or cited) in the dataset.''')
+  
+  col9, col10 = st.columns(2)
+  with col9:
+    st.header('''Most frequent academic groups''')
+    df_source_groups = pd.DataFrame({'groups': list(source_fields['groups'].keys()), 'values': list(source_fields['groups'].values())})
+    bars = alt.Chart(df_source_groups).mark_bar(size=20, align="center", binSpacing=0.5).encode(
+        x=alt.X('groups', sort='-y'),
+        y='values',
+        color=alt.Color('values')
+    ).properties(height=600)
+    st.altair_chart(bars, use_container_width=True)
+    st.write('''The most common academic groups in the whole COCI dataset.''')
+    with col10:
+      st.header('''Most frequent academic supergroups''')
+      tot_supergroups = sum(source_fields['supergroups'].values())
+      supergroups_categories = [el + ' (' + str(round((source_fields['supergroups'][el]/tot_supergroups) * 100))+'%)' for el in source_fields['supergroups'].keys()]
+      st.header('''Most frequent academic groups''')
+      df_source_supergroups = pd.DataFrame({'category': supergroups_categories, 
+                                      'value': source_fields['supergroups'].values()})
+      st.altair_chart(alt.Chart(df_source_supergroups).mark_arc().encode(
+        theta=alt.Theta(field="value", type="quantitative"),
+        color=alt.Color(field="category", type="nominal")), use_container_width=True)
+      st.write('''''')
+  

@@ -2,7 +2,6 @@ import json
 import pandas as pd
 import re
 from collections import Counter
-import matplotlib.pyplot as plt
 from streamlit.state.session_state import Value
 from zipfile import ZipFile
 
@@ -13,7 +12,10 @@ def get_journal_issn(input_issn, asjc = None, specific_field = None):
   if asjc: #load the asjc csv and search the disciplinary code in there
     df_asjc = pd.read_csv(r'scopus_asjc.csv')
     df_asjc.set_index('Code', inplace=True)
-    results = {'fields':{}, 'groups':{}, 'supergroups': {}}
+    if specific_field != None:
+      results = results = {'fields':{}, 'groups':{}, 'supergroups': {}, specific_field:{}}
+    else:
+      results = {'fields':{}, 'groups':{}, 'supergroups': {}}
     df_supergroups = pd.read_csv(r'supergroups.csv')
     df_supergroups.set_index('code', inplace=True)
     for issn, value in input_issn.items():
@@ -24,7 +26,7 @@ def get_journal_issn(input_issn, asjc = None, specific_field = None):
         field =  df_asjc.at[int(tmp[0].strip()), 'Description'] #only gets the first disciplinary field, which should be the primary one
         if specific_field != None:
           if field.lower() == specific_field.lower():
-            results[df_issn.at[search_issn, 'Title']] = int(value)
+            results[specific_field][df_issn.at[search_issn, 'Title']] = int(value)
         else:
           group = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Description']
           supergroup = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Supergroup']
@@ -236,13 +238,14 @@ def citations_flow(data, specific_field = None):
   output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
   return output_dict
 
-data = load_data('output_2020-04-25T04_48_36_1.zip')
+#data = load_data('output_2020-04-25T04_48_36_1.zip')
 #cit_flow = citations_flow(data, specific_field = 'philosophy')
 #supergroups = get_journal_issn(cit_flow, asjc=True, supergroups=True)
 #print(supergroups)
-result = parse_data(data, asjc_fields=True)
-print(result['fields'])
-print(result['groups'])
-print(result['supergroups'])
+#result = parse_data(data, asjc_fields=True, specific_field='philosophy')
+#print(result)
+#print(result['fields'])
+#print(result['groups'])
+#print(result['supergroups'])
 #print(self_citation(data, asjc_fields=True, specific_field='Philosophy'))
 #print(spelling_mistakes('medicine'))
