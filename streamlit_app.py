@@ -56,7 +56,7 @@ col7, col8 = st.columns([3, 1])
 st.sidebar.header('Single field search')
 single_search = st.sidebar.radio(
      "What do you want to search for?",
-     ('Top journals of a field', 'Self citations of a field', ''))
+     ('Top journals of a field', 'Self citations of a field', 'Citations flow'))
 if single_search == 'Top journals of a field':
   st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have received more citations.')
   input_field = st.sidebar.text_input('Journal field', '', key=1234, help='''Fields must corrispond to ASJC fields (case insensitive). 
@@ -66,6 +66,13 @@ elif single_search == 'Self citations of a field':
                   works belonging to the same fields''')
   input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+
+elif single_search == 'Citations flow':
+  st.sidebar.write('''Use the box below to search for a specific field and see which are the other fields that receive 
+      more citations from it (10).  ''')
+  input_field = st.sidebar.text_input('Journal field', '', key=1122, help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                            You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+
 if input_field != '' and single_search == 'Top journals of a field':
   result_mistakes = parse_COCI.spelling_mistakes(input_field)
   if result_mistakes == False:
@@ -80,13 +87,7 @@ if input_field != '' and single_search == 'Top journals of a field':
           y='values',
           color=alt.Color('values')
       ).properties(height=800)
-      text = bars.mark_text(
-          align='center',
-          baseline='middle',
-          color = 'grey'
-      ).encode(
-          text='values')
-      st.altair_chart(bars+text, use_container_width=True)
+      st.altair_chart(bars, use_container_width=True)
   elif result_mistakes == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling")
   else:
@@ -116,6 +117,30 @@ elif input_field != "" and single_search == 'Self citations of a field':
   else:
     check_spelling_selfcit = str(check_spelling_selfcit[input_field]).strip('][')
     st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?")
+
+elif input_field != '' and single_search == 'Citations flow':
+  check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
+  if check_spelling_selfcit == False:
+    source_citflow = parse_COCI.citations_flow(data, specific_field=input_field)
+    df_citflow = pd.DataFrame({'fields': list(source_citflow.keys())[:9], 'values': list(source_citflow.values())[:9]})
+    with col7:
+      st.header(f'Citations flow {input_field}')
+      bars = alt.Chart(df_citflow).mark_bar(size=30, align="center", binSpacing=1).encode(
+          x=alt.X('fields', sort='-y'),
+          y='values',
+          color=alt.Color('values')
+      ).properties(height=800)
+      st.altair_chart(bars, use_container_width=True)
+    with col8:
+      st.write(f'''Which are the fields that articles from {input_field} tend to mention
+                more often''')
+  elif check_spelling_selfcit == None:
+    st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
+  else:
+    check_spelling_selfcit = str(check_spelling_selfcit[input_field]).strip('][')
+    st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?")  
+
+
 st.sidebar.header('Compare different fields')
 st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare.')
 input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
@@ -136,7 +161,7 @@ if input_compare_field != '':
         st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
         render = False    
   else: 
-    result = parse_COCI.parse_data(data, asjc_fields=True, n="all")
+    result = parse_COCI.parse_data(data, asjc_fields=True)
     output = {}
     result = {k.lower():v for k, v in result.items()}
     for item in input:
@@ -215,7 +240,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
     else:
       source_journals = st.session_state['source_journals']
     st.header('Most important journals')
-    source_journals = pd.DataFrame({'journals': source_journals.keys(), 'values': source_journals.values()})
+    source_journals = pd.DataFrame({'journals': list(source_journals.keys())[:9], 'values': list(source_journals.values())[:9]})
     bars = alt.Chart(source_journals).mark_bar(size=20, align="center", binSpacing=1).encode(
         x=alt.X('journals', sort='-y'),
         y='values'
@@ -236,7 +261,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
       source_fields = st.session_state['source_fields']
     st.header('Most important journals')
     st.header('''Most frequent academic fields''')
-    source_fields = pd.DataFrame({'fields': source_fields.keys(), 'values': source_fields.values()})
+    source_fields = pd.DataFrame({'fields': list(source_fields.keys())[:9], 'values': list(source_fields.values())[:9]})
     bars = alt.Chart(source_fields).mark_bar(size=20, align="center", binSpacing=0.5).encode(
         x=alt.X('fields', sort='-y'),
         y='values'

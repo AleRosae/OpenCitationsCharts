@@ -11,9 +11,11 @@ def get_journal_issn(input_issn, asjc = None, specific_field = None):
   df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
   df_issn.set_index('Print-ISSN', inplace=True)
   if asjc: #load the asjc csv and search the disciplinary code in there
-    results = {}
     df_asjc = pd.read_csv(r'scopus_asjc.csv')
     df_asjc.set_index('Code', inplace=True)
+    results = {'fields':{}, 'groups':{}, 'supergroups': {}}
+    df_supergroups = pd.read_csv(r'supergroups.csv')
+    df_supergroups.set_index('code', inplace=True)
     for issn, value in input_issn.items():
       try:
         search_issn = re.sub("'", "", issn)
@@ -24,10 +26,20 @@ def get_journal_issn(input_issn, asjc = None, specific_field = None):
           if field.lower() == specific_field.lower():
             results[df_issn.at[search_issn, 'Title']] = int(value)
         else:
-          if field in results.keys():
-            results[field] = int(results[field]) + int(value)
+          group = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Description']
+          supergroup = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Supergroup']
+          if field in results['fields'].keys():
+            results['fields'][field] = int(results['fields'][field]) + int(value)
           else:
-            results[field] =  int(value)
+            results['fields'][field] =  int(value)            
+          if group in results['groups'].keys():
+            results['groups'][group] = int(results['groups'][group]) + int(value)
+          else:
+            results['groups'][group] =  int(value)      
+          if supergroup in results['supergroups'].keys():
+            results['supergroups'][supergroup] = int(results['supergroups'][supergroup]) + int(value)
+          else:    
+            results['supergroups'][supergroup] = int(value)  
       except KeyError:
         continue
     return results
@@ -41,10 +53,8 @@ def get_journal_issn(input_issn, asjc = None, specific_field = None):
         pass #placeholder for ISSN not found
   return results
 
-def parse_data(data, n = None, asjc_fields = False, most_cited = False, 
+def parse_data(data, asjc_fields = False, most_cited = False, 
                 specific_field = None):
-  if n == None:
-    n = 10
   output_dict = {}
   counting_all = {}
   if most_cited: #only gets the articles that have been cited
@@ -71,79 +81,17 @@ def parse_data(data, n = None, asjc_fields = False, most_cited = False,
       output_dict = c_asjc
     else:
       c_asjc = get_journal_issn(alt_c, asjc=True)
-      c_asjc = dict(sorted(c_asjc.items(), key=lambda item: item[1], reverse = True))
-      counter = 0
-      for key, value in c_asjc.items():
-        output_dict[key] = value
-        counter +=1
-        if n != 'all' and counter == n:
-          break
+      output_dict['fields'] = dict(sorted(c_asjc['fields'].items(), key=lambda item: item[1], reverse = True))
+      output_dict['groups'] = dict(sorted(c_asjc['groups'].items(), key=lambda item: item[1], reverse = True))
+      output_dict['supergroups'] = dict(sorted(c_asjc['supergroups'].items(), key=lambda item: item[1], reverse = True))
   else: 
     new_issn = get_journal_issn(list(alt_c.keys()))
     values = list(alt_c.values())
     counter = 0
     for index, el in enumerate(new_issn):
       output_dict[el] = values[index]
-      counter += 1
-      if n != 'all' and counter == n:
-        break
   return output_dict
 
- #deprecated
-def plot_statistics(data, most_cited = None, asjc_fields = None, specific_field = None, comparison = None):
-  if most_cited and asjc_fields:
-    x_label= 'Fields'
-    output = parse_data(data, asjc_fields=True, most_cited=True)
-  elif asjc_fields and specific_field:
-    counter = 0
-    x_label = 'Journals'
-    output = {}
-    for key, value in data.items():
-      output[key] = value
-      counter += 1
-      if counter > 10:
-        break    
-  elif most_cited:
-    output = parse_data(data, most_cited=True)
-    x_label = 'Journals'
-  elif asjc_fields:
-    output = parse_data(data, asjc_fields=True)
-    x_label = 'Fields'
-  elif comparison:
-    output = data
-    x_label = 'Fields'
-  else:
-    output = parse_data(data)
-    x_label = 'Journals'
-  label_list = []
-  x = list(output.keys())
-  y = output.values()
-  for index, el in enumerate(x):
-    if x_label == 'Fields':
-      max = 45
-    else:
-      max = 25
-    if len(el) > max:
-      tmp_str = [char for char in el if char.isupper()]
-      new = "".join(tmp_str)
-      x[index] = new
-      label_list.append(new+' = '+el)
-  legend = "\n".join(label_list)
-  fig = plt.figure(figsize=(20,8), dpi= 500)
-  plt.xlabel(x_label)
-  plt.ylabel('amount')
-  #plt.title('top 10 journals in OC dataset')
-  plt.text(0.70, 0.85, legend, 
-          fontsize=10, color='k',
-          ha='left', va='bottom',
-          transform=plt.gca().transAxes)
-  plt.style.use('seaborn-pastel')
-  #plt.xticks(rotation=90)
-  plt.bar(x,y)
-  for index,data in enumerate(y):
-      plt.text(x=index , y =data+1 , s=f"{data}" , fontdict=dict(fontsize=12), horizontalalignment="center", verticalalignment="top")
-
-  return fig
 
 def self_citation(data, asjc_fields = None, specific_field = None):
   output_dict = {}
@@ -252,7 +200,49 @@ def spelling_mistakes(input_data):
     return result
 
 
-#data = load_data('output_2020-04-25T04_48_36_1.zip')
-#print(parse_data(data, asjc_fields=True))
+def citations_flow(data, specific_field = None):
+  output_dict = {}
+  df_issn = pd.read_csv(r'scopus_issn.csv')
+  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
+  df_issn.set_index('Print-ISSN', inplace=True)
+  df_asjc = pd.read_csv(r'scopus_asjc.csv')
+  df_asjc.set_index('Code', inplace=True)
+  for item in data:
+    issn = item['issn']
+    search_issn = re.sub("'", "", issn)
+    search_issn = re.sub('-', "", search_issn)
+    try:
+      tmp = df_issn.at[search_issn, 'ASJC']
+    except KeyError:
+      continue
+    tmp = tmp.split(';')
+    field =  df_asjc.at[int(tmp[0].strip()), 'Description']
+    if field.lower() == specific_field.lower():
+      for k in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
+        issn_cited = re.sub('-', "", k)
+        issn_cited = re.sub("'", "", issn_cited)
+        try:
+          tmp_cited= df_issn.at[issn_cited, 'ASJC']
+        except KeyError:
+          continue
+        tmp_cited = tmp_cited.split(';')
+        field_cited =  df_asjc.at[int(tmp_cited[0].strip()), 'Description']
+        if field_cited in output_dict.keys():
+          output_dict[field_cited] += item['has_cited_n_times'][k]
+        else:
+          output_dict[field_cited] = item['has_cited_n_times'][k]
+    else:
+      continue
+  output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
+  return output_dict
+
+data = load_data('output_2020-04-25T04_48_36_1.zip')
+#cit_flow = citations_flow(data, specific_field = 'philosophy')
+#supergroups = get_journal_issn(cit_flow, asjc=True, supergroups=True)
+#print(supergroups)
+result = parse_data(data, asjc_fields=True)
+print(result['fields'])
+print(result['groups'])
+print(result['supergroups'])
 #print(self_citation(data, asjc_fields=True, specific_field='Philosophy'))
 #print(spelling_mistakes('medicine'))
