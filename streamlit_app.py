@@ -66,7 +66,6 @@ elif single_search == 'Self citations of a field':
                   works belonging to the same fields''')
   input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
-
 elif single_search == 'Citations flow':
   st.sidebar.write('''Use the box below to search for a specific field and see which are the other fields that receive 
       more citations from it (10).  ''')
@@ -162,11 +161,25 @@ elif input_field != '' and single_search == 'Citations flow':
     st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?")  
 
 
+
 st.sidebar.header('Compare different fields')
-st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare.')
-input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', help='''Fields must corrispond to ASJC fields (case insensitive). 
+multiple_search = st.sidebar.radio(
+     "What do you want to search for?",
+     ('Number of citations', 'Self citations', 'Citations flow'))
+if multiple_search == 'Number of citations':
+  st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare.')
+  input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', key=4321, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
-if input_compare_field != '': 
+elif multiple_search == 'Self citations':
+  st.sidebar.write('''Use the box below to make comparison of how much two fields tend to mention themselves.''')
+  input_compare_field = st.sidebar.text_input('Journal field', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                            You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+elif multiple_search == 'Citations flow':
+  st.sidebar.write('''Use the box below to search for which other fields receive citations by two specific fields. You also
+                  get how many times the two fields mention each other.  ''')
+  input_compare_field = st.sidebar.text_input('Journal field', '', key=5421, help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                            You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+if input_compare_field != '' and multiple_search == 'Number of citations': 
   render = True
   input = input_compare_field.split(', ')
   check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
@@ -191,16 +204,124 @@ if input_compare_field != '':
     source = pd.DataFrame({'fields': output.keys(), 'values': output.values()})
     bars = alt.Chart(source).mark_bar(size=40, align="center", binSpacing=1).encode(
       x='fields',
-      y='values'
+      y='values',
+      color=alt.Color('values')
       ).properties(height=800)
-    text = bars.mark_text(
-      align='center',
-      baseline='middle',
-      color = 'white'
-        ).encode(
-        text='values')
     with col7:
-      st.altair_chart(bars+text, use_container_width=True)
+      st.altair_chart(bars, use_container_width=True)
+
+elif input_compare_field != '' and multiple_search == 'Self citations': 
+  col7, col8 = st.columns(2)
+  input = input_compare_field.split(', ')
+  check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
+  dict_spelling = [el for el in check_spelling if type(el) == dict]
+  if None in check_spelling:
+    index_cantfind = check_spelling.index(None)
+    st.sidebar.write(f"Can't find {input[index_cantfind]}. Check the spelling")
+  elif len(input) != 2:
+    st.sidebar.write(f"You have to submit exactly 2 input here!")
+  elif len(dict_spelling)> 0:
+    for dic in dict_spelling:
+      for input_key, mistake_value in dic.items():
+        mistake_value = str(mistake_value).strip('][')
+        st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
+  else: 
+    self_citation_field_1 = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input[0])
+    df_selfcit_1 = pd.DataFrame({'category': self_citation_field_1.keys(), 'value': self_citation_field_1.values()})
+    self_citation_field_2 = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input[1])
+    df_selfcit_2 = pd.DataFrame({'category': self_citation_field_2.keys(), 'value': self_citation_field_2.values()})
+    with col7:
+      st.header(f'Self citations of {input[0]}')
+      st.altair_chart(alt.Chart(df_selfcit_1).mark_arc().encode(
+          theta=alt.Theta(field="value", type="quantitative"),
+          color=alt.Color(field="category", type="nominal")), use_container_width=True)
+      st.write(f'''How many articles belonging to {input_field} tend to mention
+                articles related to the same field''')
+    with col8:
+      st.header(f'Self citations of {input[1]}')
+      st.altair_chart(alt.Chart(df_selfcit_2).mark_arc().encode(
+          theta=alt.Theta(field="value", type="quantitative"),
+          color=alt.Color(field="category", type="nominal")), use_container_width=True)
+      st.write(f'''How many articles belonging to {input_field} tend to mention
+                articles related to the same field''')
+
+elif input_compare_field != '' and multiple_search == 'Citations flow': 
+  col7, col8 = st.columns([2, 1])
+  input = input_compare_field.split(', ')
+  check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
+  dict_spelling = [el for el in check_spelling if type(el) == dict]
+  if None in check_spelling:
+    index_cantfind = check_spelling.index(None)
+    st.sidebar.write(f"Can't find {input[index_cantfind]}. Check the spelling")
+  elif len(input) != 2:
+    st.sidebar.write(f"You have to submit exactly 2 input here!")
+  elif len(dict_spelling)> 0:
+    for dic in dict_spelling:
+      for input_key, mistake_value in dic.items():
+        mistake_value = str(mistake_value).strip('][')
+        st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
+  else:
+    col7, col8 = st.columns(2)
+    source_citflow_1 = parse_COCI.citations_flow(data, specific_field=input[0])
+    source_citflow_2 = parse_COCI.citations_flow(data, specific_field=input[1])
+    df_citflow_1 = pd.DataFrame({'fields': list(source_citflow_1['fields'].keys())[:10], 'values': list(source_citflow_1['fields'].values())[:10]})
+    df_citflow_2 = pd.DataFrame({'fields': list(source_citflow_2['fields'].keys())[:10], 'values': list(source_citflow_2['fields'].values())[:10]})
+    with col7:
+      st.header(f'Citations flow in {input[0]}')
+      bars = alt.Chart(df_citflow_1).mark_bar(size=30, align="center", binSpacing=1).encode(
+          x=alt.X('fields', sort='-y'),
+          y='values',
+          color=alt.Color('values')
+      ).properties(height=800)
+      st.altair_chart(bars, use_container_width=True)
+      tot_cit_supergroups_1 = sum(source_citflow_1['supergroups'].values())
+      cit_supergroups_categories_1 = [el + ' (' + str(round((source_citflow_1['supergroups'][el]/tot_cit_supergroups_1) * 100))+'%)' for el in source_citflow_1['supergroups'].keys()]
+      df_cit_source_supergroups_1 = pd.DataFrame({'category': cit_supergroups_categories_1, 
+                                      'values': source_citflow_1['supergroups'].values()})
+      st.header(f'''Groups and supergroups subdivision''')
+      st.altair_chart(alt.Chart(df_cit_source_supergroups_1).mark_arc().encode(
+        theta=alt.Theta(field="values", type="quantitative"),
+        color=alt.Color(field="category", type="nominal")), use_container_width=True)
+      #voglio solo i primi 10 categorie/valori, il resto va nella categoria others
+      tot_cit_groups_1 = sum(source_citflow_1['groups'].values())
+      cit_groups_categories_1 = [el + ' (' + str(round((source_citflow_1['groups'][el]/tot_cit_groups_1) * 100))+'%)' for el in source_citflow_1['groups'].keys()][:10]
+      cit_groups_values_1 = list(source_citflow_1['groups'].values())[:10]
+      cit_groups_others_1 = sum(list(source_citflow_1['groups'].values())[10:])
+      cit_groups_categories_1.append('other (' + str(round((cit_groups_others_1/tot_cit_groups_1) * 100))+'%)')
+      cit_groups_values_1.append(cit_groups_others_1)
+      df_cit_source_groups_1 = pd.DataFrame({'category': cit_groups_categories_1, 
+                                      'values': cit_groups_values_1})
+      st.altair_chart(alt.Chart(df_cit_source_groups_1).mark_arc().encode(
+        theta=alt.Theta(field="values", type="quantitative"),
+        color=alt.Color(field="category", type="nominal")), use_container_width=True)
+    with col8:
+      st.header(f'Citations flow in {input[1]}')
+      bars = alt.Chart(df_citflow_2).mark_bar(size=30, align="center", binSpacing=1).encode(
+          x=alt.X('fields', sort='-y'),
+          y='values',
+          color=alt.Color('values')
+      ).properties(height=800)
+      st.altair_chart(bars, use_container_width=True)
+      tot_cit_supergroups_2 = sum(source_citflow_2['supergroups'].values())
+      cit_supergroups_categories_2 = [el + ' (' + str(round((source_citflow_2['supergroups'][el]/tot_cit_supergroups_2) * 100))+'%)' for el in source_citflow_2['supergroups'].keys()]
+      df_cit_source_supergroups_2 = pd.DataFrame({'category': cit_supergroups_categories_2, 
+                                      'values': source_citflow_2['supergroups'].values()})
+      st.header(f'''Groups and supergroups subdivision''')
+      st.altair_chart(alt.Chart(df_cit_source_supergroups_2).mark_arc().encode(
+        theta=alt.Theta(field="values", type="quantitative"),
+        color=alt.Color(field="category", type="nominal")), use_container_width=True)
+      #voglio solo i primi 10 categorie/valori, il resto va nella categoria others
+      tot_cit_groups_2 = sum(source_citflow_2['groups'].values())
+      cit_groups_categories_2 = [el + ' (' + str(round((source_citflow_2['groups'][el]/tot_cit_groups_2) * 100))+'%)' for el in source_citflow_2['groups'].keys()][:10]
+      cit_groups_values_2 = list(source_citflow_2['groups'].values())[:10]
+      cit_groups_others_2 = sum(list(source_citflow_2['groups'].values())[10:])
+      cit_groups_categories_2.append('other (' + str(round((cit_groups_others_2/tot_cit_groups_2) * 100))+'%)')
+      cit_groups_values_2.append(cit_groups_others_2)
+      df_cit_source_groups_2 = pd.DataFrame({'category': cit_groups_categories_2, 
+                                      'values': cit_groups_values_2})
+      st.altair_chart(alt.Chart(df_cit_source_groups_2).mark_arc().encode(
+        theta=alt.Theta(field="values", type="quantitative"),
+        color=alt.Color(field="category", type="nominal")), use_container_width=True)
 
 with st.expander("Global statistics", expanded=True): #global statistics start here
   st.write(header)
@@ -235,12 +356,13 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
     st.header(f"Distribution of citations")
     brush = alt.selection(type='interval')
     points = alt.Chart(df_distribution).mark_point().encode(
-      x=alt.X('d_citations:Q', title='Citations distribution on a log scale'),
-      y=alt.Y('count()',)).add_selection(brush)
+      x=alt.X('d_citations:Q', scale = alt.Scale(type = 'symlog'), title='Citations distribution on a log-log scale'),
+      y=alt.Y('count()', scale = alt.Scale(type = 'symlog'))).add_selection(brush)
     
     st.altair_chart(points, use_container_width=True)
-    st.write(f'''Distribution of the number of citations for each citing article, converted in z-scores and then plotted with a logarithmic scale.
-            The average number of citations for citing articles is {init['average_citations']}, the mode is {mode(init['tot_citations_distribution'])}.''')
+    st.write(f'''Distribution of the number of citations for each citing article and then plotted with a logarithmic-logarithmic scale.
+            The average number of citations for citing articles is {init['average_citations']}, the mode is {mode(init['tot_citations_distribution'])}.
+            The maximum value is {max(init['tot_citations_distribution'])}, while the minimum is {min(init['tot_citations_distribution'])}.''')
   with col4:
     st.header('Unique journals')
     tot_set = init['citing_set'] + init['cited_set'] + init['cited_also_citing']
