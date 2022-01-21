@@ -1,17 +1,22 @@
+from turtle import width
 from altair.vegalite.v4.schema.core import Align
 from pandas.core.algorithms import mode
 import streamlit as st
 import re
 import json
+import streamlit.components.v1 as components
 import pandas as pd
 from streamlit.type_util import Key
 import parse_COCI
 import parse_initial
+import numpy as np
 import altair as alt
 import scipy.stats as stats
 from statistics import mode
 from zipfile import ZipFile
-
+import networkx as nx
+from pyvis import network as net
+from random import randint
 st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
 st.write('''
          # Demo
@@ -86,7 +91,7 @@ if input_field != '' and single_search == 'Top journals of a field':
           y='values',
           color=alt.Color('values')
       ).properties(height=800)
-      st.altair_chart(bars, use_container_width=True)
+      st.altair_chart(bars.interactive(), use_container_width=True)
   elif result_mistakes == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling")
   else:
@@ -130,7 +135,7 @@ elif input_field != '' and single_search == 'Citations flow':
           y='values',
           color=alt.Color('values')
       ).properties(height=800)
-      st.altair_chart(bars, use_container_width=True)
+      st.altair_chart(bars.interactive(), use_container_width=True)
     with col8:
       tot_cit_supergroups = sum(source_citflow['supergroups'].values())
       cit_supergroups_categories = [el + ' (' + str(round((source_citflow['supergroups'][el]/tot_cit_supergroups) * 100))+'%)' for el in source_citflow['supergroups'].keys()]
@@ -208,7 +213,7 @@ if input_compare_field != '' and multiple_search == 'Number of citations':
       color=alt.Color('values')
       ).properties(height=800)
     with col7:
-      st.altair_chart(bars, use_container_width=True)
+      st.altair_chart(bars.interactive(), use_container_width=True)
 
 elif input_compare_field != '' and multiple_search == 'Self citations': 
   col7, col8 = st.columns(2)
@@ -273,7 +278,7 @@ elif input_compare_field != '' and multiple_search == 'Citations flow':
           y='values',
           color=alt.Color('values')
       ).properties(height=800)
-      st.altair_chart(bars, use_container_width=True)
+      st.altair_chart(bars.interactive(), use_container_width=True)
       tot_cit_supergroups_1 = sum(source_citflow_1['supergroups'].values())
       cit_supergroups_categories_1 = [el + ' (' + str(round((source_citflow_1['supergroups'][el]/tot_cit_supergroups_1) * 100))+'%)' for el in source_citflow_1['supergroups'].keys()]
       df_cit_source_supergroups_1 = pd.DataFrame({'category': cit_supergroups_categories_1, 
@@ -301,7 +306,7 @@ elif input_compare_field != '' and multiple_search == 'Citations flow':
           y='values',
           color=alt.Color('values')
       ).properties(height=800)
-      st.altair_chart(bars, use_container_width=True)
+      st.altair_chart(bars.interactive(), use_container_width=True)
       tot_cit_supergroups_2 = sum(source_citflow_2['supergroups'].values())
       cit_supergroups_categories_2 = [el + ' (' + str(round((source_citflow_2['supergroups'][el]/tot_cit_supergroups_2) * 100))+'%)' for el in source_citflow_2['supergroups'].keys()]
       df_cit_source_supergroups_2 = pd.DataFrame({'category': cit_supergroups_categories_2, 
@@ -336,7 +341,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
     df_d = pd.DataFrame({'category': d_self_citations.keys(), 'value': d_self_citations.values()})
     st.altair_chart(alt.Chart(df_d).mark_arc().encode(
         theta=alt.Theta(field="value", type="quantitative"),
-        color=alt.Color(field="category", type="nominal")), use_container_width=True)
+        color=alt.Color(field="category", type="nominal"))  , use_container_width=True)
     st.write('Articles that cite publications that belong to the same journal of the citing article.')
   with col1:
     st.header('Self citations (by academic field)')
@@ -359,7 +364,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
       x=alt.X('d_citations:Q', scale = alt.Scale(type = 'symlog'), title='Citations distribution on a log-log scale'),
       y=alt.Y('count()', scale = alt.Scale(type = 'symlog'))).add_selection(brush)
     
-    st.altair_chart(points, use_container_width=True)
+    st.altair_chart(points.interactive(), use_container_width=True)
     st.write(f'''Distribution of the number of citations for each citing article and then plotted with a logarithmic-logarithmic scale.
             The average number of citations for citing articles is {init['average_citations']}, the mode is {mode(init['tot_citations_distribution'])}.
             The maximum value is {max(init['tot_citations_distribution'])}, while the minimum is {min(init['tot_citations_distribution'])}.''')
@@ -389,7 +394,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
         y='values',
         color=alt.Color('values')
     ).properties(height=600)
-    st.altair_chart(bars, use_container_width=True)
+    st.altair_chart(bars.interactive(), use_container_width=True)
     st.write('''Top 10 of the most important journals for number of articles (either citing or cited) in the dataset.''')
   with col6:
     if 'source_fields' not in st.session_state:
@@ -404,7 +409,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
         y='values',
         color=alt.Color('values')
     ).properties(height=600)
-    st.altair_chart(bars, use_container_width=True)
+    st.altair_chart(bars.interactive(), use_container_width=True)
     st.write('''Top 10 of the most important fields for number of articles (either citing or cited) in the dataset.''')
   
   col9, col10 = st.columns(2)
@@ -416,7 +421,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
         y='values',
         color=alt.Color('values')
     ).properties(height=600)
-    st.altair_chart(bars, use_container_width=True)
+    st.altair_chart(bars.interactive(), use_container_width=True)
     st.write('''The most common academic groups in the whole COCI dataset.''')
     with col10:
       st.header('''Most frequent academic supergroups''')
@@ -430,3 +435,23 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
       st.write('''''')
   
+g = net.Network(directed = True, notebook =True, height=720, width=1080)
+net_data = parse_COCI.citations_networks(data)
+colours = []
+for i in range(len(net_data.keys())):
+    colours.append('#%06X' % randint(0, 0xFFFFFF))
+
+g.add_nodes(list(net_data.keys()),
+                         title=list(net_data.keys()),
+                         label=list(net_data.keys()),
+                         color=colours)
+
+cited_nodes = []
+for citing, cited in net_data.items():
+  for k, value in cited.items():
+    g.add_edge(citing, k, weight = value)
+g.show_buttons(filter_=['physics'])
+g.show('citations.html')
+HtmlFile = open("citations.html", 'r', encoding='utf-8')
+source_code = HtmlFile.read() 
+components.html(source_code, height = 720, width=1080)

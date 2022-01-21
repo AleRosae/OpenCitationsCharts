@@ -4,6 +4,9 @@ import re
 from collections import Counter
 from streamlit.state.session_state import Value
 from zipfile import ZipFile
+import networkx as nx
+from pyvis import network as net
+from random import randint
 
 def get_journal_issn(input_issn, asjc = None, specific_field = None):
   df_issn = pd.read_csv(r'scopus_issn.csv')
@@ -252,7 +255,50 @@ def citations_flow(data, specific_field = None):
   output_dict['supergroups'] = dict(sorted(output_dict['supergroups'].items(), key=lambda item: item[1], reverse = True))
   return output_dict
 
+
+
+def citations_networks(data):
+  output_dict = {}
+  df_issn = pd.read_csv(r'scopus_issn.csv')
+  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
+  df_issn.set_index('Print-ISSN', inplace=True)
+  df_asjc = pd.read_csv(r'scopus_asjc.csv')
+  df_asjc.set_index('Code', inplace=True)
+  df_supergroups = pd.read_csv(r'supergroups.csv')
+  df_supergroups.set_index('code', inplace=True)
+  for item in data:
+    issn = item['issn']
+    search_issn = re.sub("'", "", issn)
+    search_issn = re.sub('-', "", search_issn)
+    try:
+      tmp_citing = df_issn.at[search_issn, 'ASJC']
+    except KeyError:
+      continue
+    tmp_citing = tmp_citing.split(';')
+    group_citing = df_supergroups.at[str(tmp_citing[0].strip())[:2]+'**', 'Description']
+    for k in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
+      issn_cited = re.sub('-', "", k)
+      issn_cited = re.sub("'", "", issn_cited)
+      try:
+        tmp_cited= df_issn.at[issn_cited, 'ASJC']
+      except KeyError:
+        continue
+      tmp_cited = tmp_cited.split(';')
+      group_cited = df_supergroups.at[str(tmp_cited[0].strip())[:2]+'**', 'Description']
+      if group_citing in output_dict.keys() and group_cited in output_dict[group_citing].keys():
+        output_dict[group_citing][group_cited] += item['has_cited_n_times'][k]
+      elif group_citing in output_dict.keys():
+        output_dict[group_citing][group_cited] = item['has_cited_n_times'][k]
+      else:
+        output_dict[group_citing] = {}
+        output_dict[group_citing][group_cited] = item['has_cited_n_times'][k]
+  return output_dict
+
 #data = load_data('output_2020-04-25T04_48_36_1.zip')
+#network = citations_networks(data)
+#print(network)
+
+
 #cit_flow = citations_flow(data, specific_field = 'philosophy')
 #print(cit_flow['fields'])
 #print(cit_flow['groups'])
