@@ -14,9 +14,7 @@ import altair as alt
 import scipy.stats as stats
 from statistics import mode
 from zipfile import ZipFile
-import networkx as nx
-from pyvis import network as net
-from random import randint
+
 st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
 st.write('''
          # Demo
@@ -434,24 +432,3 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
         theta=alt.Theta(field="value", type="quantitative"),
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
       st.write('''''')
-  
-g = net.Network(directed = True, notebook =True, height=720, width=1080)
-net_data = parse_COCI.citations_networks(data)
-colours = []
-for i in range(len(net_data.keys())):
-    colours.append('#%06X' % randint(0, 0xFFFFFF))
-
-g.add_nodes(list(net_data.keys()),
-                         title=list(net_data.keys()),
-                         label=list(net_data.keys()),
-                         color=colours)
-
-cited_nodes = []
-for citing, cited in net_data.items():
-  for k, value in cited.items():
-    g.add_edge(citing, k, weight = value)
-g.show_buttons(filter_=['physics'])
-g.show('citations.html')
-HtmlFile = open("citations.html", 'r', encoding='utf-8')
-source_code = HtmlFile.read() 
-components.html(source_code, height = 720, width=1080)
