@@ -168,21 +168,35 @@ elif input_field != '' and single_search == 'Citations flow':
 st.sidebar.header('Compare different fields')
 multiple_search = st.sidebar.radio(
      "What do you want to search for?",
-     ('Number of citations', 'Self citations', 'Citations flow'))
+     ('Number of citations', 'Self citations', 'Citations flow', 'Journals flow'))
 if multiple_search == 'Number of citations':
   st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare.')
   input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', key=4321, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+  cit_button = st.sidebar.button('Go', key=7777)
 elif multiple_search == 'Self citations':
   st.sidebar.write('''Use the box below to make comparison of how much two fields tend to mention themselves.''')
   input_compare_field = st.sidebar.text_input('Journal field', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+  cit_button = st.sidebar.button('Go', key=8888)  
 elif multiple_search == 'Citations flow':
   st.sidebar.write('''Use the box below to search for which other fields receive citations by two specific fields. You also
                   get how many times the two fields mention each other.  ''')
-  input_compare_field = st.sidebar.text_input('Journal field', '', key=5421, help='''Fields must corrispond to ASJC fields (case insensitive). 
+  input_compare_field= st.sidebar.text_input('Citing journal field', '', key=11223433, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
-if input_compare_field != '' and multiple_search == 'Number of citations': 
+  input_compare_field_cited = st.sidebar.text_input('Cited journal field', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
+  cit_button = st.sidebar.button('Go', key = 9988)
+
+elif multiple_search == 'Journals flow':
+  st.sidebar.write('''Use the box below to look at which journals of a specific field receive more citations from journals
+  of another field. You might be particularly interested in fields fairly distant (e.g. philosophy and general medicine).''')
+  input_compare_field= st.sidebar.text_input('Citing journal field', '', key=12456, help='''Fields must corrispond to ASJC fields (case insensitive). 
+                                            You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
+  input_compare_field_cited = st.sidebar.text_input('Cited journal field', '', key=12312, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
+  cit_button = st.sidebar.button('Go', key=9999)
+
+
+if input_compare_field != '' and multiple_search == 'Number of citations' and cit_button: 
   render = True
   input = input_compare_field.split(', ')
   check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
@@ -213,7 +227,7 @@ if input_compare_field != '' and multiple_search == 'Number of citations':
     with col7:
       st.altair_chart(bars.interactive(), use_container_width=True)
 
-elif input_compare_field != '' and multiple_search == 'Self citations': 
+elif input_compare_field != '' and multiple_search == 'Self citations' and cit_button: 
   col7, col8 = st.columns(2)
   input = input_compare_field.split(', ')
   check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
@@ -248,9 +262,10 @@ elif input_compare_field != '' and multiple_search == 'Self citations':
       st.write(f'''How many articles belonging to {input_field} tend to mention
                 articles related to the same field''')
 
-elif input_compare_field != '' and multiple_search == 'Citations flow': 
+elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Citations flow' and cit_button: 
   col7, col8 = st.columns([2, 1])
-  input = input_compare_field.split(', ')
+  input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
+  input = input.split(', ')
   check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
   dict_spelling = [el for el in check_spelling if type(el) == dict]
   if None in check_spelling:
@@ -326,6 +341,34 @@ elif input_compare_field != '' and multiple_search == 'Citations flow':
         theta=alt.Theta(field="values", type="quantitative"),
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
 
+elif cit_button and multiple_search == 'Journals flow' and input_compare_field != '' and input_compare_field_cited != '': 
+  input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
+  input = input.split(', ')
+  check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
+  dict_spelling = [el for el in check_spelling if type(el) == dict]
+  if None in check_spelling:
+    index_cantfind = check_spelling.index(None)
+    st.sidebar.write(f"Can't find {input[index_cantfind]}. Check the spelling")
+  elif len(input) != 2:
+    st.sidebar.write(f"You have to submit exactly 2 input here!")
+  elif len(dict_spelling)> 0:
+    for dic in dict_spelling:
+      for input_key, mistake_value in dic.items():
+        mistake_value = str(mistake_value).strip('][')
+        st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
+  else:
+    source_citflow_journal = parse_COCI.citations_flow_journals(data, specific_fields=input)
+    df_source_citflow_journal = pd.DataFrame({'fields': list(source_citflow_journal.keys())[:10], 'values': list(source_citflow_journal.values())[:10]})
+    with col7:
+      st.header(f'Journals citations flow')
+      bars = alt.Chart(df_source_citflow_journal).mark_bar(size=30, align="center", binSpacing=1).encode(
+          x=alt.X('fields', sort='-y'),
+          y='values',
+          color=alt.Color('values')
+      ).properties(height=800)
+      st.altair_chart(bars.interactive(), use_container_width=True)
+    with col8:
+      pass
 with st.expander("Global statistics", expanded=True): #global statistics start here
   st.write(header)
   col1, col2 = st.columns(2)

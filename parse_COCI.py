@@ -220,8 +220,8 @@ def citations_flow(data, specific_field = None):
     except KeyError:
       continue
     tmp = tmp.split(';')
-    field =  df_asjc.at[int(tmp[0].strip()), 'Description']
-    if field.lower() == specific_field.lower():
+    field_citing =  df_asjc.at[int(tmp[0].strip()), 'Description']
+    if field_citing.lower() == specific_field.lower():
       for k in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
         issn_cited = re.sub('-', "", k)
         issn_cited = re.sub("'", "", issn_cited)
@@ -251,11 +251,53 @@ def citations_flow(data, specific_field = None):
   output_dict['groups'] = dict(sorted(output_dict['groups'].items(), key=lambda item: item[1], reverse = True))
   output_dict['supergroups'] = dict(sorted(output_dict['supergroups'].items(), key=lambda item: item[1], reverse = True))
   return output_dict
+  
+def citations_flow_journals(data, specific_fields = None):
+  output_dict = {}
+  df_issn = pd.read_csv(r'scopus_issn.csv')
+  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
+  df_issn.set_index('Print-ISSN', inplace=True)
+  df_asjc = pd.read_csv(r'scopus_asjc.csv')
+  df_asjc.set_index('Code', inplace=True)
+  df_supergroups = pd.read_csv(r'supergroups.csv')
+  df_supergroups.set_index('code', inplace=True)
+  for item in data:
+    issn = item['issn']
+    search_issn = re.sub("'", "", issn)
+    search_issn = re.sub('-', "", search_issn)
+    try:
+      journal_citing = df_issn.at[search_issn, 'Title']
+      tmp = df_issn.at[search_issn, 'ASJC']
+    except KeyError:
+      continue
+    tmp = tmp.split(';')
+    field_citing =  df_asjc.at[int(tmp[0].strip()), 'Description']
+    if field_citing.lower() == specific_fields[0].lower():
+      for k in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
+        issn_cited = re.sub('-', "", k)
+        issn_cited = re.sub("'", "", issn_cited)
+        try:
+          tmp_cited= df_issn.at[issn_cited, 'ASJC']
+          journal_cited = df_issn.at[issn_cited, 'Title']
+        except KeyError:
+          continue
+        tmp_cited = tmp_cited.split(';')
+        field_cited =  df_asjc.at[int(tmp_cited[0].strip()), 'Description']
+        if field_cited.lower() == specific_fields[1].lower():
+          if journal_cited in output_dict.keys():
+            output_dict[journal_cited] += item['has_cited_n_times'][k]
+          else:
+            output_dict[journal_cited] = item['has_cited_n_times'][k]
+        else:
+          continue
+    else:
+      continue
+  output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
+  return output_dict
+
 
 #data = load_data('output_2020-04-25T04_48_36_1.zip')
-#network = citations_networks(data)
-#print(network)
-
+#print(citations_flow_journals(data, 'cell biology, philosophy'))
 
 #cit_flow = citations_flow(data, specific_field = 'philosophy')
 #print(cit_flow['fields'])
