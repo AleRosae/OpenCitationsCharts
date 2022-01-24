@@ -17,14 +17,29 @@ from zipfile import ZipFile
 
 st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
 st.write('''
-         # Demo
-         ### This is a premimilary version of the OpenCitations web platform for visualizing statistics.
-         The first time you open the app it takes some time to load the entire dataset, don't worry.
+         # OpenCitations in Charts
+         ### A web application for visualizing the OpenCitations dataset.
          ''')
-st.write('''By default the main page loads some statistics about the whole OpenCitations dataset.
+st.write('''OpenCitations is an infrastructure organization for open scholarship dedicated to the publication 
+        of open citation data as Linked Open Data. It provides bibliographic metadata of academic
+        publications that are free to access, analyse and republish for any purpose. Thsi web application aims at providing
+        visualization of the COCI dataset of OpenCitations. Users are also allowed to perform simple bibliometrics analysis 
+        using the research tools on the left sidebar.''')
+st.write('''The first time you open the web page, Streamlit takes a couple of minutes to load the dataset. Grab a coffee in the meanwhile!
+          By default the main page contains statistics about the whole OpenCitations dataset, in particulary its composition
+          in terms of academic journals and subjects that are mentioned.
          You can use the sidebar to visualize more specific information, either using journals or academic fields
-         as discriminators. The charts you ask for appear below the global statistics container. You can minimize this container whenever you want by clicking on the small dash
-         here on the right.''')
+         as discriminators. The charts you ask for will appear above the global statistics containers, which can always
+         minimazed to save some space on the screen.''')
+st.write('''You can perform two kinds of research. Either you can ask for specific information about journals related to a field or 
+          you can compare journals belonging two different fields based on the discriminators that you choose. For instance, you can confront
+          cell biology journals and philosophy journals how they tend to mention journals of their own field. Or you can simply
+          search for the most mentioned journals in general medicine and see a top 10 of the medical journals in COCI.''')
+st.write('''The application completely run on GitHub thanks to the Streamlit services. The chance of sharing a data science app
+         completely for free of course comes with some cost. It is impossible to load the entire COCI dataset and process it in real time
+         due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
+         GitHub repository of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
+         portion of the dataset was pre-processed and loaded in the application.''')
 @st.cache()
 def load_data(path):
   with ZipFile(path, 'r') as zip:
@@ -54,6 +69,8 @@ if 'self_citations_asjc' not in st.session_state:
   st.session_state['self_citations_asjc'] = d_self_citations_asjc
 else:
   d_self_citations_asjc = st.session_state['self_citations_asjc']
+
+expander_state = True
 
 col7, col8 = st.columns([3, 1])
 st.sidebar.header('Single field search')
@@ -162,9 +179,6 @@ elif input_field != '' and single_search == 'Citations flow':
   else:
     check_spelling_selfcit = str(check_spelling_selfcit[input_field]).strip('][')
     st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?")  
-
-
-
 st.sidebar.header('Compare different fields')
 multiple_search = st.sidebar.radio(
      "What do you want to search for?",
@@ -194,7 +208,6 @@ elif multiple_search == 'Journals flow':
                                             You can check the full list here: https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications''')
   input_compare_field_cited = st.sidebar.text_input('Cited journal field', '', key=12312, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
   cit_button = st.sidebar.button('Go', key=9999)
-
 
 if input_compare_field != '' and multiple_search == 'Number of citations' and cit_button: 
   render = True
@@ -369,29 +382,11 @@ elif cit_button and multiple_search == 'Journals flow' and input_compare_field !
       st.altair_chart(bars.interactive(), use_container_width=True)
     with col8:
       pass
-with st.expander("Global statistics", expanded=True): #global statistics start here
-  st.write(header)
-  col1, col2 = st.columns(2)
-  with col2:
-    if 'self_citations' not in st.session_state:
-      d_self_citations = parse_COCI.self_citation(data)
-      st.session_state['self_citations'] = d_self_citations
-    else:
-      d_self_citations = st.session_state['self_citations']
-    st.header('Self citations (by journals)')
-    df_d = pd.DataFrame({'category': d_self_citations.keys(), 'value': d_self_citations.values()})
-    st.altair_chart(alt.Chart(df_d).mark_arc().encode(
-        theta=alt.Theta(field="value", type="quantitative"),
-        color=alt.Color(field="category", type="nominal"))  , use_container_width=True)
-    st.write('Articles that cite publications that belong to the same journal of the citing article.')
-  with col1:
-    st.header('Self citations (by academic field)')
-    df_d = pd.DataFrame({'category': d_self_citations_asjc.keys(), 'value': d_self_citations_asjc.values()})
-    st.altair_chart(alt.Chart(df_d).mark_arc().encode(
-        theta=alt.Theta(field="value", type="quantitative"),
-        color=alt.Color(field="category", type="nominal")), use_container_width=True)
-    st.write('Articles that cite publications of the same academic field or of similar academic field (according to ASJC classification).')
 
+if cit_button:
+  expander_state = False
+
+with st.expander('General statistics', expanded =expander_state):
   col3, col4 = st.columns(2)
   with col3:
     if 'df_distribution' not in st.session_state:
@@ -453,6 +448,7 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
     st.altair_chart(bars.interactive(), use_container_width=True)
     st.write('''Top 10 of the most important fields for number of articles (either citing or cited) in the dataset.''')
   
+with st.expander('Fields subdivion', expanded=expander_state):
   col9, col10 = st.columns(2)
   with col9:
     st.header('''Most frequent academic groups''')
@@ -475,3 +471,25 @@ with st.expander("Global statistics", expanded=True): #global statistics start h
         theta=alt.Theta(field="value", type="quantitative"),
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
       st.write('''''')
+with st.expander("Citations flow", expanded=expander_state): #global statistics start here
+  st.write(header)
+  col1, col2 = st.columns(2)
+  with col2:
+    if 'self_citations' not in st.session_state:
+      d_self_citations = parse_COCI.self_citation(data)
+      st.session_state['self_citations'] = d_self_citations
+    else:
+      d_self_citations = st.session_state['self_citations']
+    st.header('Self citations (by journals)')
+    df_d = pd.DataFrame({'category': d_self_citations.keys(), 'value': d_self_citations.values()})
+    st.altair_chart(alt.Chart(df_d).mark_arc().encode(
+        theta=alt.Theta(field="value", type="quantitative"),
+        color=alt.Color(field="category", type="nominal"))  , use_container_width=True)
+    st.write('Articles that cite publications that belong to the same journal of the citing article.')
+  with col1:
+    st.header('Self citations (by academic field)')
+    df_d = pd.DataFrame({'category': d_self_citations_asjc.keys(), 'value': d_self_citations_asjc.values()})
+    st.altair_chart(alt.Chart(df_d).mark_arc().encode(
+        theta=alt.Theta(field="value", type="quantitative"),
+        color=alt.Color(field="category", type="nominal")), use_container_width=True)
+    st.write('Articles that cite publications of the same academic field or of similar academic field (according to ASJC classification).')
