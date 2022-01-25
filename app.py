@@ -226,17 +226,19 @@ multiple_search = st.sidebar.radio(
      ('Number of citations', 'Self citations', 'Citations flow', 'Journals flow'))
 if multiple_search == 'Number of citations':
   st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare.')
-  input_compare_field = st.sidebar.text_input('Fields (separated with comma and space)', '', key=4321, help='''Fields must corrispond to ASJC fields (case insensitive). 
+  input_compare_field = st.sidebar.text_area('Fields (separated with comma and space)', '', key=4321, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+  input_compare_field_cited = None
   cit_button = st.sidebar.button('Go', key=7777)
 elif multiple_search == 'Self citations':
   st.sidebar.write('''Use the box below to make comparison of how much two fields tend to mention themselves.''')
-  input_compare_field = st.sidebar.text_input('Journal field', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
+  input_compare_field = st.sidebar.text_input('Citing journal field', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+  input_compare_field_cited = st.sidebar.text_input('Cited journal field', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
   cit_button = st.sidebar.button('Go', key=8888)  
 elif multiple_search == 'Citations flow':
-  st.sidebar.write('''Use the box below to search for which other fields receive citations by two specific fields. You also
-                  get how many times the two fields mention each other.  ''')
+  st.sidebar.write('''Use the box below to confront the citations flow (i.e. where a specific fields citations go to)
+                  of two different fields.  ''')
   input_compare_field= st.sidebar.text_input('Citing journal field', '', key=11223433, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
   input_compare_field_cited = st.sidebar.text_input('Cited journal field', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
@@ -245,9 +247,9 @@ elif multiple_search == 'Citations flow':
 elif multiple_search == 'Journals flow':
   st.sidebar.write('''Use the box below to look at which journals of a specific field receive more citations from journals
   of another field. You might be particularly interested in fields fairly distant (e.g. philosophy and general medicine).''')
-  input_compare_field= st.sidebar.text_input('Citing journal field', '', key=12456, help='''Fields must corrispond to ASJC fields (case insensitive). 
+  input_compare_field= st.sidebar.text_input('Field that has cited', '', key=12456, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
-  input_compare_field_cited = st.sidebar.text_input('Cited journal field', '', key=12312, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
+  input_compare_field_cited = st.sidebar.text_input('Journals of a field that received citations', '', key=12312, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
   cit_button = st.sidebar.button('Go', key=9999)
 
 if input_compare_field != '' and multiple_search == 'Number of citations' and cit_button: 
@@ -257,7 +259,8 @@ if input_compare_field != '' and multiple_search == 'Number of citations' and ci
   dict_spelling = [el for el in check_spelling if type(el) == dict]
   if None in check_spelling:
     index_cantfind = check_spelling.index(None)
-    st.sidebar.write(f"Can't find {input[index_cantfind]}. Check the spelling")
+    st.sidebar.write(f'''Can't find {input[index_cantfind]}. Check the spelling. Remember that you have to separte the fields only
+                      with a comma and space, do not press enter!''')
     render = False
   elif len(dict_spelling)> 0:
     for dic in dict_spelling:
@@ -278,12 +281,13 @@ if input_compare_field != '' and multiple_search == 'Number of citations' and ci
       x='values',
       color=alt.Color('values')
       ).properties(height=800)
-    with col7:
-      st.altair_chart(bars.interactive(), use_container_width=True)
+    st.header('Citations comparison by different fields')
+    st.altair_chart(bars.interactive(), use_container_width=True)
 
-elif input_compare_field != '' and multiple_search == 'Self citations' and cit_button: 
+elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Self citations' and cit_button: 
   col7, col8 = st.columns(2)
-  input = input_compare_field.split(', ')
+  input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
+  input = input.split(', ')
   check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
   dict_spelling = [el for el in check_spelling if type(el) == dict]
   if None in check_spelling:
@@ -301,20 +305,32 @@ elif input_compare_field != '' and multiple_search == 'Self citations' and cit_b
     df_selfcit_1 = pd.DataFrame({'category': self_citation_field_1.keys(), 'value': self_citation_field_1.values()})
     self_citation_field_2 = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input[1])
     df_selfcit_2 = pd.DataFrame({'category': self_citation_field_2.keys(), 'value': self_citation_field_2.values()})
+    st.write(f'''These pie charts confront how many articles related to {input_compare_field} and {input_compare_field_cited} tend to mention
+                articles related to the same field. It is a rough discriminator of how a field tend to cross its disciplinary boundaries
+                and cross with external subjects. Self citations are scored when an article mention another article belonging to
+                the same exact ASJC code, while partial self citations includes articles that are not the exact match but
+                that belong to the same ASJC group.''')
+    global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
     with col7:
       st.header(f'Self citations of {input[0]}')
       st.altair_chart(alt.Chart(df_selfcit_1).mark_arc().encode(
           theta=alt.Theta(field="value", type="quantitative", sort=list(self_citation_field_1.keys())),
           color=alt.Color(field="category", type="nominal", sort=list(self_citation_field_1.keys()))), use_container_width=True)
-      st.write(f'''How many articles belonging to {input_field} tend to mention
-                articles related to the same field''')
+      st.write(f'''How many articles belonging to {input_compare_field} tend to mention
+                articles related to the same field.''')
+      st.write(f'''In {input_compare_field} there are {df_selfcit_1.iloc[0,1]} self citations (global percentage is {global_percentages[0]}),
+       {df_selfcit_1.iloc[1,1]} partial self-citations (global percentage is {global_percentages[1]})
+      and {df_selfcit_1.iloc[2,1]} not self citations (global percentage is {global_percentages[2]}).''')
     with col8:
       st.header(f'Self citations of {input[1]}')
       st.altair_chart(alt.Chart(df_selfcit_2).mark_arc().encode(
           theta=alt.Theta(field="value", type="quantitative", sort=list(self_citation_field_2.keys())),
           color=alt.Color(field="category", type="nominal", sort=list(self_citation_field_2.keys()))), use_container_width=True)
-      st.write(f'''How many articles belonging to {input_field} tend to mention
-                articles related to the same field''')
+      st.write(f'''How many articles belonging to {input_compare_field_cited} tend to mention
+                articles related to the same field.''')
+      st.write(f'''In {input_compare_field_cited} there are {df_selfcit_2.iloc[0,1]} self citations (global percentage is {global_percentages[0]}),
+       {df_selfcit_2.iloc[1,1]} partial self-citations (global percentage is {global_percentages[1]})
+      and {df_selfcit_2.iloc[2,1]} not self citations (global percentage is {global_percentages[2]}).''')
 
 elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Citations flow' and cit_button: 
   col7, col8 = st.columns([2, 1])
@@ -396,7 +412,7 @@ elif input_compare_field != '' and input_compare_field_cited != '' and multiple_
         color=alt.Color(field="category", type="nominal", sort= cit_groups_categories_2)), use_container_width=True)
 
 elif cit_button and multiple_search == 'Journals flow' and input_compare_field != '' and input_compare_field_cited != '': 
-  col7, col8 = st.columns([3, 1])
+  col7, col8 = st.columns([4, 1])
   input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
   input = input.split(', ')
   check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
@@ -419,11 +435,18 @@ elif cit_button and multiple_search == 'Journals flow' and input_compare_field !
       bars = alt.Chart(df_source_citflow_journal).mark_bar(size=30, align="center", binSpacing=1).encode(
           y=alt.Y('fields', sort='-x'),
           x='values',
-          color=alt.Color('values')
+          color=alt.Color('values', scale=alt.Scale(scheme='purples'))
       ).properties(height=800)
       st.altair_chart(bars.interactive(), use_container_width=True)
     with col8:
-      pass
+      st.markdown("***")
+      st.write(f'''The bar chart on the left display the main journals related to {input_compare_field_cited} that have been
+              mentioned by journals of {input_compare_field}.''')
+      st.write(f'''The most popular journal of {input_compare_field_cited} among researchers of {input_compare_field} is 
+                  {list(source_citflow_journal.keys())[0]}, with {list(source_citflow_journal.values())[0]} mentions.''')
+      st.write(f'''In total, there are {len(list(source_citflow_journal.keys()))} journals of {input_compare_field_cited} that
+                have been cited by articles related to {input_compare_field}. The total number of citations received amount
+                to {sum(list(source_citflow_journal.values()))}.''')
     
 if cit_button or single_button:
   expander_state = False
