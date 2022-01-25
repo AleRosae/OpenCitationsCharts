@@ -233,18 +233,21 @@ def citations_flow(data, specific_field = None):
         field_cited =  df_asjc.at[int(tmp_cited[0].strip()), 'Description']
         group = df_supergroups.at[str(tmp_cited[0].strip())[:2]+'**', 'Description']
         supergroup = df_supergroups.at[str(tmp_cited[0].strip())[:2]+'**', 'Supergroup']
-        if field_cited in output_dict['fields'].keys():
-          output_dict['fields'][field_cited] += item['has_cited_n_times'][k]
+        if field_cited.lower() != specific_field.lower(): 
+          if field_cited in output_dict['fields'].keys():
+            output_dict['fields'][field_cited] += item['has_cited_n_times'][k]
+          else:
+            output_dict['fields'][field_cited] = item['has_cited_n_times'][k]           
+          if group in output_dict['groups'].keys():
+            output_dict['groups'][group] += item['has_cited_n_times'][k]
+          else:
+            output_dict['groups'][group] = item['has_cited_n_times'][k]      
+          if supergroup in output_dict['supergroups'].keys():
+            output_dict['supergroups'][supergroup] += item['has_cited_n_times'][k]
+          else:    
+            output_dict['supergroups'][supergroup] =  item['has_cited_n_times'][k] 
         else:
-          output_dict['fields'][field_cited] = item['has_cited_n_times'][k]           
-        if group in output_dict['groups'].keys():
-          output_dict['groups'][group] += item['has_cited_n_times'][k]
-        else:
-          output_dict['groups'][group] = item['has_cited_n_times'][k]      
-        if supergroup in output_dict['supergroups'].keys():
-          output_dict['supergroups'][supergroup] += item['has_cited_n_times'][k]
-        else:    
-          output_dict['supergroups'][supergroup] =  item['has_cited_n_times'][k]  
+          continue
     else:
       continue
   output_dict['fields'] = dict(sorted(output_dict['fields'].items(), key=lambda item: item[1], reverse = True))

@@ -15,7 +15,7 @@ import scipy.stats as stats
 from statistics import mode
 from zipfile import ZipFile
 
-st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items=None)
+st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="collapsed", menu_items=None)
 st.write('''
          # OpenCitations in Charts
          ### A web application for visualizing the OpenCitations dataset.
@@ -41,6 +41,8 @@ st.write('''The application completely run on GitHub thanks to the Streamlit ser
          due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
          [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
          portion of the dataset was pre-processed and loaded in the application.''')
+st.markdown("""---""")
+
 @st.cache()
 def load_data(path):
   with ZipFile(path, 'r') as zip:
@@ -104,8 +106,8 @@ elif single_search == 'Self citations of a field':
   input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
 elif single_search == 'Citations flow':
-  st.sidebar.write('''Use the box below to search for a specific field and see which are the other fields that receive 
-      more citations from it (10).  ''')
+  st.sidebar.write('''Use the box below to search for a specific field and see which are the other fields (itself excluded) that receive 
+      more citations from it.''')
   input_field = st.sidebar.text_input('Journal field', '', key=1122, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
 single_button = st.sidebar.button('Go', key= 91239)
@@ -114,8 +116,15 @@ if single_button and input_field != '' and single_search == 'Top journals of a f
   if result_mistakes == False:
     result = parse_COCI.parse_data(data, asjc_fields = True, specific_field=input_field)
     with col8:
-      st.write(f'''There are {str(len(result[input_field].keys()))} journals related to {input_field} , for a total of {str(sum(result[input_field].values()))} citations.
-      The most important journal is {list(result.keys())[0]}.''')
+      st.write(f'''There are {str(len(result[input_field].keys()))} journals related to {input_field}, for a total of {str(sum(result[input_field].values()))} citations.
+      The most important journal is {list(result[input_field].keys())[0]}, which received {list(result[input_field].values())[0]} citations.
+      The journal with less citations is {list(result[input_field].keys())[-1]}, which was mentioned only {list(result[input_field].values())[-1]} times.''')
+      if sum(list(result[input_field].values())) > round(np.mean(list(source_fields['fields'].values()))):
+        st.write(f'''Overall, there is total of {sum(list(result[input_field].values()))} mentions related to the field of {input_field}.
+                  This is higher then the average number of citations for a single field ({round(np.mean(list(source_fields['fields'].values())))}).''')   
+      else:
+        st.write(f'''Overall, there is total of {sum(list(result[input_field].values()))} mentions related to the field of {input_field}.
+                This is below the average number of citations for a single field ({round(np.mean(list(source_fields['fields'].values())))}).''')   
     with col7:
       source = pd.DataFrame({'journals': list(result[input_field].keys())[:10], 'values': list(result[input_field].values())[:10]})
       bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
@@ -140,14 +149,17 @@ elif single_button and input_field != "" and single_search == 'Self citations of
       st.altair_chart(alt.Chart(df_selfcit).mark_arc().encode(
           theta=alt.Theta(field="value", type="quantitative", sort=list(self_citation_field.keys())),
           color=alt.Color(field="category", type="nominal", sort=list(self_citation_field.keys()))), use_container_width=True)
-      st.write(f'''How many articles belonging to {input_field} tend to mention
-                articles related to the same field''')
     with col8:
       global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
       st.markdown('***')
-      st.write(f'''In {input_field} there are {df_selfcit.iloc[0,1]} self citations (globa is {global_percentages[0]}),
-       {df_selfcit.iloc[1,1]} partial self-citations (global is {global_percentages[1]})
-      and {df_selfcit.iloc[2,1]} not self citations (global is {global_percentages[2]}).''')
+      st.write(f'''The pie chart displays how many articles related to {input_field} tend to mention
+                articles related to the same field. It is a rough discriminator of how a field tend to cross its disciplinary boundaries
+                and cross with external subjects. Self citations are scored when an article mention another article belonging to
+                the same exact ASJC code, while partial self citations includes articles that are not the exact match but
+                that belong to the same ASJC group.''')
+      st.write(f'''In {input_field} there are {df_selfcit.iloc[0,1]} self citations (global percentage is {global_percentages[0]}),
+       {df_selfcit.iloc[1,1]} partial self-citations (global percentage is {global_percentages[1]})
+      and {df_selfcit.iloc[2,1]} not self citations (global percentage is {global_percentages[2]}).''')
   elif check_spelling_selfcit == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
   else:
@@ -183,13 +195,22 @@ elif single_button and  input_field != '' and single_search == 'Citations flow':
       cit_groups_categories = [el + ' (' + str(round((source_citflow['groups'][el]/tot_cit_groups) * 100))+'%)' for el in source_citflow['groups'].keys()][:10]
       cit_groups_values = list(source_citflow['groups'].values())[:10]
       cit_groups_others = sum(list(source_citflow['groups'].values())[10:])
-      cit_groups_categories.append('other (' + str(round((cit_groups_others/tot_cit_groups) * 100))+'%)')
+      cit_groups_categories.append('others (' + str(round((cit_groups_others/tot_cit_groups) * 100))+'%)')
       cit_groups_values.append(cit_groups_others)
       df_cit_source_groups = pd.DataFrame({'category': cit_groups_categories, 
                                       'values': cit_groups_values})
       st.altair_chart(alt.Chart(df_cit_source_groups).mark_arc().encode(
         theta=alt.Theta(field="values", type="quantitative", sort=cit_groups_categories),
-        color=alt.Color(field="category", type="nominal", sort=cit_groups_categories)), use_container_width=True)
+        color=alt.Color(field="category", type="nominal", sort=cit_groups_categories, scale=alt.Scale(scheme='category20'))), use_container_width=True)
+    
+    st.write(f'''The charts above display how citations flow starting from journals related to {input_field}.''')
+    st.write(f'''The bar charts illustrates which are the other fields that are mostly citited by articles of {input_field}. This 
+               provides an idea of how these disciplines tend to communicate. In this case, the most mentioned field is {list(source_citflow['fields'].keys())[0]},
+               with {list(source_citflow['fields'].values())[0]} citations. The least one is {list(source_citflow['fields'].keys())[-1]}, which apparentely is the most distant
+               subject from {input_field}, with only {list(source_citflow['fields'].values())[-1]} mentions.''')
+    st.write('''The pie charts on the right column illustrate the same information but according to the groups/supergroups
+              subdivision. ''')
+
 
   elif check_spelling_selfcit == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
