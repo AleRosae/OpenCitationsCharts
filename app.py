@@ -1,4 +1,3 @@
-from turtle import width
 from altair.vegalite.v4.schema.core import Align
 from pandas.core.algorithms import mode
 import streamlit as st
