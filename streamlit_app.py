@@ -202,7 +202,7 @@ elif single_button and  input_field != '' and single_search == 'Citations flow':
       st.altair_chart(alt.Chart(df_cit_source_groups).mark_arc().encode(
         theta=alt.Theta(field="values", type="quantitative", sort=cit_groups_categories),
         color=alt.Color(field="category", type="nominal", sort=cit_groups_categories, scale=alt.Scale(scheme='category20'))), use_container_width=True)
-    
+    not_mentioned = str(parse_COCI.check_unmentioned(source_citflow['groups'])).strip('][')
     st.write(f'''The charts above display how citations flow starting from journals related to {input_field}.''')
     st.write(f'''The bar charts illustrates which are the other fields that are mostly citited by articles of {input_field}. This 
                provides an idea of how these disciplines tend to communicate. In this case, the most mentioned field is {list(source_citflow['fields'].keys())[0]},
@@ -210,7 +210,10 @@ elif single_button and  input_field != '' and single_search == 'Citations flow':
                subject from {input_field}, with only {list(source_citflow['fields'].values())[-1]} mentions.''')
     st.write('''The pie charts on the right column illustrate the same information but according to the groups/supergroups
               subdivision. ''')
-
+    if len(not_mentioned) > 0:
+      st.write(f'''The following groups were never mentioned by {input_field}: {not_mentioned}.''')
+    else:
+      st.write(f'''There is at least 1 citation from {input_field} in all the ASJC groups!''')
 
   elif check_spelling_selfcit == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
@@ -452,8 +455,8 @@ with st.expander('General statistics', expanded =expander_state):
         color=alt.Color('values')
     ).properties(height=600)
     st.altair_chart(bars.interactive(), use_container_width=True)
-    st.write(f'''The chart displays the fields that received the most number of citations. The most popular field is {list(source_fields['fields'].keys())[1]},
-             with the astonishing number of {list(source_fields['fields'].values())[1]} citations. The least popular one is {list(source_fields['fields'].keys())[-1]},
+    st.write(f'''The chart displays the fields that received the most number of citations. The most popular field is {list(source_fields['fields'].keys())[0]},
+             with the astonishing number of {list(source_fields['fields'].values())[0]} citations. The least popular one is {list(source_fields['fields'].keys())[-1]},
              which received only {list(source_fields['fields'].values())[-1]} mentions.''')
   col3, col4 = st.columns(2)
   with col3:

@@ -298,6 +298,19 @@ def citations_flow_journals(data, specific_fields = None):
   output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
   return output_dict
 
+def check_unmentioned(data):
+  df_supergroups = pd.read_csv(r'supergroups.csv')
+  df_supergroups.set_index('code', inplace=True)
+  result = []
+  list_fields = df_supergroups['Description'].to_list()
+  for el in list_fields:
+    if el not in data.keys():
+      result.append(el)
+  return result
+      
+
+
+
 
 #data = load_data('output_2020-04-25T04_48_36_1.zip')
 #print(citations_flow_journals(data, 'cell biology, philosophy'))
