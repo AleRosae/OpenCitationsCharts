@@ -1,3 +1,4 @@
+from importlib.metadata import distribution
 from altair.vegalite.v4.schema.core import Align
 from pandas.core.algorithms import mode
 import streamlit as st
@@ -14,7 +15,8 @@ import scipy.stats as stats
 from statistics import mode
 from zipfile import ZipFile
 
-st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="collapsed", menu_items=None)
+st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="collapsed", menu_items={
+  'About': 'This app was developed for the epds course held by Prof. Marilena Daquino at the University of Bologna.'})
 st.write('''
          # OpenCitations in Charts
          ### A web application for visualizing the OpenCitations dataset.
@@ -23,20 +25,20 @@ st.write('''[OpenCitations](https://opencitations.net/) is an infrastructure org
         of open citation data as Linked Open Data. It provides bibliographic metadata of academic
         publications that are free to access, analyse and republish for any purpose. Thsi web application aims at providing
         visualization of the COCI dataset of OpenCitations. Users are also allowed to perform simple bibliometrics analysis 
-        using the research tools on the left sidebar.''')
-st.write('''The first time you open the web page, Streamlit takes a couple of minutes to load the dataset. Grab a coffee in the meanwhile!
-          By default the main page contains statistics about the whole OpenCitations dataset, in particulary its composition
+        using the research tools on the **left sidebar** (that you can open by clicking on the ">" symbol on the up-left corner of the page).''')
+st.write('''The **first time** you open the web page, Streamlit takes **a couple of minutes to load the dataset**. Grab a coffee in the meanwhile!
+          By default the **main page** contains **statistics** about the whole COCI dataset, in particular its composition
           in terms of academic journals and subjects that are mentioned.
-         You can use the sidebar to visualize more specific information, either using journals or academic fields
+         You can use the **sidebar** to visualize **more specific data visualizations**, either using journals or academic fields
          as discriminators. The charts you ask for will appear above the global statistics containers, which can always
          minimazed to save some space on the screen. Most of the charts are interactive, i.e. you can maniupate them to adjsut the scale, to zoom in or zoom out
          and you can always display them in full screen.''')
-st.write('''You can perform two kinds of research. Either you can ask for specific information about journals related to a field or 
-          you can compare journals belonging two different fields based on the discriminators that you choose. For instance, you can confront
+st.write('''You can perform two kinds of research. Either you can ask for **specific information about journals** related to a field or 
+          you can **compare journals** belonging two different fields based on the discriminators that you choose. For instance, you can confront
           cell biology journals and philosophy journals how they tend to mention journals of their own field. Or you can simply
           search for the most mentioned journals in general medicine and see a top 10 of the medical journals in COCI.''')
 st.write('''The application completely run on GitHub thanks to the Streamlit services. The chance of sharing a data science app
-         completely for free of course comes with some cost. It is impossible to load the entire COCI dataset and process it in real time
+         completely for free of course comes with some limits. It is impossible to load the entire COCI dataset and process it in real time
          due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
          [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
          portion of the dataset was pre-processed and loaded in the application.''')
@@ -79,7 +81,12 @@ else:
   source_fields = st.session_state['source_fields']
   
 if 'df_distribution' not in st.session_state:
-  df_distribution = pd.DataFrame({'d_citations': init['tot_citations_distribution']})
+  list_distribution = init['tot_citations_distribution']
+  list_distribution = [el for el in list_distribution if el < 100]
+  list_outliers = [el for el in list_distribution if el > 100]
+  for i in range(len(list_outliers)):
+    list_distribution.append(100)
+  df_distribution = pd.DataFrame({'d_citations': list_distribution})
   st.session_state['df_distribution'] = df_distribution
 else:
   df_distribution = st.session_state['df_distribution']
@@ -115,20 +122,20 @@ if single_button and input_field != '' and single_search == 'Top journals of a f
   if result_mistakes == False:
     result = parse_COCI.parse_data(data, asjc_fields = True, specific_field=input_field)
     with col8:
-      st.write(f'''There are {str(len(result[input_field].keys()))} journals related to {input_field}, for a total of {str(sum(result[input_field].values()))} citations.
-      The most important journal is {list(result[input_field].keys())[0]}, which received {list(result[input_field].values())[0]} citations.
-      The journal with less citations is {list(result[input_field].keys())[-1]}, which was mentioned only {list(result[input_field].values())[-1]} times.''')
+      st.write(f'''There are **{str(len(result[input_field].keys()))} journals** related to **{input_field}**, for a total of **{str(sum(result[input_field].values()))} citations**.
+      The most important journal is _{list(result[input_field].keys())[0]}_, which received {list(result[input_field].values())[0]} citations.
+      The journal with less citations is _{list(result[input_field].keys())[-1]}_, which was mentioned only {list(result[input_field].values())[-1]} times.''')
       if sum(list(result[input_field].values())) > round(np.mean(list(source_fields['fields'].values()))):
-        st.write(f'''Overall, there is total of {sum(list(result[input_field].values()))} mentions related to the field of {input_field}.
+        st.write(f'''Overall, there is **total of {sum(list(result[input_field].values()))} mentions** related to the field of **{input_field}**.
                   This is higher then the average number of citations for a single field ({round(np.mean(list(source_fields['fields'].values())))}).''')   
       else:
-        st.write(f'''Overall, there is total of {sum(list(result[input_field].values()))} mentions related to the field of {input_field}.
+        st.write(f'''Overall, there is **total of {sum(list(result[input_field].values()))} mentions** related to the field of **{input_field}**.
                 This is below the average number of citations for a single field ({round(np.mean(list(source_fields['fields'].values())))}).''')   
     with col7:
       source = pd.DataFrame({'journals': list(result[input_field].keys())[:10], 'values': list(result[input_field].values())[:10]})
       bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
           y=alt.Y('journals', sort='-x'),
-          x='values',
+          x=alt.X('values', title='Number of citations'),
           color=alt.Color('values',  scale=alt.Scale(scheme='purples'))
       ).properties(height=800)
       st.altair_chart(bars.interactive(), use_container_width=True)
@@ -151,14 +158,14 @@ elif single_button and input_field != "" and single_search == 'Self citations of
     with col8:
       global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
       st.markdown('***')
-      st.write(f'''The pie chart displays how many articles related to {input_field} tend to mention
+      st.write(f'''The pie chart displays how many articles related to **{input_field}** tend to mention
                 articles related to the same field. It is a rough discriminator of how a field tend to cross its disciplinary boundaries
                 and cross with external subjects. Self citations are scored when an article mention another article belonging to
                 the same exact ASJC code, while partial self citations includes articles that are not the exact match but
                 that belong to the same ASJC group.''')
-      st.write(f'''In {input_field} there are {df_selfcit.iloc[0,1]} self citations (global percentage is {global_percentages[0]}),
-       {df_selfcit.iloc[1,1]} partial self-citations (global percentage is {global_percentages[1]})
-      and {df_selfcit.iloc[2,1]} not self citations (global percentage is {global_percentages[2]}).''')
+      st.write(f'''In **{input_field}** there are **{df_selfcit.iloc[0,1]} self citations** (global percentage is {global_percentages[0]}),
+       **{df_selfcit.iloc[1,1]} partial self-citations** (global percentage is {global_percentages[1]})
+      and **{df_selfcit.iloc[2,1]} not self citations** (global percentage is {global_percentages[2]}).''')
   elif check_spelling_selfcit == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
   else:
@@ -202,15 +209,15 @@ elif single_button and  input_field != '' and single_search == 'Citations flow':
         theta=alt.Theta(field="values", type="quantitative", sort=cit_groups_categories),
         color=alt.Color(field="category", type="nominal", sort=cit_groups_categories, scale=alt.Scale(scheme='category20'))), use_container_width=True)
     not_mentioned = str(parse_COCI.check_unmentioned(source_citflow['groups'])).strip('][')
-    st.write(f'''The charts above display how citations flow starting from journals related to {input_field}.''')
-    st.write(f'''The bar charts illustrates which are the other fields that are mostly citited by articles of {input_field}. This 
-               provides an idea of how these disciplines tend to communicate. In this case, the most mentioned field is {list(source_citflow['fields'].keys())[0]},
-               with {list(source_citflow['fields'].values())[0]} citations. The least one is {list(source_citflow['fields'].keys())[-1]}, which apparentely is the most distant
-               subject from {input_field}, with only {list(source_citflow['fields'].values())[-1]} mentions.''')
-    st.write('''The pie charts on the right column illustrate the same information but according to the groups/supergroups
+    st.write(f'''The charts above display **how citations have flowed** starting from journals related to **{input_field}**.''')
+    st.write(f'''The bar charts illustrates which are the other fields that are mostly citited by articles of **{input_field}**. This 
+               provides an idea of how these disciplines tend to communicate. In this case, the **most mentioned field is {list(source_citflow['fields'].keys())[0]}**,
+               with **{list(source_citflow['fields'].values())[0]} citations**. The **least one is {list(source_citflow['fields'].keys())[-1]}**, which apparentely is the most distant
+               subject from {input_field}, with **only {list(source_citflow['fields'].values())[-1]} mentions**.''')
+    st.write('''The pie charts on the right column illustrate the same information but according to the **groups/supergroups**
               subdivision. ''')
     if len(not_mentioned) > 0:
-      st.write(f'''The following groups were never mentioned by {input_field}: {not_mentioned}.''')
+      st.write(f'''The following groups were **never mentioned by {input_field}**: {not_mentioned}.''')
     else:
       st.write(f'''There is at least 1 citation from {input_field} in all the ASJC groups!''')
 
@@ -231,16 +238,16 @@ if multiple_search == 'Number of citations':
   cit_button = st.sidebar.button('Go', key=7777)
 elif multiple_search == 'Self citations':
   st.sidebar.write('''Use the box below to make comparison of how much two fields tend to mention themselves.''')
-  input_compare_field = st.sidebar.text_input('Citing journal field', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
+  input_compare_field = st.sidebar.text_input('Field 1', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
-  input_compare_field_cited = st.sidebar.text_input('Cited journal field', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
+  input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
   cit_button = st.sidebar.button('Go', key=8888)  
 elif multiple_search == 'Citations flow':
   st.sidebar.write('''Use the box below to confront the citations flow (i.e. where a specific fields citations go to)
-                  of two different fields.  ''')
-  input_compare_field= st.sidebar.text_input('Citing journal field', '', key=11223433, help='''Fields must corrispond to ASJC fields (case insensitive). 
+                  of two different fields.''')
+  input_compare_field= st.sidebar.text_input('Field 1', '', key=11223433, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
-  input_compare_field_cited = st.sidebar.text_input('Cited journal field', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
+  input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
   cit_button = st.sidebar.button('Go', key = 9988)
 
 elif multiple_search == 'Journals flow':
@@ -277,7 +284,7 @@ if input_compare_field != '' and multiple_search == 'Number of citations' and ci
     source = pd.DataFrame({'fields': output.keys(), 'values': output.values()})
     bars = alt.Chart(source).mark_bar(size=40, align="center", binSpacing=1).encode(
       y=alt.Y('fields', sort='-x'),
-      x='values',
+      x=alt.X('values', title='Number of citations'),
       color=alt.Color('values')
       ).properties(height=800)
     st.header('Citations comparison by different fields')
@@ -304,32 +311,32 @@ elif input_compare_field != '' and input_compare_field_cited != '' and multiple_
     df_selfcit_1 = pd.DataFrame({'category': self_citation_field_1.keys(), 'value': self_citation_field_1.values()})
     self_citation_field_2 = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input[1])
     df_selfcit_2 = pd.DataFrame({'category': self_citation_field_2.keys(), 'value': self_citation_field_2.values()})
-    st.write(f'''These pie charts confront how many articles related to {input_compare_field} and {input_compare_field_cited} tend to mention
-                articles related to the same field. It is a rough discriminator of how a field tend to cross its disciplinary boundaries
+    st.write(f'''These pie charts **confront* how many articles** related to **{input_compare_field}** and **{input_compare_field_cited}** tend to mention
+                articles related to the **same field**. It is a rough discriminator of **how much a field tend to cross its disciplinary boundaries**
                 and cross with external subjects. Self citations are scored when an article mention another article belonging to
                 the same exact ASJC code, while partial self citations includes articles that are not the exact match but
                 that belong to the same ASJC group.''')
     global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
     with col7:
       st.header(f'Self citations of {input[0]}')
+      st.write(f'''How many articles belonging to **{input_compare_field}** tend to mention
+                articles related to the same field.''')
       st.altair_chart(alt.Chart(df_selfcit_1).mark_arc().encode(
           theta=alt.Theta(field="value", type="quantitative", sort=list(self_citation_field_1.keys())),
           color=alt.Color(field="category", type="nominal", sort=list(self_citation_field_1.keys()))), use_container_width=True)
-      st.write(f'''How many articles belonging to {input_compare_field} tend to mention
-                articles related to the same field.''')
-      st.write(f'''In {input_compare_field} there are {df_selfcit_1.iloc[0,1]} self citations (global percentage is {global_percentages[0]}),
-       {df_selfcit_1.iloc[1,1]} partial self-citations (global percentage is {global_percentages[1]})
-      and {df_selfcit_1.iloc[2,1]} not self citations (global percentage is {global_percentages[2]}).''')
+      st.write(f'''In **{input_compare_field}** there are **{df_selfcit_1.iloc[0,1]} self citations** (global percentage is {global_percentages[0]}),
+       **{df_selfcit_1.iloc[1,1]} partial self-citations** (global percentage is {global_percentages[1]})
+      and **{df_selfcit_1.iloc[2,1]} not self citations** (global percentage is {global_percentages[2]}).''')
     with col8:
       st.header(f'Self citations of {input[1]}')
+      st.write(f'''How many articles belonging to **{input_compare_field_cited}** tend to mention
+                articles related to the same field.''')
       st.altair_chart(alt.Chart(df_selfcit_2).mark_arc().encode(
           theta=alt.Theta(field="value", type="quantitative", sort=list(self_citation_field_2.keys())),
           color=alt.Color(field="category", type="nominal", sort=list(self_citation_field_2.keys()))), use_container_width=True)
-      st.write(f'''How many articles belonging to {input_compare_field_cited} tend to mention
-                articles related to the same field.''')
-      st.write(f'''In {input_compare_field_cited} there are {df_selfcit_2.iloc[0,1]} self citations (global percentage is {global_percentages[0]}),
-       {df_selfcit_2.iloc[1,1]} partial self-citations (global percentage is {global_percentages[1]})
-      and {df_selfcit_2.iloc[2,1]} not self citations (global percentage is {global_percentages[2]}).''')
+      st.write(f'''In **{input_compare_field_cited}** there are **{df_selfcit_2.iloc[0,1]} self citations** (global percentage is {global_percentages[0]}),
+       **{df_selfcit_2.iloc[1,1]} partial self-citations** (global percentage is {global_percentages[1]})
+      and **{df_selfcit_2.iloc[2,1]} not self citations** (global percentage is {global_percentages[2]}).''')
 
 elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Citations flow' and cit_button: 
   col7, col8 = st.columns([2, 1])
@@ -357,7 +364,7 @@ elif input_compare_field != '' and input_compare_field_cited != '' and multiple_
       st.header(f'Citations flow in {input[0]}')
       bars = alt.Chart(df_citflow_1).mark_bar(size=30, align="center", binSpacing=1).encode(
           y=alt.Y('fields', sort='-x'),
-          x='values',
+          x=alt.X('values', title='Number of citations'),
           color=alt.Color('values')
       ).properties(height=800)
       st.altair_chart(bars.interactive(), use_container_width=True)
@@ -385,7 +392,7 @@ elif input_compare_field != '' and input_compare_field_cited != '' and multiple_
       st.header(f'Citations flow in {input[1]}')
       bars = alt.Chart(df_citflow_2).mark_bar(size=30, align="center", binSpacing=1).encode(
           y=alt.Y('fields', sort='-x'),
-          x='values',
+          x=alt.X('values', title='Number of citations'),
           color=alt.Color('values')
       ).properties(height=800)
       st.altair_chart(bars.interactive(), use_container_width=True)
@@ -439,59 +446,60 @@ elif cit_button and multiple_search == 'Journals flow' and input_compare_field !
       st.altair_chart(bars.interactive(), use_container_width=True)
     with col8:
       st.markdown("***")
-      st.write(f'''The bar chart on the left display the main journals related to {input_compare_field_cited} that have been
-              mentioned by journals of {input_compare_field}.''')
-      st.write(f'''The most popular journal of {input_compare_field_cited} among researchers of {input_compare_field} is 
-                  {list(source_citflow_journal.keys())[0]}, with {list(source_citflow_journal.values())[0]} mentions.''')
-      st.write(f'''In total, there are {len(list(source_citflow_journal.keys()))} journals of {input_compare_field_cited} that
-                have been cited by articles related to {input_compare_field}. The total number of citations received amount
+      st.write(f'''The bar chart on the left display the **main journals** related to **{input_compare_field_cited}** that have been
+             ** mentioned by** journals of **{input_compare_field}**.''')
+      st.write(f'''The **most popular journal of {input_compare_field_cited}** among researchers of **{input_compare_field}** is 
+                  _{list(source_citflow_journal.keys())[0]}_, with **{list(source_citflow_journal.values())[0]} mentions**.''')
+      st.write(f'''**In total**, there are **{len(list(source_citflow_journal.keys()))} journals of {input_compare_field_cited}** that
+                have been cited by articles related to **{input_compare_field}**. The total number of citations received amount
                 to {sum(list(source_citflow_journal.values()))}.''')
     
 if cit_button or single_button:
   expander_state = False
   
 with st.expander('General statistics', expanded =expander_state):
-  st.write(f'''The COCI dataset contains a total of {sum(init['tot_citations_distribution'])} citations, which are
-            distributed in {str(init['journals'])} unique journals, which cover more than {len(source_fields['fields'].keys())} different academic fields, which can be
-            grouped in {len(source_fields['groups'].keys())} different groups according to the All Science Journals Classification (ASJC). Here you can see which are the
-            most important journals in the dataset and which are the fields most covered by them.''')
+  st.write(f'''The **COCI dataset** contains a **total of {sum(init['tot_citations_distribution'])} citations**, which are
+            distributed in **{str(init['journals'])} unique journals**, which cover **exactly {len(source_fields['fields'].keys())} different academic fields** and that can be
+            grouped in **{len(source_fields['groups'].keys())} different groups** according to the _All Science Journals Classification__ (**ASJC**).
+            Here you can see which are the most important journals in the dataset and which are the fields most covered by them.''')
   col5, col6 = st.columns(2)
   with col5:
     st.header('Most important journals')
     df_source_journals = pd.DataFrame({'journals': list(source_journals.keys())[:10], 'values': list(source_journals.values())[:10]}) #prendo solo i primi 10
     bars = alt.Chart(df_source_journals).mark_bar(size=20, align="center", binSpacing=1).encode(
         y=alt.Y('journals', sort='-x'),
-        x='values',
+        x=alt.X('values', title='Number of citations'),
         color=alt.Color('values',  scale=alt.Scale(scheme='purples'))
     ).properties(height=600)
     st.altair_chart(bars.interactive(), use_container_width=True)
-    st.write(f'''The chart displays the journals that received the most number of citations. The most cited journal is {list(source_journals.keys())[0]},
-             with the astonishing number of {list(source_journals.values())[0]} citations. The least cited journal is {list(source_journals.keys())[-1]},
+    st.write(f'''The chart displays the **journals that received the most number of citations**. The **most cited journal** is _{list(source_journals.keys())[0]}_,
+             with the astonishing number of **{list(source_journals.values())[0]} citations**. The **least cited journal** is _{list(source_journals.keys())[-1]}_,
              which received only {list(source_journals.values())[-1]} mentions.''')
   with col6:
     st.header('''Most popular academic fields''')
     df_source_fields = pd.DataFrame({'fields': list(source_fields['fields'].keys())[:10], 'values': list(source_fields['fields'].values())[:10]})
     bars = alt.Chart(df_source_fields).mark_bar(size=20, align="center", binSpacing=0.5).encode(
         y=alt.Y('fields', sort='-x'),
-        x='values',
+        x=alt.X('values', title='Number of citations'),
         color=alt.Color('values')
     ).properties(height=600)
     st.altair_chart(bars.interactive(), use_container_width=True)
-    st.write(f'''The chart displays the fields that received the most number of citations. The most popular field is {list(source_fields['fields'].keys())[0]},
-             with the astonishing number of {list(source_fields['fields'].values())[0]} citations. The least popular one is {list(source_fields['fields'].keys())[-1]},
+    st.write(f'''The chart displays the **fields that received the most number of citations**. The **most popular field** is **{list(source_fields['fields'].keys())[0]}**,
+             with the astonishing number of **{list(source_fields['fields'].values())[0]} citations**. The least popular one is **{list(source_fields['fields'].keys())[-1]}**,
              which received only {list(source_fields['fields'].values())[-1]} mentions.''')
   col3, col4 = st.columns(2)
   with col3:
     st.header(f"Distribution of citations")
-    brush = alt.selection(type='interval')
-    points = alt.Chart(df_distribution).mark_point().encode(
-      x=alt.X('d_citations:Q', scale = alt.Scale(type = 'symlog'), title='Citations distribution on a log-log scale'),
-      y=alt.Y('count()', scale = alt.Scale(type = 'symlog'))).add_selection(brush)
-    st.altair_chart(points.interactive(), use_container_width=True)
-    st.write(f'''Distribution of the number of citations for each citing article and plotted with a logarithmic-logarithmic scale, since the distribution
-             is very skewed.
-            The average number of mentions for citing articles is {init['average_citations']}, the mode is {mode(init['tot_citations_distribution'])}.
-            The maximum value is {max(init['tot_citations_distribution'])}, while the minimum is {min(init['tot_citations_distribution'])}.''')
+    base = alt.Chart(df_distribution)
+    bar = base.mark_bar().encode(
+        x=alt.X('d_citations:Q', bin = alt.BinParams(nice=True, maxbins=100), title='Number of citations'),
+        y=alt.Y('count()', title = 'Number of istances')
+    )
+    st.altair_chart(bar.interactive(), use_container_width=True)
+    st.write(f'''**Distribution of the number of citations** for each citing article. _NB: all the values above 100 were approximated as 100 due to the fact
+            that the original data were particularly skewed (most of the values ended up being near 1)._''')
+    st.write(f'''The **average number of citations** for citing articles is **{init['average_citations']}**, the mode is **{mode(init['tot_citations_distribution'])}**.
+            The **maximum value** is **{max(init['tot_citations_distribution'])}**, while the **minimum is {min(init['tot_citations_distribution'])}**.''')
   with col4:
     st.header('Unique journals')
     tot_set = init['citing_set'] + init['cited_set'] + init['cited_also_citing']
@@ -502,13 +510,13 @@ with st.expander('General statistics', expanded =expander_state):
     st.altair_chart(alt.Chart(df_unique_journals).mark_arc().encode(
         theta=alt.Theta(field="value", type="quantitative"),
         color=alt.Color(field="category", type="nominal")), use_container_width=True)
-    st.write('''Whether each unique journal appears only as a citing article (and do not receive citation), as a cited article (and do not cite other articles)
+    st.write('''Whether each **unique journal** appears only as a citing article (and do not receive citation), as a cited article (and do not cite other articles)
             or both (articles that both cite other articles and receive citations).''')
 
-with st.expander('Fields subdivion', expanded=expander_state):
-  st.write('''The bar chart above displays the most important fields. However, ASJC also comes with a subdivion of those fields in
+with st.expander('Fields subdivision', expanded=expander_state):
+  st.write('''The bar chart above displays the **most important fields**. However, **ASJC** also comes with a subdivion of those fields in
            more general groups that give us a general picture of the subjects that are covered. These charts offer a broader look at the composition
-           of the COCI dataset by illustrating the groups in which each field falls and the relative supergroups (i.e. the most general
+           of the COCI dataset by illustrating **the groups** in which each field falls and their **relative supergroups** (i.e. the most general
            subdivision possible).''')
   st.header('''All the academic groups''')
   df_source_groups = pd.DataFrame({'groups': list(source_fields['groups'].keys()), 'values': list(source_fields['groups'].values())})
@@ -533,10 +541,10 @@ with st.expander('Fields subdivion', expanded=expander_state):
       theta=alt.Theta(field="values", type="quantitative", sort=groups_categories),
       color=alt.Color(field="category", type="nominal", sort=groups_values, scale=alt.Scale(scheme='category20'))), use_container_width=True) #add colour scheme for more colours in the pie chart
       
-    st.write(f'''The subdivision of the {len(source_fields['fields'].keys())} fiels present in the COCI dataset in groups. The most popular group is
-             {list(source_fields['groups'].keys())[0]} which received {list(source_fields['groups'].values())[0]} mentions. The least popular one is 
+    st.write(f'''The **subdivision** of the {len(source_fields['fields'].keys())} fields present in the COCI dataset in **groups**. The **most popular group**
+            is **{list(source_fields['groups'].keys())[0]}** which received **{list(source_fields['groups'].values())[0]} mentions**. The least popular one is 
              {list(source_fields['groups'].keys())[-1]} with {list(source_fields['groups'].values())[-1]} citations. 
-             Others include: {str(list(source_fields['groups'].keys())[15:]).strip('][')}.''')
+             _Others_ include: {str(list(source_fields['groups'].keys())[15:]).strip('][')}.''')
     with col10:
       st.header('''Academic supergroups subdivision''')
       tot_supergroups = sum(source_fields['supergroups'].values())
@@ -546,14 +554,14 @@ with st.expander('Fields subdivion', expanded=expander_state):
       st.altair_chart(alt.Chart(df_source_supergroups).mark_arc().encode(
         theta=alt.Theta(field="value", type="quantitative", sort=supergroups_categories),
         color=alt.Color(field="category", type="nominal", sort=supergroups_categories)), use_container_width=True)
-      st.write(f'''The subdivision of the {len(source_fields['groups'].keys())} fields present in the COCI dataset in supergroups. The most popular general group is
-             {list(source_fields['supergroups'].keys())[0]} which received {list(source_fields['supergroups'].values())[0]} mentions. The least popular one is 
+      st.write(f'''The **subdivision** of the {len(source_fields['groups'].keys())} groups present in the COCI dataset according to supergroups. The** most popular supergroup** is
+             **{list(source_fields['supergroups'].keys())[0]}** which received **{list(source_fields['supergroups'].values())[0]} mentions**. The least popular one is 
              {list(source_fields['supergroups'].keys())[-1]} with {list(source_fields['supergroups'].values())[-1]} citations.''')
   
 with st.expander("Citations flow", expanded=expander_state):
   st.write('''How does citations flow between different journals or fields? In this section you can see whether articles belonging to a specific field or journal
-           tend to mention publications that belong to the same field or journal. This is particularly interesting because it give us an idea of how much citations are
-           cross-disciplinary. With the sidebar you can also see statistics related to one specific field in order to see which are the subject that are more 
+          **tend to mention publications that belong to the same field or journal**. This is particularly interesting because it give us an idea of how much the journals in the dataset are
+          **cross-disciplinary**. With the sidebar you can also see statistics related to one specific field in order to see which are the subject that are more 
            prone to cross the boundaries between different fields. ''')
   col1, col2 = st.columns(2)
   with col2:
