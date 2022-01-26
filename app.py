@@ -121,6 +121,7 @@ if single_button and input_field != '' and single_search == 'Top journals of a f
   if result_mistakes == False:
     result = parse_COCI.parse_data(data, asjc_fields = True, specific_field=input_field)
     with col8:
+      st.markdown('***')
       st.write(f'''There are **{str(len(result[input_field].keys()))} journals** related to **{input_field}**, for a total of **{str(sum(result[input_field].values()))} citations**.
       The most important journal is _{list(result[input_field].keys())[0]}_, which received {list(result[input_field].values())[0]} citations.
       The journal with less citations is _{list(result[input_field].keys())[-1]}_, which was mentioned only {list(result[input_field].values())[-1]} times.''')
@@ -131,6 +132,7 @@ if single_button and input_field != '' and single_search == 'Top journals of a f
         st.write(f'''Overall, there is **total of {sum(list(result[input_field].values()))} mentions** related to the field of **{input_field}**.
                 This is below the average number of citations for a single field ({round(np.mean(list(source_fields['fields'].values())))}).''')   
     with col7:
+      st.header(f'The most cited journals of {input_field}')
       source = pd.DataFrame({'journals': list(result[input_field].keys())[:10], 'values': list(result[input_field].values())[:10]})
       bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
           y=alt.Y('journals', sort='-x'),
@@ -138,6 +140,7 @@ if single_button and input_field != '' and single_search == 'Top journals of a f
           color=alt.Color('values',  scale=alt.Scale(scheme='purples'))
       ).properties(height=800)
       st.altair_chart(bars.interactive(), use_container_width=True)
+    st.markdown('***')
   elif result_mistakes == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling")
   else:
@@ -165,6 +168,7 @@ elif single_button and input_field != "" and single_search == 'Self citations of
       st.write(f'''In **{input_field}** there are **{df_selfcit.iloc[0,1]} self citations** (global percentage is {global_percentages[0]}),
        **{df_selfcit.iloc[1,1]} partial self-citations** (global percentage is {global_percentages[1]})
       and **{df_selfcit.iloc[2,1]} not self citations** (global percentage is {global_percentages[2]}).''')
+    st.markdown('***')
   elif check_spelling_selfcit == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
   else:
@@ -219,6 +223,7 @@ elif single_button and  input_field != '' and single_search == 'Citations flow':
       st.write(f'''The following groups were **never mentioned by {input_field}**: {not_mentioned}.''')
     else:
       st.write(f'''There is at least 1 citation from {input_field} in all the ASJC groups!''')
+    st.markdown('***')
 
   elif check_spelling_selfcit == None:
     st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
@@ -288,6 +293,7 @@ if input_compare_field != '' and multiple_search == 'Number of citations' and ci
       ).properties(height=800)
     st.header('Citations comparison by different fields')
     st.altair_chart(bars.interactive(), use_container_width=True)
+    st.markdown('***')
 
 elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Self citations' and cit_button: 
   col7, col8 = st.columns(2)
@@ -336,7 +342,7 @@ elif input_compare_field != '' and input_compare_field_cited != '' and multiple_
       st.write(f'''In **{input_compare_field_cited}** there are **{df_selfcit_2.iloc[0,1]} self citations** (global percentage is {global_percentages[0]}),
        **{df_selfcit_2.iloc[1,1]} partial self-citations** (global percentage is {global_percentages[1]})
       and **{df_selfcit_2.iloc[2,1]} not self citations** (global percentage is {global_percentages[2]}).''')
-
+  st.markdown('***')
 elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Citations flow' and cit_button: 
   col7, col8 = st.columns([2, 1])
   input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
@@ -415,7 +421,7 @@ elif input_compare_field != '' and input_compare_field_cited != '' and multiple_
       st.altair_chart(alt.Chart(df_cit_source_groups_2).mark_arc().encode(
         theta=alt.Theta(field="values", type="quantitative", sort=cit_groups_categories_2),
         color=alt.Color(field="category", type="nominal", sort= cit_groups_categories_2)), use_container_width=True)
-
+  st.markdown('***')
 elif cit_button and multiple_search == 'Journals flow' and input_compare_field != '' and input_compare_field_cited != '': 
   col7, col8 = st.columns([4, 1])
   input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
@@ -452,14 +458,16 @@ elif cit_button and multiple_search == 'Journals flow' and input_compare_field !
       st.write(f'''**In total**, there are **{len(list(source_citflow_journal.keys()))} journals of {input_compare_field_cited}** that
                 have been cited by articles related to **{input_compare_field}**. The total number of citations received amount
                 to {sum(list(source_citflow_journal.values()))}.''')
-    
+  st.markdown('***')
+
+st.header('General statistics')
+st.write('Here you can see various statistics about the whole COCI dataset.')   
 if cit_button or single_button:
   expander_state = False
-  
 with st.expander('General statistics', expanded =expander_state):
   st.write(f'''The **COCI dataset** contains a **total of {sum(init['tot_citations_distribution'])} citations**, which are
             distributed in **{str(init['journals'])} unique journals**, which cover **exactly {len(source_fields['fields'].keys())} different academic fields** and that can be
-            grouped in **{len(source_fields['groups'].keys())} different groups** according to the _All Science Journals Classification__ (**ASJC**).
+            grouped in **{len(source_fields['groups'].keys())} different groups** according to the _All Science Journals Classification_ (**ASJC**).
             Here you can see which are the most important journals in the dataset and which are the fields most covered by them.''')
   col5, col6 = st.columns(2)
   with col5:
