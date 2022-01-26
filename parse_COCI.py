@@ -1,4 +1,5 @@
 import json
+from matplotlib.pyplot import title
 import pandas as pd
 import re
 from collections import Counter
@@ -181,24 +182,42 @@ def load_data(path):
       data = json.load(infile)
       return data
 
-def spelling_mistakes(input_data):
-    df_asjc = pd.read_csv(r'scopus_asjc.csv')
-    ajsc = df_asjc['Description'].tolist()
-    asjc = [x.lower() for x in ajsc]
+def spelling_mistakes(input_data, journal = None):
     result = {}
-    if input_data.lower() in asjc:
-      result[input_data] = False
+    if not journal:
+      df_asjc = pd.read_csv(r'scopus_asjc.csv')
+      ajsc = df_asjc['Description'].tolist()
+      asjc = [x.lower() for x in ajsc]
+      if input_data.lower() in asjc:
+        result[input_data] = False
+      else:
+        for el in asjc:
+          if input_data.lower() in el.lower() and input_data not in result.keys():
+            result[input_data] = []
+            result[input_data].append(el)
+          elif input_data.lower() in el.lower() and input_data in result.keys():
+            result[input_data].append(el)
+      if len(result.keys()) == 0:
+        result = None
+      elif not any(result.values()) and not type(list(result.values())[0]) == str:
+        result = False
     else:
-      for el in asjc:
-        if input_data.lower() in el.lower() and input_data not in result.keys():
-          result[input_data] = []
-          result[input_data].append(el)
-        elif input_data.lower() in el.lower() and input_data in result.keys():
-          result[input_data].append(el)
-    if len(result.keys()) == 0:
-      result = None
-    elif not any(result.values()) and not type(list(result.values())[0]) == str:
-      result = False
+      df_issn = pd.read_csv(r'scopus_issn.csv')
+      issn = df_issn['Title'].to_list()
+      issn = [title.lower() for title in issn]
+      if input_data.lower() in issn:
+        result[input_data] = False
+      else:
+        for el in issn:
+          if input_data.lower() in el.lower() and input_data not in result.keys():
+            result[input_data] = []
+            result[input_data].append(el)
+          elif input_data.lower() in el.lower() and input_data in result.keys():
+            result[input_data].append(el)
+      if len(result.keys()) == 0:
+        result = None
+      elif not any(result.values()) and not type(list(result.values())[0]) == str:
+        result = False
     return result
 
 
@@ -309,10 +328,39 @@ def check_unmentioned(data):
   return result
       
 
-
+def search_specific_journal(data, specific_journal = None):
+  output_dict = {}
+  df_issn = pd.read_csv(r'scopus_issn.csv')
+  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
+  df_issn.set_index('Print-ISSN', inplace=True)
+  for item in data:
+    search_issn = re.sub("'", "", item['issn'])
+    search_issn = re.sub("-", "", search_issn)
+    try:
+      title = df_issn.at[search_issn, 'Title']
+    except KeyError:
+      continue
+    if title.lower() == specific_journal.lower():
+      for k in item['has_cited_n_times']: 
+        cited_issn = re.sub("-", "", k)
+        cited_issn = re.sub("'", "", cited_issn)
+        if cited_issn != search_issn:      
+          try:
+            title_cited = df_issn.at[cited_issn, 'Title']
+          except KeyError:
+            continue
+          if title_cited in output_dict.keys():
+            output_dict[title_cited] += item['has_cited_n_times'][k]
+          else:
+            output_dict[title_cited] = item['has_cited_n_times'][k]
+        else:
+          continue
+  output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
+  return output_dict
 
 
 #data = load_data('output_2020-04-25T04_48_36_1.zip')
+#print(search_specific_journal(data, 'Expert Review of Medical Devices'))
 #print(citations_flow_journals(data, 'cell biology, philosophy'))
 
 #cit_flow = citations_flow(data, specific_field = 'philosophy')
@@ -328,4 +376,4 @@ def check_unmentioned(data):
 #print(result['groups'])
 #print(result['supergroups'])
 #print(self_citation(data, asjc_fields=True, specific_field='Philosophy'))
-#print(spelling_mistakes('medicine'))
+#print(spelling_mistakes('sads'))
