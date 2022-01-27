@@ -163,7 +163,39 @@ if search_choice == 'Single field search':
             color=alt.Color('values',  scale=alt.Scale(scheme='purples'))
         ).properties(height=800)
         st.altair_chart(bars.interactive(), use_container_width=True)
-      st.markdown('***')
+        top_journal = list(result[input_field].keys())[0]
+        st.header(f'What do we know about {top_journal}?')
+        st.write(f'''You might be interested in knowing something more about the most cited journal of {input_field}.
+                  Here you can see some information about it. If you are interested in another journal, you can always perform
+                  the same search with the related tool in the left sidebar.''')
+      col13, col14 = st.columns([3, 1])
+      with col13:
+        result_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=top_journal)
+        if top_journal not in result_journal.keys():
+            st.header('Journal not found!')
+            st.write('''It looks like the journal you searched did not make any citation in 2021 according to the COCI dataset.
+                      This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
+                      the 2021 data, which is in turn a small subset of the whole COCI dataset.
+                      Or maybe we need to open a little bit more this particular branch of science :)''')
+            st.markdown('***')
+        else:
+          st.header(f'The journals that are cited the most by {top_journal}')
+          source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 'values': list(result_journal[top_journal]['citations'].values())[:10]})
+          bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
+              y=alt.Y('journals', sort='-x'),
+              x=alt.X('values', title='Number of citations'),
+              color=alt.Color('values',  scale=alt.Scale(scheme='purples'))
+          ).properties(height=800)
+          st.altair_chart(bars.interactive(), use_container_width=True)
+          st.markdown('***')
+        with col14:
+          st.markdown('***')
+          st.write(f'''_{top_journal}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
+                      {result_journal[top_journal]['group']} group.''')
+          st.write(f'''{len(list(result_journal[top_journal]['citations'].keys()))} unique journals have been cited by _{top_journal}_ for a total
+                  of {sum(list(result_journal[top_journal]['citations'].values()))} citations.
+                  The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
+                  {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
     elif result_mistakes == None:
       st.sidebar.write(f"Can't find {input_field}. Check the spelling")
     else:
@@ -174,22 +206,32 @@ if search_choice == 'Single field search':
     result_mistakes = parse_COCI.spelling_mistakes(input_field, journal=True)
     if result_mistakes == False:
       result = parse_COCI.search_specific_journal(data, csvs, specific_journal=input_field)
-      with col8:
+      if len(result) == 0:
+        with col8:
+          st.header('Journal not found!')
+          st.write('''It looks like the journal you searched did not make any citation in 2021 according to the COCI dataset.
+                    This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
+                    the 2021 data, which is in turn a small subset of the whole COCI dataset.
+                    Or maybe we need to open a little bit more this particular branch of science :)''')
+      else:
+        with col8:
+          st.markdown('***')
+          st.write(f'''_{input_field}_ is a journal of {result[input_field]['field']}, which belongs to the
+                      {result[input_field]['group']} group.''')
+          st.write(f'''{len(list(result[input_field]['citations'].keys()))} unique journals have been cited by _{input_field}_ for a total
+                  of {sum(list(result[input_field]['citations'].values()))} citations.
+                  The journal that has been cited the most by _{input_field}_ is _{list(result[input_field]['citations'].keys())[0]}_ with
+                  {list(result[input_field]['citations'].values())[0]} mentions. ''')
+        with col7:
+          st.header(f'The journals that are cited the most by {input_field}')
+          source = pd.DataFrame({'journals': list(result[input_field]['citations'].keys())[:10], 'values': list(result[input_field]['citations'].values())[:10]})
+          bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
+              y=alt.Y('journals', sort='-x'),
+              x=alt.X('values', title='Number of citations'),
+              color=alt.Color('values',  scale=alt.Scale(scheme='purples'))
+          ).properties(height=800)
+          st.altair_chart(bars.interactive(), use_container_width=True)
         st.markdown('***')
-        st.write(f'''{len(list(result[input_field]['citations'].keys()))} unique journals have been cited by _{input_field}_ for a total
-                of {sum(list(result[input_field]['citations'].values()))} citations.
-                The journal that has been cited the most by _{input_field}_ is _{list(result.keys())[0]}_ with
-                {list(result[input_field]['citations'].values())[0]} mentions. ''')
-      with col7:
-        st.header(f'The journals that are cited the most by {input_field}')
-        source = pd.DataFrame({'journals': list(result[input_field]['citations'].keys())[:10], 'values': list(result[input_field]['citations'].values())[:10]})
-        bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
-            y=alt.Y('journals', sort='-x'),
-            x=alt.X('values', title='Number of citations'),
-            color=alt.Color('values',  scale=alt.Scale(scheme='purples'))
-        ).properties(height=800)
-        st.altair_chart(bars.interactive(), use_container_width=True)
-      st.markdown('***')
     elif result_mistakes == None:
       st.sidebar.write(f"Can't find {input_field}. Check the spelling")
     else:

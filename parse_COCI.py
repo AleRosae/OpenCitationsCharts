@@ -376,12 +376,15 @@ def search_specific_journal(data, csvs, specific_journal = None):
             output_dict[title]['citations'][title_cited] = item['has_cited_n_times'][k]
         else:
           continue
-  output_dict[title]['citations'] = dict(sorted(output_dict[title]['citations'].items(), key=lambda item: item[1], reverse = True))
+  try:
+    output_dict[title]['citations'] = dict(sorted(output_dict[title]['citations'].items(), key=lambda item: item[1], reverse = True))
+  except KeyError:
+    output_dict = {}
   return output_dict
 
 
-data = load_data('output_2020-04-25T04_48_36_1.zip')
-print(search_specific_journal(data, load_csvs(), 'Nature'))
+#data = load_data('output_2020-04-25T04_48_36_1.zip')
+#print(search_specific_journal(data, load_csvs(), 'Nature'))
 #print(citations_flow_journals(data, 'cell biology, philosophy'))
 
 #cit_flow = citations_flow(data, specific_field = 'philosophy')
