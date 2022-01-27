@@ -188,14 +188,17 @@ if search_choice == 'Single field search':
           ).properties(height=800)
           st.altair_chart(bars.interactive(), use_container_width=True)
           st.markdown('***')
-        with col14:
-          st.markdown('***')
-          st.write(f'''_{top_journal}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
-                      {result_journal[top_journal]['group']} group.''')
-          st.write(f'''{len(list(result_journal[top_journal]['citations'].keys()))} unique journals have been cited by _{top_journal}_ for a total
-                  of {sum(list(result_journal[top_journal]['citations'].values()))} citations.
-                  The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
-                  {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
+        if top_journal not in result_journal.keys():
+          pass
+        else:
+          with col14:
+            st.markdown('***')
+            st.write(f'''_{top_journal}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
+                        {result_journal[top_journal]['group']} group.''')
+            st.write(f'''{len(list(result_journal[top_journal]['citations'].keys()))} unique journals have been cited by _{top_journal}_ for a total
+                    of {sum(list(result_journal[top_journal]['citations'].values()))} citations.
+                    The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
+                    {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
     elif result_mistakes == None:
       st.sidebar.write(f"Can't find {input_field}. Check the spelling")
     else:

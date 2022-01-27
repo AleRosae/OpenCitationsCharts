@@ -378,7 +378,7 @@ def search_specific_journal(data, csvs, specific_journal = None):
           continue
   try:
     output_dict[title]['citations'] = dict(sorted(output_dict[title]['citations'].items(), key=lambda item: item[1], reverse = True))
-  except KeyError:
+  except:
     output_dict = {}
   return output_dict
 
