@@ -58,6 +58,16 @@ if 'data' not in st.session_state:
   st.session_state['data'] = data
 else:
   data = st.session_state['data']
+@st.cache()
+def load_csvs():
+  csvs = parse_COCI.load_csvs()
+  return csvs
+
+if 'csvs' not in st.session_state:
+  csvs = load_csvs()
+  st.session_state['csvs'] = csvs
+else:
+  csvs = st.session_state['csvs']
 
 if 'init' not in st.session_state:
   init = parse_initial.initial_parsing(data)
@@ -163,12 +173,16 @@ if search_choice == 'Single field search':
   elif button and input_field != "" and single_search == 'Top journals cited by another journal':
     result_mistakes = parse_COCI.spelling_mistakes(input_field, journal=True)
     if result_mistakes == False:
-      result = parse_COCI.search_specific_journal(data,specific_journal=input_field)
+      result = parse_COCI.search_specific_journal(data, csvs, specific_journal=input_field)
       with col8:
         st.markdown('***')
+        st.write(f'''{len(list(result[input_field]['citations'].keys()))} unique journals have been cited by _{input_field}_ for a total
+                of {sum(list(result[input_field]['citations'].values()))} citations.
+                The journal that has been cited the most by _{input_field}_ is _{list(result.keys())[0]}_ with
+                {list(result[input_field]['citations'].values())[0]} mentions. ''')
       with col7:
         st.header(f'The journals that are cited the most by {input_field}')
-        source = pd.DataFrame({'journals': list(result.keys())[:10], 'values': list(result.values())[:10]})
+        source = pd.DataFrame({'journals': list(result[input_field]['citations'].keys())[:10], 'values': list(result[input_field]['citations'].values())[:10]})
         bars = alt.Chart(source).mark_bar(size=30, align="center", binSpacing=1).encode(
             y=alt.Y('journals', sort='-x'),
             x=alt.X('values', title='Number of citations'),

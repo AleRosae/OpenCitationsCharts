@@ -6,6 +6,17 @@ from collections import Counter
 from streamlit.state.session_state import Value
 from zipfile import ZipFile
 
+def load_csvs():
+  df_issn = pd.read_csv(r'scopus_issn.csv')
+  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
+  df_issn.set_index('Print-ISSN', inplace=True)
+  df_asjc = pd.read_csv(r'scopus_asjc.csv')
+  df_asjc.set_index('Code', inplace=True)
+  df_supergroups = pd.read_csv(r'supergroups.csv')
+  df_supergroups.set_index('code', inplace=True)
+  output = {'df_issn': df_issn, 'df_asjc':df_asjc, 'df_supergroups': df_supergroups}
+  return output
+
 def get_journal_issn(input_issn, asjc = None, specific_field = None):
   df_issn = pd.read_csv(r'scopus_issn.csv')
   df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
@@ -328,19 +339,29 @@ def check_unmentioned(data):
   return result
       
 
-def search_specific_journal(data, specific_journal = None):
+def search_specific_journal(data, csvs, specific_journal = None):
   output_dict = {}
-  df_issn = pd.read_csv(r'scopus_issn.csv')
-  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
-  df_issn.set_index('Print-ISSN', inplace=True)
+  df_issn = csvs['df_issn']
+  df_asjc = csvs['df_asjc']
+  df_supergroups = csvs['df_supergroups']
   for item in data:
     search_issn = re.sub("'", "", item['issn'])
     search_issn = re.sub("-", "", search_issn)
     try:
-      title = df_issn.at[search_issn, 'Title']
+      journal = df_issn.at[search_issn, 'Title']
     except KeyError:
       continue
-    if title.lower() == specific_journal.lower():
+    if journal.lower() == specific_journal.lower():
+      code = df_issn.at[search_issn, 'ASJC']
+      code = code.split(';')[0]
+      field = df_asjc.at[int(code), 'Description']
+      group = df_supergroups.at[code[:2].strip()+'**', 'Description']
+      title = specific_journal
+      if title not in output_dict.keys():
+        output_dict[title] = {}
+        output_dict[title]['field'] = field
+        output_dict[title]['group'] = group
+        output_dict[title]['citations'] = {}
       for k in item['has_cited_n_times']: 
         cited_issn = re.sub("-", "", k)
         cited_issn = re.sub("'", "", cited_issn)
@@ -349,18 +370,18 @@ def search_specific_journal(data, specific_journal = None):
             title_cited = df_issn.at[cited_issn, 'Title']
           except KeyError:
             continue
-          if title_cited in output_dict.keys():
-            output_dict[title_cited] += item['has_cited_n_times'][k]
+          if title_cited in output_dict[title]['citations'].keys():
+            output_dict[title]['citations'][title_cited] += item['has_cited_n_times'][k]
           else:
-            output_dict[title_cited] = item['has_cited_n_times'][k]
+            output_dict[title]['citations'][title_cited] = item['has_cited_n_times'][k]
         else:
           continue
-  output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
+  output_dict[title]['citations'] = dict(sorted(output_dict[title]['citations'].items(), key=lambda item: item[1], reverse = True))
   return output_dict
 
 
-#data = load_data('output_2020-04-25T04_48_36_1.zip')
-#print(search_specific_journal(data, 'Expert Review of Medical Devices'))
+data = load_data('output_2020-04-25T04_48_36_1.zip')
+print(search_specific_journal(data, load_csvs(), 'Nature'))
 #print(citations_flow_journals(data, 'cell biology, philosophy'))
 
 #cit_flow = citations_flow(data, specific_field = 'philosophy')
