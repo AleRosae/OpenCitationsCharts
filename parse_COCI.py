@@ -1,10 +1,39 @@
 import json
-from matplotlib.pyplot import title
 import pandas as pd
 import re
 from collections import Counter
 from streamlit.state.session_state import Value
 from zipfile import ZipFile
+
+def initial_parsing(data, asjc_fields = None):
+  output_dict = {}
+  list_citing= []
+  list_cited = []
+  n_citations = []
+  cited_also_citing = []
+  for item in data:
+    issn = item['issn']
+    list_citing.append(issn)
+    n_citations.append(sum(item['has_cited_n_times'].values()))
+    for k in item['has_cited_n_times']:
+      list_cited.append(k)
+  citing_set = set(list_citing)
+  cited_set = set(list_cited)
+  cited_also_citing = citing_set.intersection(cited_set) #cited_also_citing is the intersection between citing and cited
+  citing_set = citing_set.difference(cited_set) #citing is the set of citing minus the set of cited
+  cited_set = cited_set.difference(citing_set) #cited is only cited that are not in citing
+  output_dict["citing"] = len(list_citing)
+  output_dict["cited"] = len(list_cited)
+  tot = list_citing + list_cited
+  tot_journal = set(tot)
+  output_dict["journals"] = len(tot_journal)
+  output_dict["average_citations"] = round(sum(n_citations) / len(n_citations))
+  output_dict["tot_citations_distribution"] = n_citations
+  output_dict['cited_also_citing'] = len(cited_also_citing)
+  output_dict['citing_set'] = len(citing_set)
+  output_dict['cited_set'] = len(cited_set)
+
+  return output_dict
 
 def load_csvs():
   df_issn = pd.read_csv(r'scopus_issn.csv')
