@@ -18,13 +18,13 @@ st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wid
   'About': 'This app was developed for the epds course held by Prof. Marilena Daquino at the University of Bologna.'})
 st.write('''
          # OpenCitations in Charts
-         ### A web application for visualizing the OpenCitations dataset.
+         ### A web application for visualizing the OpenCitations dataset in regards to publications distributed in 2021.
          ''')
 st.write('''[OpenCitations](https://opencitations.net/) is an infrastructure organization for open scholarship dedicated to the publication 
         of open citation data as Linked Open Data. It provides bibliographic metadata of academic
-        publications that are free to access, analyse and republish for any purpose. Thsi web application aims at providing
+        publications that are free to access, analyse and republish for any purpose. This web application aims at providing
         visualization of the COCI dataset of OpenCitations. Users are also allowed to perform simple bibliometrics analysis 
-        using the research tools on the **left sidebar** (that you can open by clicking on the ">" symbol on the up-left corner of the page).''')
+        using the research tools on the **left sidebar** (that you can open by clicking on the ">" symbol on the up-left corner of the main page).''')
 st.write('''The **first time** you open the web page, Streamlit takes **a couple of minutes to load the dataset**. Grab a coffee in the meanwhile!
           By default the **main page** contains **statistics** about the whole COCI dataset, in particular its composition
           in terms of academic journals and subjects that are mentioned.
@@ -45,6 +45,10 @@ st.write('''The application completely runs on GitHub thanks to the Streamlit se
          due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
          [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
          portion of the dataset was pre-processed and loaded in the application.''')
+st.write('''Currently the application **only runs on a sample of the publications released in 2021**(you can fin more information about how the sample was created
+         from the main dataset in the GitHub repository). It is meant to represent a small glimpse of how 2021 went in terms of academic publication, which were the most
+         flourishing journals and which were the most important themes. Moreover, it is also informative in regards of how much specific fields tend to open up their
+         publications metadata (if a publication is not contained in the COCI dataset it problably means that such metadata are not provide by the publishers).''')
 st.markdown("""---""")
 
 @st.cache()
@@ -115,19 +119,19 @@ if search_choice == 'Single field search':
       "What do you want to search for?",
       ('Top journals cited by a field', 'Top journals cited by another journal','Self citations of a field', 'Citations flow'))
   if single_search == 'Top journals cited by a field':
-    st.sidebar.write('Use the box below to retrieve journals belonging to a specific field that have received more citations.')
+    st.sidebar.write('Use the box below to retrieve which journals belonging to a specific field that have received more citations.')
     input_field = st.sidebar.text_input('Journal field', '', key=1234, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                           You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
   elif single_search == 'Top journals cited by another journal':
-    st.sidebar.write('Use the box below to retrieve journals that receive most citations from a specific journal (except itself!).')
+    st.sidebar.write('Use the box below to retrieve journals that receive more citations from a specific journal (except itself!).')
     input_field = st.sidebar.text_input('Journal name', '', key=12335464, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                           You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
   elif single_search == 'Self citations of a field':
-    st.sidebar.write('''Use the box below to search for a specific field and see how it tends to mention works belonging to the same fields''')
+    st.sidebar.write('''Use the box below to search for a specific field and see how it tends to mention works of its own disciplinary field/group/supergroup.''')
     input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                               You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
   elif single_search == 'Citations flow':
-    st.sidebar.write('''Use the box below to search for a specific field and see which are the other fields (itself excluded) that receive 
+    st.sidebar.write('''Use the box below to search for a specific field and see which are the other fields (itself excluded) that received 
         more citations from it.''')
     input_field = st.sidebar.text_input('Journal field', '', key=1122, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                               You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
@@ -318,27 +322,27 @@ elif search_choice == 'Compare different fields':
       "What do you want to search for?",
       ('Number of citations per field', 'Self citations', 'Citations flow', 'Journals flow'))
   if multiple_search == 'Number of citations per field':
-    st.sidebar.write('Use the box below to make comparison between the number of citations received for different academic fields. Simply type a list of fields to compare them.')
+    st.sidebar.write('Use the box below to make comparison between two or more different fields in terms of number of citations. Simply type a list of fields to compare them.')
     input_compare_field = st.sidebar.text_area('Fields (separated with comma and space)', '', key=4321, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                               You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
     input_compare_field_cited = None
     button = st.sidebar.button('Go', key=7777)
   elif multiple_search == 'Self citations':
-    st.sidebar.write('''Use the box below to make comparison of how much two fields tend to mention themselves.''')
+    st.sidebar.write('''Use the box below to make comparison between exactly two fields in terms of how they tend to mention disciplines belonging to their own field.''')
     input_compare_field = st.sidebar.text_input('Field 1', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                               You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
     input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
     button = st.sidebar.button('Go', key=8888)  
   elif multiple_search == 'Citations flow':
-    st.sidebar.write('''Use the box below to confront the citations flow (i.e. where a specific fields citations go to)
-                    of two different fields.''')
+    st.sidebar.write('''Use the box below to confront the citations flow of two different fields i.e. which are the other fields that
+                     received more citations from each of them (themselves excluded).''')
     input_compare_field= st.sidebar.text_input('Field 1', '', key=11223433, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                               You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
     input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
     button = st.sidebar.button('Go', key = 9988)
 
   elif multiple_search == 'Journals flow':
-    st.sidebar.write('''Use the boxes below to search the journals of a specific field that are cited the most by journals of another field.
+    st.sidebar.write('''Use the boxes below to search the journals of a specific field that are cited the most by journals of another particular field.
                      You might be particularly interested in fields fairly distant from each other (e.g. philosophy and general medicine).''')
     input_compare_field= st.sidebar.text_input('Field that is citing', '', key=12456, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                               You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
@@ -551,13 +555,14 @@ else:
   general_stats = st.checkbox('Display general statistics', value = True)
 if general_stats:
   st.header('General statistics')
-  st.write('Here you can see various statistics about the whole COCI dataset.')   
+  st.write('''This dashboard is meant to tell how 2021 went in terms of academic publication. You can visualize multiple statistics that were elaborated from the the 
+           portion of COCI dataset that was pre-processed according to the constrain explaned in the introduction.''')   
 
   with st.expander('General statistics', expanded=False):
-    st.write(f'''The **COCI dataset** contains a **total of {sum(init['tot_citations_distribution'])} citations**, which are
-              distributed in **{str(init['journals'])} unique journals**, which cover **exactly {len(source_fields['fields'].keys())} different academic fields** and that can be
-              grouped in **{len(source_fields['groups'].keys())} different groups** according to the _All Science Journals Classification_ (**ASJC**).
-              Here you can see which are the most important journals in the dataset and which are the fields most covered by them.''')
+    st.write(f'''The **COCI dataset** contains a **total of {sum(init['tot_citations_distribution'])} citations** for the year 2021 that appeared in
+              **{str(init['journals'])} unique journals**, which cover **{len(source_fields['fields'].keys())} different academic fields** and that can be
+              grouped by **{len(source_fields['groups'].keys())} different groups** according to the _All Science Journals Classification_ (**ASJC**).
+              Here you can see which are the most cited journals and fields in the dataset throughout 2021.''')
     col5, col6 = st.columns(2)
     with col5:
       st.header('Most important journals')
@@ -565,7 +570,7 @@ if general_stats:
       bars = px.bar(df_source_journals, y="number of citations", x="journals", color='number of citations', orientation='v',
                     color_continuous_scale='purples',  color_continuous_midpoint=list(source_journals.values())[3], height=700)
       st.plotly_chart(bars, use_container_width=True)
-      st.write(f'''The chart displays the **journals that received the most number of citations**. The **most cited journal** is _{list(source_journals.keys())[0]}_,
+      st.write(f'''The chart displays the **journals that received the most number of citations** in 2021. The **most cited journal** is _{list(source_journals.keys())[0]}_,
               with the astonishing number of **{list(source_journals.values())[0]} citations**. The **least cited journal** is _{list(source_journals.keys())[-1]}_,
               which received only {list(source_journals.values())[-1]} mentions.''')
     with col6:
@@ -574,35 +579,21 @@ if general_stats:
       bars = px.bar(df_source_fields, y="number of citations", x="fields", color='number of citations', orientation='v',
                     color_continuous_scale='blues',  color_continuous_midpoint=list(source_fields['fields'].values())[3], height=700)
       st.plotly_chart(bars, use_container_width=True)
-      st.write(f'''The chart displays the **fields that received the most number of citations**. The **most popular field** is **{list(source_fields['fields'].keys())[0]}**,
+      st.write(f'''The chart displays the **fields that received the most number of citations** in 2021. The **most popular field** is **{list(source_fields['fields'].keys())[0]}**,
               with the astonishing number of **{list(source_fields['fields'].values())[0]} citations**. The least popular one is **{list(source_fields['fields'].keys())[-1]}**,
               which received only {list(source_fields['fields'].values())[-1]} mentions.''')
-    col3, col4 = st.columns(2)
-    with col3:
-      st.header(f"Distribution of citations")
-      histo_distr = px.histogram(df_distribution, x="distribution", nbins=100)
-      st.plotly_chart(histo_distr, use_container_width=True)
-      st.write(f'''**Distribution of the number of citations** for each citing article. _NB: all the values above 100 were approximated as 100 due to the fact
-              that the original data were particularly skewed (most of the values ended up being near 1)._''')
-      st.write(f'''The **average number of citations** for citing articles is **{init['average_citations']}**, the mode is **{mode(init['tot_citations_distribution'])}**.
-              The **maximum value** is **{max(init['tot_citations_distribution'])}**, while the **minimum is {min(init['tot_citations_distribution'])}**.''')
-    with col4:
-      st.header('Unique journals')
-      tot_set = init['citing_set'] + init['cited_set'] + init['cited_also_citing']
-      df_unique_journals = pd.DataFrame({'category': ['Only citing ('+str(round((init['citing_set']/tot_set) * 100))+'%)', 
-                                                      'Only cited ('+str(round((init['cited_set']/tot_set) * 100))+'%)'
-                                                      , 'cited also citing ('+str(round((init['cited_also_citing']/tot_set) * 100))+'%)'], 
-                                        'value': [init['citing_set'], init['cited_set'], init['cited_also_citing']]})
-      st.altair_chart(alt.Chart(df_unique_journals).mark_arc().encode(
-          theta=alt.Theta(field="value", type="quantitative"),
-          color=alt.Color(field="category", type="nominal")), use_container_width=True)
-      st.write('''Whether each **unique journal** appears only as a citing article (and do not receive citation), as a cited article (and do not cite other articles)
-              or both (articles that both cite other articles and receive citations).''')
-
+    st.header(f"Distribution of citations")
+    histo_distr = px.histogram(df_distribution, x="distribution", nbins=100)
+    st.plotly_chart(histo_distr, use_container_width=True)
+    st.write(f'''**Distribution of the number of citations** for each citing article in 2021 (each bin representing 20 citations).''')
+    st.write(f'''The **average number of citations** for citing articles in 2021 was **{init['average_citations']}**, the mode (i.e. the most frequent value)
+            was **{mode(init['tot_citations_distribution'])}**, which implies a very skewed distribution.
+            The **maximum number of mentions** was **{max(init['tot_citations_distribution'])}**, while the **minimum was {min(init['tot_citations_distribution'])}**.''')
   with st.expander('Fields subdivision', expanded=False):
-    st.write('''The bar chart above displays the **most important fields**. However, **ASJC** also comes with a subdivion of those fields in
-            more general groups that give us a general picture of the subjects that are covered. These charts offer a broader look at the composition
-            of the COCI dataset by illustrating **the groups** in which each field falls and their **relative supergroups** (i.e. the most general
+    st.write('''The bar chart above displays the **most important fields** in 2021, i.e. those that received more citations. 
+            However, **ASJC** also comes with a subdivion of those fields in
+            more general groups that give us a general picture of the subjects that are covered. The pie charts offer a broader look at the composition
+            of the COCI dataset by illustrating the same data grouped according to the **group subdivision** and their **relative supergroups** (i.e. the most general
             subdivision possible).''')
     st.header('''All the academic groups''')
     df_source_groups = pd.DataFrame({'groups': list(source_fields['groups'].keys()), 'number of citations': list(source_fields['groups'].values())})
@@ -642,8 +633,9 @@ if general_stats:
               {list(source_fields['supergroups'].keys())[-1]} with {list(source_fields['supergroups'].values())[-1]} citations.''')
     
   with st.expander("Citations flow", expanded=False):
-    st.write('''How does citations flow between different journals or fields? In this section you can see whether articles belonging to a specific field or journal
-            **tend to mention publications that belong to the same field or journal**. This is particularly interesting because it give us an idea of how much the journals in the dataset are
+    st.write('''Where did citations exactly went throughout 2021? In this section you can see whether articles belonging to a specific field or journal
+            **tend to mention publications that belong to the same field or journal**. 
+            This is particularly interesting because it give us an idea of how much the journals in the dataset are
             **cross-disciplinary**. With the sidebar you can also see statistics related to one specific field in order to see which are the subject that are more 
             prone to cross the boundaries between different fields. ''')
     col1, col2 = st.columns(2)
