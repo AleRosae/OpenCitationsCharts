@@ -187,7 +187,7 @@ else:
             source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 
                                    'number of citations': list(result_journal[top_journal]['citations'].values())[:10]})
             bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
-                          color_continuous_scale='purples',  color_continuous_midpoint=list(result[input_field].values())[3], height=800)
+                          color_continuous_scale='purples',  color_continuous_midpoint=list(result_journal[top_journal]['citations'].values())[3], height=800)
             st.plotly_chart(bars, use_container_width=True)
             st.markdown('***')
           if top_journal not in result_journal.keys():
