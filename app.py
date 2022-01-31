@@ -590,7 +590,7 @@ if general_stats:
               with the astonishing number of **{list(source_fields['fields'].values())[0]} citations**. The least popular one is **{list(source_fields['fields'].keys())[-1]}**,
               which received only {list(source_fields['fields'].values())[-1]} mentions.''')
     st.header(f"Distribution of citations")
-    histo_distr = px.histogram(df_distribution, x="distribution (number of citations)", nbins=len(df_distribution['distribution (number of citations)']/10))
+    histo_distr = px.histogram(df_distribution, x="distribution (number of citations)", nbins=max(init['tot_citations_distribution']/10))
     st.plotly_chart(histo_distr, use_container_width=True)
     st.write(f'''**This chart displayes the distribution of the number of citations** of each citing article in 2020 (each bin representing 20 citations). On the x-axis you
              can find how many articles were mentioned, on the y-axis the number of instances of articles that cite n other articles.''')
