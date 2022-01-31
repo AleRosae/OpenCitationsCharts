@@ -17,7 +17,7 @@ import plotly.express as px
 st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items={
   'About': 'This app was developed for the epds course held by Prof. Marilena Daquino at the University of Bologna.'})
 st.title('''OpenCitations in Charts''')
-st.write('### A web application for visualizing the OpenCitations dataset in regards to publications distributed in 2021.')
+st.write('### A web application for visualizing the OpenCitations dataset in regards to publications distributed in 2020.')
 st.write('''[OpenCitations](https://opencitations.net/) is an infrastructure organization for open scholarship dedicated to the publication 
         of open citation data as Linked Open Data. It provides bibliographic metadata of academic
         publications that are free to access, analyse and republish for any purpose. This web application aims at providing
@@ -26,7 +26,7 @@ st.write('''[OpenCitations](https://opencitations.net/) is an infrastructure org
 st.write('''The **first time** you open the web page, Streamlit takes **a couple of minutes to load the dataset**. Grab a coffee in the meanwhile!
           By default the **main page** contains **statistics** about the whole COCI dataset, in particular its composition
           in terms of academic journals and subjects that are mentioned. This also serves as an example of the kind of analysis you can make with the 
-          tools hereby provided.
+          tools hereby provided. **Always check the top right corner of the screen**: when the running icon appears, it means that streamlit is processing the data.
          You can use the **sidebar** to visualize **more specific data visualizations**, either using journals or academic fields
          as discriminators. Most of the charts are higly interactive, i.e. you can manipulate them to adjsut the scale, to zoom in or zoom out
          and you can always display them in full screen.''')
@@ -45,8 +45,8 @@ st.write('''The application completely runs on GitHub thanks to the Streamlit se
          [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
          portion of the dataset was pre-processed and loaded in the application.''')
 st.header('The story so far')
-st.write('''Currently the application **only runs on a sample of the publications released in 2021** (you can fin more information about how the sample was created
-         from the main dataset in the GitHub repository). It is meant to represent a small glimpse of how 2021 went in terms of academic publications, which were the most
+st.write('''Currently the application **only runs on a sample of the publications released in 2020** (you can fin more information about how the sample was created
+         from the main dataset in the GitHub repository). It is meant to represent a small glimpse of how 2020 went in terms of academic publications, which were the most
          influencing journals and which the most important themes covered in them. Moreover, it is also informative in regards of how much specific fields tend to open up their
          publications metadata (if a publication is not contained in the COCI dataset it problably means that such metadata are not provide by the publishers).''')
 st.markdown("""---""")
@@ -54,11 +54,11 @@ st.markdown("""---""")
 @st.cache()
 def load_data(path):
   with ZipFile(path, 'r') as zip:
-    with zip.open('output_2020-04-25T04_48_36_1.json') as infile:
+    with zip.open('all_2020.json') as infile:
       d = json.load(infile)
       return d
 if 'data' not in st.session_state:
-  data = load_data(r'output_2020-04-25T04_48_36_1.zip')
+  data = load_data(r'all_2020.zip')
   st.session_state['data'] = data
 else:
   data = st.session_state['data']
@@ -115,7 +115,7 @@ initial_choice = st.sidebar.radio('', ('General Statistics', 'Bibliometric Analy
 if initial_choice == 'General Statistics':
   general_stats = True
   st.sidebar.write('''The charts that were drawn in the main page display information about the general composition of the COCI dataset
-           in regards to the publications that appeared throughtout 2021.''')
+           in regards to the publications that appeared throughtout 2020.''')
 else:
   general_stats = False
   st.sidebar.header('Simple bibliometric analysis')
@@ -130,10 +130,12 @@ else:
       st.sidebar.write('Retrieve the top k journals belonging to a **specific field** according to how much they were cited.')
       input_field = st.sidebar.text_input('Journal field', '', key=1234, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+      n_items = st.sidebar.slider('number of journals', 1, 20, 10)
     elif single_search == 'Top journals cited by another journal':
       st.sidebar.write('Retrieve the top k journals that received more citations from a **specific journal** (except itself!).')
       input_field = st.sidebar.text_input('Journal name', '', key=12335464, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+      n_items = st.sidebar.slider('number of journals', 1, 20, 10)
     elif single_search == 'Self citations of a field':
       st.sidebar.write('''Display how much journals belonging to a **specific field** tend to mentioned journals that belongs to their own field/group/supergroup''')
       input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
@@ -161,7 +163,7 @@ else:
           st.write(f'''The average number of citations for each journal of {input_field} is around {round(mean(result[input_field].values()))}.''') 
         with col7:
           st.header(f'The most cited journals of {input_field}')
-          source = pd.DataFrame({'journals': list(result[input_field].keys())[:10], 'number of citations': list(result[input_field].values())[:10]})
+          source = pd.DataFrame({'journals': list(result[input_field].keys())[:n_items], 'number of citations': list(result[input_field].values())[:n_items]})
           bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
                         color_continuous_scale='purples',  color_continuous_midpoint=list(result[input_field].values())[3], height=700)
           st.plotly_chart(bars, use_container_width=True)
@@ -175,14 +177,15 @@ else:
           result_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=top_journal)
           if top_journal not in result_journal.keys():
               st.header('Journal not found!')
-              st.write('''It looks like the journal you searched did not make any citation in 2021 according to the COCI dataset.
+              st.write('''It looks like the journal you searched did not make any citation in 2020 according to the COCI dataset.
                         This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
-                        the 2021 data, which is in turn a small subset of the whole COCI dataset.
+                        the 2020 data, which is in turn a small subset of the whole COCI dataset.
                         Or maybe we need to open a little bit more this particular branch of science :)''')
               st.markdown('***')
           else:
             st.header(f'The journals that are cited the most by {top_journal.capitalize()}')
-            source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 'number of citations': list(result_journal[top_journal]['citations'].values())[:10]})
+            source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 
+                                   'number of citations': list(result_journal[top_journal]['citations'].values())[:10]})
             bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
                           color_continuous_scale='purples',  color_continuous_midpoint=list(result[input_field].values())[3], height=800)
             st.plotly_chart(bars, use_container_width=True)
@@ -213,9 +216,9 @@ else:
         if len(result) == 0:
           with col8:
             st.header('Journal not found!')
-            st.write('''It looks like the journal you searched did not make any citation in 2021 according to the COCI dataset.
+            st.write('''It looks like the journal you searched did not make any citation in 2020 according to the COCI dataset.
                       This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
-                      the 2021 data, which is in turn a small subset of the whole COCI dataset.
+                      the 2020 data, which is in turn a small subset of the whole COCI dataset.
                       Or maybe we need to open a little bit more this particular branch of science :)''')
         else:
           with col8:
@@ -230,7 +233,7 @@ else:
                     {list(result[input_field]['citations'].values())[0]} mentions. ''')
           with col7:
             st.header(f'The journals that are cited the most by {input_field.capitalize()}')
-            source = pd.DataFrame({'journals': list(result[input_field]['citations'].keys())[:10], 'number of citations': list(result[input_field]['citations'].values())[:10]})
+            source = pd.DataFrame({'journals': list(result[input_field]['citations'].keys())[:n_items], 'number of citations': list(result[input_field]['citations'].values())[:n_items]})
             bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
                           color_continuous_scale='purples',  color_continuous_midpoint=list(result[input_field]['citations'].values())[3], height=800)
             st.plotly_chart(bars, use_container_width=True)
@@ -454,13 +457,12 @@ else:
             mistake_value = str(mistake_value).strip('][')
             st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
       else:
+        source_citflow_1 = parse_COCI.citations_flow(data, specific_field=input[0])
+        source_citflow_2 = parse_COCI.citations_flow(data, specific_field=input[1])
         st.header(f'''Citations flow comparison between {input[0]} and {input[1]}''')
         st.write(f'''These pie charts below display the differences between how citations flow in {input[0]} and in {input[1]}, according to their group and supergroup
                 division. This visualization gives us a general idea of where the citations made by journals belongin to those two fields are usually headed to.''')
         col7, col8 = st.columns(2)
-        source_citflow_1 = parse_COCI.citations_flow(data, specific_field=input[0])
-        source_citflow_2 = parse_COCI.citations_flow(data, specific_field=input[1])
-
         df_citflow_1 = pd.DataFrame({'fields': list(source_citflow_1['fields'].keys())[:10], 'values': list(source_citflow_1['fields'].values())[:10]})
         df_citflow_2 = pd.DataFrame({'fields': list(source_citflow_2['fields'].keys())[:10], 'values': list(source_citflow_2['fields'].values())[:10]})
         with col7:
@@ -560,14 +562,14 @@ else:
 
 if general_stats:
   st.header('General statistics')
-  st.write('''This dashboard is meant to tell how 2021 went in terms of academic publication. You can visualize multiple statistics that were elaborated from the the 
+  st.write('''This dashboard is meant to tell how 2020 went in terms of academic publication. You can visualize multiple statistics that were elaborated from the the 
            portion of COCI dataset that was pre-processed according to the constrain explaned in the introduction.''')   
 
   with st.expander('General statistics', expanded=True):
-    st.write(f'''The **COCI dataset** contains a **total of {sum(init['tot_citations_distribution'])} citations** for the year 2021 that appeared in
+    st.write(f'''The **COCI dataset** contains a **total of {sum(init['tot_citations_distribution'])} citations** for the year 2020 that appeared in
               **{str(init['journals'])} unique journals**, which cover **{len(source_fields['fields'].keys())} different academic fields** and that can be
               grouped by **{len(source_fields['groups'].keys())} different groups** according to the _All Science Journals Classification_ (**ASJC**).
-              Here you can see which are the most cited journals and fields in the dataset throughout 2021.''')
+              Here you can see which are the most cited journals and fields in the dataset throughout 2020.''')
     col5, col6 = st.columns(2)
     with col5:
       st.header('Most important journals')
@@ -575,7 +577,7 @@ if general_stats:
       bars = px.bar(df_source_journals, y="number of citations", x="journals", color='number of citations', orientation='v',
                     color_continuous_scale='purples',  color_continuous_midpoint=list(source_journals.values())[3], height=700)
       st.plotly_chart(bars, use_container_width=True)
-      st.write(f'''The chart displays the **journals that received the most number of citations** in 2021. The **most cited journal** is _{list(source_journals.keys())[0]}_,
+      st.write(f'''The chart displays the **journals that received the most number of citations** in 2020. The **most cited journal** is _{list(source_journals.keys())[0]}_,
               with the astonishing number of **{list(source_journals.values())[0]} citations**. The **least cited journal** is _{list(source_journals.keys())[-1]}_,
               which received only {list(source_journals.values())[-1]} mentions.''')
     with col6:
@@ -584,19 +586,19 @@ if general_stats:
       bars = px.bar(df_source_fields, y="number of citations", x="fields", color='number of citations', orientation='v',
                     color_continuous_scale='blues',  color_continuous_midpoint=list(source_fields['fields'].values())[3], height=700)
       st.plotly_chart(bars, use_container_width=True)
-      st.write(f'''The chart displays the **fields that received the most number of citations** in 2021. The **most popular field** is **{list(source_fields['fields'].keys())[0]}**,
+      st.write(f'''The chart displays the **fields that received the most number of citations** in 2020. The **most popular field** is **{list(source_fields['fields'].keys())[0]}**,
               with the astonishing number of **{list(source_fields['fields'].values())[0]} citations**. The least popular one is **{list(source_fields['fields'].keys())[-1]}**,
               which received only {list(source_fields['fields'].values())[-1]} mentions.''')
     st.header(f"Distribution of citations")
-    histo_distr = px.histogram(df_distribution, x="distribution (number of citations)", nbins=100)
+    histo_distr = px.histogram(df_distribution, x="distribution (number of citations)", nbins=len(df_distribution['distribution (number of citations)']/10))
     st.plotly_chart(histo_distr, use_container_width=True)
-    st.write(f'''**This chart displayes the distribution of the number of citations** of each citing article in 2021 (each bin representing 20 citations). On the x-axis you
+    st.write(f'''**This chart displayes the distribution of the number of citations** of each citing article in 2020 (each bin representing 20 citations). On the x-axis you
              can find how many articles were mentioned, on the y-axis the number of instances of articles that cite n other articles.''')
-    st.write(f'''The **average number of citations** for citing articles in 2021 was **{init['average_citations']}**, the mode (i.e. the most frequent value)
+    st.write(f'''The **average number of citations** for citing articles in 2020 was **{init['average_citations']}**, the mode (i.e. the most frequent value)
             was **{mode(init['tot_citations_distribution'])}**, which implies a very skewed distribution.
             The **maximum number of mentions** was **{max(init['tot_citations_distribution'])}**, while the **minimum was {min(init['tot_citations_distribution'])}**.''')
   with st.expander('Fields subdivision', expanded=True):
-    st.write('''The bar chart above displays the **most important fields** in 2021, i.e. those that received more citations. 
+    st.write('''The bar chart above displays the **most important fields** in 2020, i.e. those that received more citations. 
             However, **ASJC** also comes with a subdivion of those fields in
             more general groups that give us a general picture of the subjects that are covered. The pie charts offer a broader look at the composition
             of the COCI dataset by illustrating the same data grouped according to the **group subdivision** and their **relative supergroups** (i.e. the most general
@@ -639,7 +641,7 @@ if general_stats:
               {list(source_fields['supergroups'].keys())[-1]} with {list(source_fields['supergroups'].values())[-1]} citations.''')
     
   with st.expander("Citations flow", expanded=True):
-    st.write('''Where did citations exactly went throughout 2021? In this section you can see whether articles belonging to a specific field or journal
+    st.write('''Where did citations exactly went throughout 2020? In this section you can see whether articles belonging to a specific field or journal
             **tend to mention publications that belong to the same field or journal**. 
             This is particularly interesting because it gives us an idea of how much the journals in the dataset are
             **cross-disciplinary**. With the sidebar you can also see statistics related to one specific field in order to see which are the subject that are more 
