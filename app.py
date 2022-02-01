@@ -79,19 +79,19 @@ else:
   init = st.session_state['init']
 
 if 'self_citations_asjc' not in st.session_state:
-  d_self_citations_asjc = parse_COCI.self_citation(data, asjc_fields=True)
+  d_self_citations_asjc = parse_COCI.self_citation(data, csvs, asjc_fields=True)
   st.session_state['self_citations_asjc'] = d_self_citations_asjc
 else:
   d_self_citations_asjc = st.session_state['self_citations_asjc']
 
 if 'source_journals' not in st.session_state:
-  source_journals = parse_COCI.parse_data(data)
+  source_journals = parse_COCI.parse_data(data, csvs)
   st.session_state['source_journals'] = source_journals
 else:
   source_journals = st.session_state['source_journals']
 
 if 'source_fields' not in st.session_state:
-  source_fields = parse_COCI.parse_data(data, asjc_fields=True)
+  source_fields = parse_COCI.parse_data(data, csvs, asjc_fields=True)
   st.session_state['source_fields'] = source_fields
 else:
   source_fields = st.session_state['source_fields']
@@ -103,7 +103,7 @@ else:
   df_distribution = st.session_state['df_distribution']
   
 if 'self_citations' not in st.session_state:
-  d_self_citations = parse_COCI.self_citation(data)
+  d_self_citations = parse_COCI.self_citation(data, csvs)
   st.session_state['self_citations'] = d_self_citations
 else:
   d_self_citations = st.session_state['self_citations']
@@ -147,7 +147,7 @@ else:
     if button and input_field != '' and single_search == 'Top journals cited by a field':
       result_mistakes = parse_COCI.spelling_mistakes(input_field)
       if result_mistakes == False:
-        result = parse_COCI.parse_data(data, asjc_fields = True, specific_field=input_field)
+        result = parse_COCI.parse_data(data, csvs, asjc_fields = True, specific_field=input_field)
         with col8:
           st.markdown('***')
           st.write(f'''There are **{str(len(result[input_field].keys()))} journals** related to **{input_field}**, for a total of **{str(sum(result[input_field].values()))} citations**.
@@ -169,7 +169,8 @@ else:
           top_journal = list(result[input_field].keys())[0]
           st.header(f'What do we know about {top_journal}?')
           st.write(f'''You might be interested in knowing something more about the most cited journal of {input_field}.
-                    Here you can see some information about it. If you are interested in another journal, you can always perform
+                    Here you can see some information about it, provided that the 
+                    there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
                     the same search with the related tool in the left sidebar.''')
         col13, col14 = st.columns([3, 1])
         with col13:
@@ -246,7 +247,7 @@ else:
     elif button and input_field != "" and single_search == 'Self citations of a field':
       check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
       if check_spelling_selfcit == False:
-        self_citation_field = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input_field)
+        self_citation_field = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input_field)
         df_selfcit = pd.DataFrame({'fields': self_citation_field.keys(), 'value': self_citation_field.values()})
         with col7:
           st.header(f'Self citations of {input_field}')
@@ -275,7 +276,7 @@ else:
       col7, col8 = st.columns([2, 1])
       check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
       if check_spelling_selfcit == False:
-        source_citflow = parse_COCI.citations_flow(data, specific_field=input_field)
+        source_citflow = parse_COCI.citations_flow(data, csvs, specific_field=input_field)
         df_citflow = pd.DataFrame({'fields': list(source_citflow['fields'].keys())[:10], 'number of citations': list(source_citflow['fields'].values())[:10]})
         with col7:
           st.header(f'Citations flow in {input_field}')
@@ -376,7 +377,7 @@ else:
             st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
             render = False    
       else: 
-        result = parse_COCI.parse_data(data, asjc_fields=True)['fields']
+        result = parse_COCI.parse_data(data, csvs, asjc_fields=True)['fields']
         output = {}
         result = {k.lower():v for k, v in result.items()}
         for item in input:
@@ -407,9 +408,9 @@ else:
             mistake_value = str(mistake_value).strip('][')
             st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
       else: 
-        self_citation_field_1 = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input[0])
+        self_citation_field_1 = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input[0])
         df_selfcit_1 = pd.DataFrame({'fields': self_citation_field_1.keys(), 'value': self_citation_field_1.values()})
-        self_citation_field_2 = parse_COCI.self_citation(data, asjc_fields=True, specific_field=input[1])
+        self_citation_field_2 = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input[1])
         df_selfcit_2 = pd.DataFrame({'fields': self_citation_field_2.keys(), 'value': self_citation_field_2.values()})
         st.write(f'''These pie charts  **confront how many articles** related to **{input_compare_field}** or to **{input_compare_field_cited}** tend to mention
                     articles related to the **same field**. It is a rough discriminator of **how much a field tend to cross its disciplinary boundaries**
@@ -456,8 +457,8 @@ else:
             mistake_value = str(mistake_value).strip('][')
             st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
       else:
-        source_citflow_1 = parse_COCI.citations_flow(data, specific_field=input[0])
-        source_citflow_2 = parse_COCI.citations_flow(data, specific_field=input[1])
+        source_citflow_1 = parse_COCI.citations_flow(data, csvs, specific_field=input[0])
+        source_citflow_2 = parse_COCI.citations_flow(data, csvs, specific_field=input[1])
         st.header(f'''Citations flow comparison between {input[0]} and {input[1]}''')
         st.write(f'''These pie charts below display the differences between how citations flow in {input[0]} and in {input[1]}, according to their group and supergroup
                 division. This visualization gives us a general idea of where the citations made by journals belongin to those two fields are usually headed to.''')
@@ -541,7 +542,7 @@ else:
             mistake_value = str(mistake_value).strip('][')
             st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
       else:
-        source_citflow_journal = parse_COCI.citations_flow_journals(data, specific_fields=input)
+        source_citflow_journal = parse_COCI.citations_flow_journals(data, csvs, specific_fields=input)
         df_source_citflow_journal = pd.DataFrame({'fields': list(source_citflow_journal.keys())[:10], 'number of citations': list(source_citflow_journal.values())[:10]})
         with col7:
           st.header(f'Journals citations flow')

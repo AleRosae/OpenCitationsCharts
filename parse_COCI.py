@@ -46,19 +46,15 @@ def load_csvs():
   output = {'df_issn': df_issn, 'df_asjc':df_asjc, 'df_supergroups': df_supergroups}
   return output
 
-def get_journal_issn(input_issn, asjc = None, specific_field = None):
-  df_issn = pd.read_csv(r'scopus_issn.csv')
-  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
-  df_issn.set_index('Print-ISSN', inplace=True)
+def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
+  df_issn = csvs['df_issn']
   if asjc: #load the asjc csv and search the disciplinary code in there
-    df_asjc = pd.read_csv(r'scopus_asjc.csv')
-    df_asjc.set_index('Code', inplace=True)
+    df_asjc = csvs['df_asjc']
     if specific_field != None:
       results = results = {'fields':{}, 'groups':{}, 'supergroups': {}, specific_field:{}}
     else:
       results = {'fields':{}, 'groups':{}, 'supergroups': {}}
-    df_supergroups = pd.read_csv(r'supergroups.csv')
-    df_supergroups.set_index('code', inplace=True)
+      df_supergroups = csvs['df_supergroups']
     for issn, value in input_issn.items():
       try:
         search_issn = re.sub("'", "", issn)
@@ -96,7 +92,7 @@ def get_journal_issn(input_issn, asjc = None, specific_field = None):
         pass #placeholder for ISSN not found
   return results
 
-def parse_data(data, asjc_fields = False, most_cited = False, 
+def parse_data(data, csvs, asjc_fields = False, most_cited = False, 
                 specific_field = None):
   output_dict = {}
   counting_all = {}
@@ -120,15 +116,15 @@ def parse_data(data, asjc_fields = False, most_cited = False,
   if asjc_fields: #converts the issn list in disciplinary fields
     if specific_field != None:
       subject = specific_field
-      c_asjc = get_journal_issn(alt_c, asjc=True, specific_field = subject)
+      c_asjc = get_journal_issn(alt_c, csvs, asjc=True, specific_field = subject)
       output_dict = c_asjc
     else:
-      c_asjc = get_journal_issn(alt_c, asjc=True)
+      c_asjc = get_journal_issn(alt_c, csvs, asjc=True)
       output_dict['fields'] = dict(sorted(c_asjc['fields'].items(), key=lambda item: item[1], reverse = True))
       output_dict['groups'] = dict(sorted(c_asjc['groups'].items(), key=lambda item: item[1], reverse = True))
       output_dict['supergroups'] = dict(sorted(c_asjc['supergroups'].items(), key=lambda item: item[1], reverse = True))
   else: 
-    new_issn = get_journal_issn(list(alt_c.keys()))
+    new_issn = get_journal_issn(list(alt_c.keys()), csvs)
     values = list(alt_c.values())
     counter = 0
     for index, el in enumerate(new_issn):
@@ -136,14 +132,14 @@ def parse_data(data, asjc_fields = False, most_cited = False,
   return output_dict
 
 
-def self_citation(data, asjc_fields = None, specific_field = None):
+def self_citation(data, csvs, asjc_fields = None, specific_field = None):
   output_dict = {}
   counter_self = 0
   counter_others = 0
   if specific_field != None and asjc_fields:
-      return get_issn_self_citation(data, specific_field=specific_field)
+      return get_issn_self_citation(data, csvs, specific_field=specific_field)
   elif asjc_fields:
-    return get_issn_self_citation(data)
+    return get_issn_self_citation(data, csvs)
   else:
     for item in data:
       for k in item['has_cited_n_times'].keys(): 
@@ -156,16 +152,13 @@ def self_citation(data, asjc_fields = None, specific_field = None):
     output_dict['not self ('+str(round((counter_others/tot) * 100))+'%)'] = counter_others
   return output_dict
     
-def get_issn_self_citation(data, specific_field = None): #particolarmente pesante se fatta per i field perché deve convertirli tutti
+def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente pesante se fatta per i field perché deve convertirli tutti
   self_citations = 0
   partial_self_citations = 0
   not_self_citations = 0
   not_found = 0 #il numero di citazioni per cui l'issn associato non si riesce a trovare nel csv 
-  df_issn = pd.read_csv(r'scopus_issn.csv')
-  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
-  df_issn.set_index('Print-ISSN', inplace=True)
-  df_asjc = pd.read_csv(r'scopus_asjc.csv') #carica entrambi i csv perché servono per cercare field specifico
-  df_asjc.set_index('Code', inplace=True)  
+  df_issn = csvs['df_issn']
+  df_asjc = csvs['df_asjc']
   results = {}
   for value in data:
     try:
@@ -261,15 +254,11 @@ def spelling_mistakes(input_data, journal = None):
     return result
 
 
-def citations_flow(data, specific_field = None):
+def citations_flow(data, csvs, specific_field = None):
   output_dict = {'fields':{}, 'groups':{}, 'supergroups': {}}
-  df_issn = pd.read_csv(r'scopus_issn.csv')
-  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
-  df_issn.set_index('Print-ISSN', inplace=True)
-  df_asjc = pd.read_csv(r'scopus_asjc.csv')
-  df_asjc.set_index('Code', inplace=True)
-  df_supergroups = pd.read_csv(r'supergroups.csv')
-  df_supergroups.set_index('code', inplace=True)
+  df_issn = csvs['df_issn']
+  df_asjc = csvs['df_asjc']
+  df_supergroups = csvs['df_supergroups']
   for item in data:
     issn = item['issn']
     search_issn = re.sub("'", "", issn)
@@ -314,15 +303,10 @@ def citations_flow(data, specific_field = None):
   output_dict['supergroups'] = dict(sorted(output_dict['supergroups'].items(), key=lambda item: item[1], reverse = True))
   return output_dict
   
-def citations_flow_journals(data, specific_fields = None):
+def citations_flow_journals(data, csvs, specific_fields = None):
   output_dict = {}
-  df_issn = pd.read_csv(r'scopus_issn.csv')
-  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
-  df_issn.set_index('Print-ISSN', inplace=True)
-  df_asjc = pd.read_csv(r'scopus_asjc.csv')
-  df_asjc.set_index('Code', inplace=True)
-  df_supergroups = pd.read_csv(r'supergroups.csv')
-  df_supergroups.set_index('code', inplace=True)
+  df_issn = csvs['df_issn']
+  df_asjc = csvs['df_asjc']
   for item in data:
     issn = item['issn']
     search_issn = re.sub("'", "", issn)
