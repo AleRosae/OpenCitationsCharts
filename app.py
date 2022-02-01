@@ -9,7 +9,6 @@ from streamlit.type_util import Key
 import parse_COCI
 import numpy as np
 import altair as alt
-import scipy.stats as stats
 from statistics import mean, mode
 from zipfile import ZipFile
 import plotly.express as px
