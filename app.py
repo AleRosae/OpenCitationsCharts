@@ -688,6 +688,6 @@ if general_stats:
       st.write('Articles that mention publications belonging to the same academic field or of similar academic field (according to ASJC classification).')
     
     st.header('Network visualization')
-    st.plotly_chart(parse_COCI.creat_vis_graph(data, tot=sum(init['tot_citations_distribution'])/1000), use_container_width=True)
+    st.plotly_chart(net_data, use_container_width=True)
     st.write('''This is a rough network visualization of the COCI dataset for 2020. Edges thickness is defined by the weight of each connection
              i.e. the number of connection between two nodes, while the size of each node is defined by the total number of connections it has received or made.''')
