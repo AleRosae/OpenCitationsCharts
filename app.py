@@ -1,14 +1,11 @@
-from altair.vegalite.v4.schema.core import Align
 from pandas.core.algorithms import mode
 import streamlit as st
 import re
 import json
-import streamlit.components.v1 as components
 import pandas as pd
 from streamlit.type_util import Key
 import parse_COCI
 import numpy as np
-import altair as alt
 from statistics import mean, mode
 from zipfile import ZipFile
 import plotly.express as px
