@@ -147,9 +147,8 @@ def self_citation(data, csvs, asjc_fields = None, specific_field = None):
           counter_self += item['has_cited_n_times'][k]
         else:
           counter_others += item['has_cited_n_times'][k]
-    tot = counter_self + counter_others
-    output_dict['self ('+str(round((counter_self/tot) * 100))+'%)'] = counter_self
-    output_dict['not self ('+str(round((counter_others/tot) * 100))+'%)'] = counter_others
+    output_dict['self'] = counter_self
+    output_dict['not self'] = counter_others
   return output_dict
     
 def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente pesante se fatta per i field perché deve convertirli tutti
@@ -159,6 +158,10 @@ def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente 
   not_found = 0 #il numero di citazioni per cui l'issn associato non si riesce a trovare nel csv 
   df_issn = csvs['df_issn']
   df_asjc = csvs['df_asjc']
+  if specific_field != None:
+    for row in df_asjc.itertuples():
+      if row[1].lower() == specific_field.lower():
+        specific_code = str(row[0])
   results = {}
   for value in data:
     try:
@@ -188,24 +191,19 @@ def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente 
             search_cited = re.sub("-", "", search_cited)
             cited_code = df_issn.at[search_cited, 'ASJC']
             cited_code = cited_code.split(';')[0]
-            field =  df_asjc.at[int(citing_code.strip()), 'Description'] #only gets the first disciplinary field, which should be the primary one
-            if field.lower() == specific_field.lower():#prendi solo quelli che hanno field uguale a quello di input
-              if citing_code == cited_code:
-                self_citations += value['has_cited_n_times'][k]
-              elif citing_code[:1] == cited_code[:1]:
-                partial_self_citations += value['has_cited_n_times'][k]
-              else:
-                not_self_citations += value['has_cited_n_times'][k]
-            else:
-              continue  
+            if citing_code == cited_code and citing_code == specific_code:
+              self_citations += value['has_cited_n_times'][k]
+            elif citing_code[:1] == cited_code[:1] and citing_code == specific_code:
+              partial_self_citations += value['has_cited_n_times'][k]
+            elif citing_code == specific_code:
+              not_self_citations += value['has_cited_n_times'][k]
           except KeyError:
               not_found += value['has_cited_n_times'][k]
     except KeyError:
       continue        
-  tot = self_citations + partial_self_citations + not_self_citations
-  results['self ('+str(round((self_citations/tot) * 100))+'%)'] = self_citations
-  results['partial self ('+str(round((partial_self_citations/tot) * 100))+'%)'] = partial_self_citations
-  results['not self ('+str(round((not_self_citations/tot) * 100))+'%)']  = not_self_citations
+  results['self'] = self_citations
+  results['partial self'] = partial_self_citations
+  results['not self']  = not_self_citations
   #results['not_found'] = not_found
   return results
 
@@ -412,5 +410,5 @@ def search_specific_journal(data, csvs, specific_journal = None):
 #print(result['fields'])
 #print(result['groups'])
 #print(result['supergroups'])
-#print(self_citation(data, asjc_fields=True, specific_field='Philosophy'))
+#print(self_citation(data, load_csvs(), asjc_fields=True, specific_field='Philosophy'))
 #print(spelling_mistakes('sads'))

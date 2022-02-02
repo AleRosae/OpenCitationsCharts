@@ -136,7 +136,8 @@ else:
                                             You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
       n_items = st.sidebar.slider('number of journals', 1, 20, 10)
     elif single_search == 'Self citations of a field':
-      st.sidebar.write('''Display how much journals belonging to a **specific field** tend to mentioned journals that belongs to their own field/group/supergroup''')
+      st.sidebar.write('''Display how much journals belonging to a **specific field** tend to mentioned journals that belongs to their
+       own field/group/supergroup (this may take a couple of minutes to process).''')
       input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                                 You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
     elif single_search == 'Citations flow':
@@ -248,23 +249,21 @@ else:
       check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
       if check_spelling_selfcit == False:
         self_citation_field = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input_field)
-        df_selfcit = pd.DataFrame({'fields': self_citation_field.keys(), 'value': self_citation_field.values()})
+        df_selfcit = pd.DataFrame({'fields': self_citation_field.keys(), 'values': self_citation_field.values()})
         with col7:
           st.header(f'Self citations of {input_field}')
-          st.altair_chart(alt.Chart(df_selfcit).mark_arc().encode(
-              theta=alt.Theta(field="value", type="quantitative", sort=list(self_citation_field.keys())),
-              color=alt.Color(field="fields", type="nominal", sort=list(self_citation_field.keys()))), use_container_width=True)
+          fig = px.pie(df_selfcit, values='values', names='fields' )
+          st.plotly_chart(fig, use_container_width=True) 
         with col8:
-          global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
           st.markdown('***')
           st.write(f'''The pie chart displays how many articles related to **{input_field}** tend to mention
                     articles related to the same field. It is a rough discriminator of how much a field tend to cross its disciplinary boundaries
                     relying also on external subjects. Self citations are scored when an article mentions another article belonging to
                     the same exact ASJC code, while partial self citations include articles that are not the exact match but
                     that belong to the same ASJC group.''')
-          st.write(f'''In **{input_field}** there are **{df_selfcit.iloc[0,1]} self citations** (global percentage is {global_percentages[0]}),
-          **{df_selfcit.iloc[1,1]} partial self-citations** (global percentage is {global_percentages[1]})
-          and **{df_selfcit.iloc[2,1]} not self citations** (global percentage is {global_percentages[2]}).''')
+          st.write(f'''In **{input_field}** there are **{df_selfcit.iloc[0,1]} self citations**,
+          **{df_selfcit.iloc[1,1]} partial self-citations** 
+          and **{df_selfcit.iloc[2,1]} not self citations**.''')
         st.markdown('***')
       elif check_spelling_selfcit == None:
         st.sidebar.write(f"Can't find {input_field}. Check the spelling.")
@@ -273,41 +272,39 @@ else:
         st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?")
 
     elif button and  input_field != '' and single_search == 'Citations flow':
-      col7, col8 = st.columns([2, 1])
       check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
       if check_spelling_selfcit == False:
+        st.header(f'Citations flow in {input_field}')
+        st.write(f'''The charts below display **how citations have flowed** starting from journals related to **{input_field}**. It is a general ovwerview of how different
+                    academic fields interact with each other, using citations as a proxy for linking two different fields.''')
+        col7, col8 = st.columns(2)
         source_citflow = parse_COCI.citations_flow(data, csvs, specific_field=input_field)
         df_citflow = pd.DataFrame({'fields': list(source_citflow['fields'].keys())[:10], 'number of citations': list(source_citflow['fields'].values())[:10]})
+
         with col7:
-          st.header(f'Citations flow in {input_field}')
           bars = px.bar(df_citflow, y="number of citations", x="fields", color='number of citations', orientation='v',
                           color_continuous_scale='blues',  color_continuous_midpoint=list(source_citflow['fields'].values())[3], height=800)
           st.plotly_chart(bars, use_container_width=True)
         with col8:
           tot_cit_supergroups = sum(source_citflow['supergroups'].values())
-          cit_supergroups_categories = [el + ' (' + str(round((source_citflow['supergroups'][el]/tot_cit_supergroups) * 100))+'%)' for el in source_citflow['supergroups'].keys()]
-          df_cit_source_supergroups = pd.DataFrame({'supergroups': cit_supergroups_categories, 
+          df_cit_source_supergroups = pd.DataFrame({'supergroups': source_citflow['supergroups'].keys(), 
                                           'values': source_citflow['supergroups'].values()})
-          st.header(f'''Groups and supergroups subdivision''')
-          st.altair_chart(alt.Chart(df_cit_source_supergroups).mark_arc().encode(
-            theta=alt.Theta(field="values", type="quantitative", sort=cit_supergroups_categories),
-            color=alt.Color(field="supergroups", type="nominal", sort=cit_supergroups_categories)), use_container_width=True)
+          fig = px.pie(df_cit_source_supergroups, values='values', names='supergroups' )
+          st.plotly_chart(fig, use_container_width=True) 
           
           #voglio solo i primi 10 categorie/valori, il resto va nella categoria others
           tot_cit_groups = sum(source_citflow['groups'].values())
-          cit_groups_categories = [el + ' (' + str(round((source_citflow['groups'][el]/tot_cit_groups) * 100))+'%)' for el in source_citflow['groups'].keys()][:10]
-          cit_groups_values = list(source_citflow['groups'].values())[:10]
-          cit_groups_others = sum(list(source_citflow['groups'].values())[10:])
-          cit_groups_categories.append('others (' + str(round((cit_groups_others/tot_cit_groups) * 100))+'%)')
+          cit_groups_categories = [el[:20] for el in source_citflow['groups'].keys()][:12]
+          cit_groups_values = list(source_citflow['groups'].values())[:12]
+          cit_groups_others = sum(list(source_citflow['groups'].values())[12:])
+          cit_groups_categories.append('Others')
           cit_groups_values.append(cit_groups_others)
           df_cit_source_groups = pd.DataFrame({'groups': cit_groups_categories, 
                                           'values': cit_groups_values})
-          st.altair_chart(alt.Chart(df_cit_source_groups).mark_arc().encode(
-            theta=alt.Theta(field="values", type="quantitative", sort=cit_groups_categories),
-            color=alt.Color(field="groups", type="nominal", sort=cit_groups_categories, scale=alt.Scale(scheme='category20'))), use_container_width=True)
+          fig = px.pie(df_cit_source_groups, values='values', names='groups' )
+          st.plotly_chart(fig, use_container_width=True) 
         not_mentioned = str(parse_COCI.check_unmentioned(source_citflow['groups'])).strip('][')
-        st.write(f'''The charts above display **how citations have flowed** starting from journals related to **{input_field}**. It is a general ovwerview of how different
-                    academic fields interact with each other, using citations as a proxy for linking two different fields.''')
+
         st.write(f'''The bar charts illustrates which are the other fields that are mostly citited by articles of **{input_field}**. This 
                   provides an idea of how these disciplines tend to communicate. In this case, the **most mentioned field is {list(source_citflow['fields'].keys())[0]}**,
                   with **{list(source_citflow['fields'].values())[0]} citations**. The **least one is {list(source_citflow['fields'].keys())[-1]}**, which apparently is the most distant
@@ -330,15 +327,16 @@ else:
     st.sidebar.header('Compare different fields')
     multiple_search = st.sidebar.radio(
         "What do you want to search for?",
-        ('Number of citations per field', 'Self citations', 'Citations flow', 'Journals flow'))
+        ('Number of citations per field', 'Self citations comparison', 'Citations flow', 'Journals flow'))
     if multiple_search == 'Number of citations per field':
       st.sidebar.write('Display a comparison between **two or more different fields** according to the number of citations they received. Simply type a list of fields to compare them.')
       input_compare_field = st.sidebar.text_area('Fields (separated with comma and space)', '', key=4321, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                                 You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
       input_compare_field_cited = None
       button = st.sidebar.button('Go', key=7777)
-    elif multiple_search == 'Self citations':
-      st.sidebar.write('''Display a comparison between **exactly two fields** in terms of how much they tend to mention disciplines belonging to their own field.''')
+    elif multiple_search == 'Self citations comparison':
+      st.sidebar.write('''Display a comparison between **exactly two fields** in terms of how much they tend to mention disciplines belonging to their own field 
+      (this may take a couple of minutes to process).''')
       input_compare_field = st.sidebar.text_input('Field 1', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                                 You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
       input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
@@ -391,7 +389,7 @@ else:
         st.write('''The bar chart above compares the number of citation received for each field.''')
         st.markdown('***')
 
-    elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Self citations' and button: 
+    elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Self citations comparison' and button: 
       col7, col8 = st.columns(2)
       input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
       input = input.split(', ')
@@ -409,36 +407,33 @@ else:
             st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
       else: 
         self_citation_field_1 = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input[0])
-        df_selfcit_1 = pd.DataFrame({'fields': self_citation_field_1.keys(), 'value': self_citation_field_1.values()})
+        df_selfcit_1 = pd.DataFrame({'fields': self_citation_field_1.keys(), 'values': self_citation_field_1.values()})
         self_citation_field_2 = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input[1])
-        df_selfcit_2 = pd.DataFrame({'fields': self_citation_field_2.keys(), 'value': self_citation_field_2.values()})
+        df_selfcit_2 = pd.DataFrame({'fields': self_citation_field_2.keys(), 'values': self_citation_field_2.values()})
         st.write(f'''These pie charts  **confront how many articles** related to **{input_compare_field}** or to **{input_compare_field_cited}** tend to mention
                     articles related to the **same field**. It is a rough discriminator of **how much a field tend to cross its disciplinary boundaries**
                     and cross with external subjects. Self citations are scored when an article mentions another article belonging to
                     the same exact ASJC code, while partial self citations includes articles that are not the exact match but
                     that belong to the same ASJC group. The comparison allows to detect substancial differences in the way in which fields belonging to different groups (e.g. medical sciences
                     and arts and humanities) tend to produce mentions related only to their own subject.''')
-        global_percentages = [re.search(r"\(.*\)", el).group().strip(')(') for el in d_self_citations_asjc.keys()]
         with col7:
           st.header(f'Self citations of {input[0]}')
           st.write(f'''How many articles belonging to **{input_compare_field}** tend to mention
                     articles related to the same field.''')
-          st.altair_chart(alt.Chart(df_selfcit_1).mark_arc().encode(
-              theta=alt.Theta(field="value", type="quantitative", sort=list(self_citation_field_1.keys())),
-              color=alt.Color(field="fields", type="nominal", sort=list(self_citation_field_1.keys()))), use_container_width=True)
-          st.write(f'''In **{input_compare_field}** there are **{df_selfcit_1.iloc[0,1]} self citations** (global percentage is {global_percentages[0]}),
-          **{df_selfcit_1.iloc[1,1]} partial self-citations** (global percentage is {global_percentages[1]})
-          and **{df_selfcit_1.iloc[2,1]} not self citations** (global percentage is {global_percentages[2]}).''')
+          fig = px.pie(df_selfcit_1, values='values', names='fields')
+          st.plotly_chart(fig, use_container_width=True) 
+          st.write(f'''In **{input_compare_field}** there are **{df_selfcit_1.iloc[0,1]} self citations**,
+          **{df_selfcit_1.iloc[1,1]} partial self-citations**
+          and **{df_selfcit_1.iloc[2,1]} not self citations**.''')
         with col8:
           st.header(f'Self citations of {input[1]}')
           st.write(f'''How many articles belonging to **{input_compare_field_cited}** tend to mention
                     articles related to the same field.''')
-          st.altair_chart(alt.Chart(df_selfcit_2).mark_arc().encode(
-              theta=alt.Theta(field="value", type="quantitative", sort=list(self_citation_field_2.keys())),
-              color=alt.Color(field="fields", type="nominal", sort=list(self_citation_field_2.keys()))), use_container_width=True)
-          st.write(f'''In **{input_compare_field_cited}** there are **{df_selfcit_2.iloc[0,1]} self citations** (global percentage is {global_percentages[0]}),
-          **{df_selfcit_2.iloc[1,1]} partial self-citations** (global percentage is {global_percentages[1]})
-          and **{df_selfcit_2.iloc[2,1]} not self citations** (global percentage is {global_percentages[2]}).''')
+          fig = px.pie(df_selfcit_2, values='values', names='fields')
+          st.plotly_chart(fig, use_container_width=True) 
+          st.write(f'''In **{input_compare_field_cited}** there are **{df_selfcit_2.iloc[0,1]} self citations**,
+          **{df_selfcit_2.iloc[1,1]} partial self-citations**
+          and **{df_selfcit_2.iloc[2,1]} not self citations**.''')
       st.markdown('***')
     elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Citations flow' and button: 
       col7, col8 = st.columns([2, 1])
@@ -467,46 +462,37 @@ else:
         df_citflow_2 = pd.DataFrame({'fields': list(source_citflow_2['fields'].keys())[:10], 'values': list(source_citflow_2['fields'].values())[:10]})
         with col7:
           st.header(f'Citations flow in {input[0]}')
-          tot_cit_supergroups_1 = sum(source_citflow_1['supergroups'].values())
-          cit_supergroups_categories_1 = [el + ' (' + str(round((source_citflow_1['supergroups'][el]/tot_cit_supergroups_1) * 100))+'%)' for el in source_citflow_1['supergroups'].keys()]
-          df_cit_source_supergroups_1 = pd.DataFrame({'supergroups': cit_supergroups_categories_1, 
+          df_cit_source_supergroups_1 = pd.DataFrame({'supergroups': source_citflow_1['supergroups'].keys(), 
                                           'values': source_citflow_1['supergroups'].values()})
-          st.altair_chart(alt.Chart(df_cit_source_supergroups_1).mark_arc().encode(
-            theta=alt.Theta(field="values", type="quantitative"),
-            color=alt.Color(field="supergroups", type="nominal")), use_container_width=True)
+          fig = px.pie(df_cit_source_supergroups_1, values='values', names='supergroups')
+          st.plotly_chart(fig, use_container_width=True) 
           #voglio solo i primi 10 categorie/valori, il resto va nella categoria others
           tot_cit_groups_1 = sum(source_citflow_1['groups'].values())
-          cit_groups_categories_1 = [el + ' (' + str(round((source_citflow_1['groups'][el]/tot_cit_groups_1) * 100))+'%)' for el in source_citflow_1['groups'].keys()][:10]
-          cit_groups_values_1 = list(source_citflow_1['groups'].values())[:10]
-          cit_groups_others_1 = sum(list(source_citflow_1['groups'].values())[10:])
-          cit_groups_categories_1.append('others (' + str(round((cit_groups_others_1/tot_cit_groups_1) * 100))+'%)')
+          cit_groups_categories_1 = [el[:20] for el in source_citflow_1['groups'].keys()][:12]
+          cit_groups_values_1 = list(source_citflow_1['groups'].values())[:12]
+          cit_groups_others_1 = sum(list(source_citflow_1['groups'].values())[12:])
+          cit_groups_categories_1.append('Others')
           cit_groups_values_1.append(cit_groups_others_1)
           df_cit_source_groups_1 = pd.DataFrame({'groups': cit_groups_categories_1, 
                                           'values': cit_groups_values_1})
-          st.altair_chart(alt.Chart(df_cit_source_groups_1).mark_arc().encode(
-            theta=alt.Theta(field="values", type="quantitative", sort=cit_groups_categories_1),
-            color=alt.Color(field="groups", type="nominal", sort=cit_groups_categories_1)), use_container_width=True)
+          fig = px.pie(df_cit_source_groups_1, values='values', names='groups')
+          st.plotly_chart(fig, use_container_width=True) 
         with col8:
           st.header(f'Citations flow in {input[1]}')
-          tot_cit_supergroups_2 = sum(source_citflow_2['supergroups'].values())
-          cit_supergroups_categories_2 = [el + ' (' + str(round((source_citflow_2['supergroups'][el]/tot_cit_supergroups_2) * 100))+'%)' for el in source_citflow_2['supergroups'].keys()]
-          df_cit_source_supergroups_2 = pd.DataFrame({'supergroups': cit_supergroups_categories_2, 
+          df_cit_source_supergroups_2 = pd.DataFrame({'supergroups': source_citflow_2['supergroups'].keys(), 
                                           'values': source_citflow_2['supergroups'].values()})
-          st.altair_chart(alt.Chart(df_cit_source_supergroups_2).mark_arc().encode(
-            theta=alt.Theta(field="values", type="quantitative"),
-            color=alt.Color(field="supergroups", type="nominal")), use_container_width=True)
+          fig = px.pie(df_cit_source_supergroups_2, values='values', names='supergroups')
+          st.plotly_chart(fig, use_container_width=True) 
           #voglio solo i primi 10 categorie/valori, il resto va nella categoria others
-          tot_cit_groups_2 = sum(source_citflow_2['groups'].values())
-          cit_groups_categories_2 = [el + ' (' + str(round((source_citflow_2['groups'][el]/tot_cit_groups_2) * 100))+'%)' for el in source_citflow_2['groups'].keys()][:10]
+          cit_groups_categories_2 = [el[:20] for el in source_citflow_2['groups'].keys()][:10]
           cit_groups_values_2 = list(source_citflow_2['groups'].values())[:10]
           cit_groups_others_2 = sum(list(source_citflow_2['groups'].values())[10:])
-          cit_groups_categories_2.append('others (' + str(round((cit_groups_others_2/tot_cit_groups_2) * 100))+'%)')
+          cit_groups_categories_2.append('Others')
           cit_groups_values_2.append(cit_groups_others_2)
           df_cit_source_groups_2 = pd.DataFrame({'groups': cit_groups_categories_2, 
                                           'values': cit_groups_values_2})
-          st.altair_chart(alt.Chart(df_cit_source_groups_2).mark_arc().encode(
-            theta=alt.Theta(field="values", type="quantitative", sort=cit_groups_categories_2),
-            color=alt.Color(field="groups", type="nominal", sort= cit_groups_categories_2)), use_container_width=True)
+          fig = px.pie(df_cit_source_groups_2, values='values', names='groups')
+          st.plotly_chart(fig, use_container_width=True) 
         set_1 = set(source_citflow_1['groups'].keys())
         set_2 = set(source_citflow_2['groups'].keys())
         set_merge = set_1.intersection(set_2)
@@ -527,8 +513,8 @@ else:
       st.markdown('***')
     elif button and multiple_search == 'Journals flow' and input_compare_field != '' and input_compare_field_cited != '': 
       col7, col8 = st.columns([4, 1])
-      input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
-      input = input.split(', ')
+      input = input_compare_field.strip() + '; ' + input_compare_field_cited.strip()
+      input = input.split('; ')
       check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
       dict_spelling = [el for el in check_spelling if type(el) == dict]
       if None in check_spelling:
@@ -543,11 +529,13 @@ else:
             st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
       else:
         source_citflow_journal = parse_COCI.citations_flow_journals(data, csvs, specific_fields=input)
-        df_source_citflow_journal = pd.DataFrame({'fields': list(source_citflow_journal.keys())[:10], 'number of citations': list(source_citflow_journal.values())[:10]})
+        df_source_citflow_journal = pd.DataFrame({'journals': list(source_citflow_journal.keys())[:10], 
+          'number of citations': list(source_citflow_journal.values())[:10]})
         with col7:
           st.header(f'Journals citations flow')
-          bars = px.bar(df_source_citflow_journal, y="number of citations", x="fields", color='number of citations', orientation='v',
-                        color_continuous_scale='blues',  color_continuous_midpoint=list(source_citflow_journal.values())[3], height=800)
+          bars = px.bar(df_source_citflow_journal, y="number of citations", x="journals", color='number of citations', orientation='v',
+                        color_continuous_scale='blues', 
+                         color_continuous_midpoint=list(source_citflow_journal.values())[int(len(source_citflow_journal.values())/3)], height=700)
           st.plotly_chart(bars, use_container_width=True)
         with col8:
           st.markdown("***")
@@ -558,6 +546,44 @@ else:
           st.write(f'''**In total**, there are **{len(list(source_citflow_journal.keys()))} journals of {input_compare_field_cited}** that
                     have been cited by articles related to **{input_compare_field}**. The total number of citations received amount
                     to {sum(list(source_citflow_journal.values()))}.''')
+        top_journal = list(source_citflow_journal.keys())[0]
+        st.header(f'What do we know about {top_journal}?')
+        st.write(f'''You might be interested in knowing something more about The **most popular journal 
+                  of {input_compare_field_cited}** among researchers of **{input_compare_field}**.
+                  Here you can see some information about it, provided that the 
+                  there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
+                  the same search with the related tool in the left sidebar.''')
+        col13, col14 = st.columns([3, 1])
+        with col13:
+          result_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=top_journal)
+          if top_journal not in result_journal.keys():
+              st.header('Journal not found!')
+              st.write('''It looks like the journal you searched did not make any citation in 2020 according to the COCI dataset.
+                        This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
+                        the 2020 data, which is in turn a small subset of the whole COCI dataset.
+                        Or maybe we need to open a little bit more this particular branch of science :)''')
+              st.markdown('***')
+          else:
+            st.header(f'The journals that are cited the most by {top_journal.capitalize()}')
+            source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 
+                                    'number of citations': list(result_journal[top_journal]['citations'].values())[:10]})
+            bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
+                          color_continuous_scale='purples',  color_continuous_midpoint=list(result_journal[top_journal]['citations'].values())[3], height=800)
+            st.plotly_chart(bars, use_container_width=True)
+            st.markdown('***')
+          if top_journal not in result_journal.keys():
+            pass
+          else:
+            with col14:
+              st.markdown('***')
+              st.write(f'''The bar chart displays which are the journals that received most citations from _{top_journal.capitalize()}_, 
+                          giving us the general idea of where it is most likely to find articles related to the same topic.''')
+              st.write(f'''_{top_journal.capitalize()}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
+                          {result_journal[top_journal]['group']} group.''')
+              st.write(f'''{len(list(result_journal[top_journal]['citations'].keys()))} unique journals have been cited by _{top_journal}_ for a total
+                      of {sum(list(result_journal[top_journal]['citations'].values()))} citations.
+                      The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
+                      {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
       st.markdown('***')
 
 if general_stats:
@@ -612,30 +638,25 @@ if general_stats:
     with col9:
       st.header('''Academic groups subdivision''')
       tot_groups = sum(source_fields['groups'].values())
-      groups_categories = [el + ' (' + str(round((source_fields['groups'][el]/tot_groups) * 100))+'%)' for el in source_fields['groups'].keys()][:15]
+      groups_categories = [el[:20] for el in source_fields['groups'].keys()][:15]
       groups_values = list(source_fields['groups'].values())[:15]
       groups_others = sum(list(source_fields['groups'].values())[15:])
-      groups_categories.append('others (' + str(round((groups_others/tot_groups) * 100))+'%)')
+      groups_categories.append('Others')
       groups_values.append(groups_others)
       df_source_groups = pd.DataFrame({'groups': groups_categories, 
                                       'values': groups_values})
-      st.altair_chart(alt.Chart(df_source_groups).mark_arc().encode(
-        theta=alt.Theta(field="values", type="quantitative", sort=groups_categories),
-        color=alt.Color(field="groups", type="nominal", sort=groups_values, scale=alt.Scale(scheme='category20'))), use_container_width=True) #add colour scheme for more colours in the pie chart
-        
+      fig = px.pie(df_source_groups, values='values', names='groups', )
+      st.plotly_chart(fig, use_container_width=True)  
       st.write(f'''The **subdivision** of the {len(source_fields['fields'].keys())} fields present in the COCI dataset in **groups**. The **most popular group**
               is **{list(source_fields['groups'].keys())[0]}** which received **{list(source_fields['groups'].values())[0]} mentions**. The least popular one is 
               {list(source_fields['groups'].keys())[-1]} with {list(source_fields['groups'].values())[-1]} citations. 
               _Others_ include: {str(list(source_fields['groups'].keys())[15:]).strip('][')}.''')
       with col10:
         st.header('''Academic supergroups subdivision''')
-        tot_supergroups = sum(source_fields['supergroups'].values())
-        supergroups_categories = [el + ' (' + str(round((source_fields['supergroups'][el]/tot_supergroups) * 100))+'%)' for el in source_fields['supergroups'].keys()]
-        df_source_supergroups = pd.DataFrame({'supergroups': supergroups_categories, 
-                                        'value': source_fields['supergroups'].values()})
-        st.altair_chart(alt.Chart(df_source_supergroups).mark_arc().encode(
-          theta=alt.Theta(field="value", type="quantitative", sort=supergroups_categories),
-          color=alt.Color(field="supergroups", type="nominal", sort=supergroups_categories)), use_container_width=True)
+        df_source_supergroups = pd.DataFrame({'supergroups': source_fields['supergroups'].keys(), 
+                                        'values': source_fields['supergroups'].values()})
+        fig = px.pie(df_source_supergroups, values='values', names='supergroups')
+        st.plotly_chart(fig, use_container_width=True) 
         st.write(f'''The **subdivision** of the {len(source_fields['groups'].keys())} groups present in the COCI dataset according to supergroups. The** most popular supergroup** is
               **{list(source_fields['supergroups'].keys())[0]}** which received **{list(source_fields['supergroups'].values())[0]} mentions**. The least popular one is 
               {list(source_fields['supergroups'].keys())[-1]} with {list(source_fields['supergroups'].values())[-1]} citations.''')
@@ -649,15 +670,13 @@ if general_stats:
     col1, col2 = st.columns(2)
     with col2:
       st.header('Self citations (by journals)')
-      df_d = pd.DataFrame({'category': d_self_citations.keys(), 'value': d_self_citations.values()})
-      st.altair_chart(alt.Chart(df_d).mark_arc().encode(
-          theta=alt.Theta(field="value", type="quantitative"),
-          color=alt.Color(field="category", type="nominal"))  , use_container_width=True)
+      df_d = pd.DataFrame({'category': d_self_citations.keys(), 'values': d_self_citations.values()})
+      fig = px.pie(df_d, values='values', names='category', )
+      st.plotly_chart(fig, use_container_width=True) 
       st.write('Articles that mention publications that belong to the same journal of the citing article.')
     with col1:
       st.header('Self citations (by academic field)')
-      df_d = pd.DataFrame({'category': d_self_citations_asjc.keys(), 'value': d_self_citations_asjc.values()})
-      st.altair_chart(alt.Chart(df_d).mark_arc().encode(
-          theta=alt.Theta(field="value", type="quantitative", sort=list(d_self_citations.keys())),
-          color=alt.Color(field="category", type="nominal", sort=list(d_self_citations.keys()))), use_container_width=True)
+      df_d_asjc = pd.DataFrame({'category': d_self_citations_asjc.keys(), 'values': d_self_citations_asjc.values()})
+      fig = px.pie(df_d_asjc, values='values', names='category', )
+      st.plotly_chart(fig, use_container_width=True) 
       st.write('Articles that mention publications belonging to the same academic field or of similar academic field (according to ASJC classification).')
