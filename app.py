@@ -54,7 +54,7 @@ def load_data(path):
       d = json.load(infile)
       return d
 if 'data' not in st.session_state:
-  data = load_data(r'all_2020.zip')
+  data = load_data(r'output_2020-04-25T04_48_36_1.zip')
   st.session_state['data'] = data
 else:
   data = st.session_state['data']
