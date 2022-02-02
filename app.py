@@ -50,7 +50,7 @@ st.markdown("""---""")
 @st.cache()
 def load_data(path):
   with ZipFile(path, 'r') as zip:
-    with zip.open('all_2020.json') as infile:
+    with zip.open('output_2020-04-25T04_48_36_1.json') as infile:
       d = json.load(infile)
       return d
 if 'data' not in st.session_state:
