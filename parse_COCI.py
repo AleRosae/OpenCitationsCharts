@@ -4,6 +4,8 @@ import re
 from collections import Counter
 from streamlit.state.session_state import Value
 from zipfile import ZipFile
+import plotly.graph_objects as go
+import networkx as nx
 
 def initial_parsing(data, asjc_fields = None):
   output_dict = {}
@@ -394,15 +396,51 @@ def search_specific_journal(data, csvs, specific_journal = None):
   return output_dict
 
 
+def citations_networks(data):
+  output_dict = {}
+  df_issn = pd.read_csv(r'scopus_issn.csv')
+  df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
+  df_issn.set_index('Print-ISSN', inplace=True)
+  df_asjc = pd.read_csv(r'scopus_asjc.csv')
+  df_asjc.set_index('Code', inplace=True)
+  df_supergroups = pd.read_csv(r'supergroups.csv')
+  df_supergroups.set_index('code', inplace=True)
+  for item in data:
+    issn = item['issn']
+    search_issn = re.sub("'", "", issn)
+    search_issn = re.sub('-', "", search_issn)
+    try:
+      tmp_citing = df_issn.at[search_issn, 'ASJC']
+    except KeyError:
+      continue
+    tmp_citing = tmp_citing.split(';')
+    group_citing = df_supergroups.at[str(tmp_citing[0].strip())[:2]+'**', 'Description']
+    for k in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
+      issn_cited = re.sub('-', "", k)
+      issn_cited = re.sub("'", "", issn_cited)
+      try:
+        tmp_cited= df_issn.at[issn_cited, 'ASJC']
+      except KeyError:
+        continue
+      tmp_cited = tmp_cited.split(';')
+      group_cited = df_supergroups.at[str(tmp_cited[0].strip())[:2]+'**', 'Description']
+      if group_citing in output_dict.keys() and group_cited in output_dict[group_citing].keys():
+        output_dict[group_citing][group_cited] += item['has_cited_n_times'][k]
+      elif group_citing in output_dict.keys():
+        output_dict[group_citing][group_cited] = item['has_cited_n_times'][k]
+      else:
+        output_dict[group_citing] = {}
+        output_dict[group_citing][group_cited] = item['has_cited_n_times'][k]
+  return output_dict
+
+#data = load_data('output_2020-04-25T04_48_36_1.zip')
+#network = citations_networks(data)
+#print(network)
+
 #data = load_data('output_2020-04-25T04_48_36_1.zip')
 #print(search_specific_journal(data, load_csvs(), 'Nature'))
 #print(citations_flow_journals(data, 'cell biology, philosophy'))
-
 #cit_flow = citations_flow(data, specific_field = 'philosophy')
-#print(cit_flow['fields'])
-#print(cit_flow['groups'])
-#print(cit_flow['supergroups'])
-
 #supergroups = get_journal_issn(cit_flow, asjc=True, supergroups=True)
 #print(supergroups)
 #result = parse_data(data, asjc_fields=True, specific_field='philosophy')
@@ -412,3 +450,84 @@ def search_specific_journal(data, csvs, specific_journal = None):
 #print(result['supergroups'])
 #print(self_citation(data, load_csvs(), asjc_fields=True, specific_field='Philosophy'))
 #print(spelling_mistakes('sads'))
+def make_edge(x, y, text, width):
+    return  go.Scatter(x         = x,
+                      y         = y,
+                      line      = dict(width = width,
+                                  color = 'cornflowerblue'),
+                      
+                      hoverinfo = 'text',
+                      text      = ([text]),
+                      mode      = 'lines')
+    
+def creat_vis_graph(data, tot):
+  d = citations_networks(data)
+  graph = nx.Graph()
+  for key, value in d.items():
+    graph.add_node(key, size=sum(value.values())/tot)
+    for k, v in value.items():
+      graph.add_edge(key, k, weight=v / tot)
+  pos = nx.spring_layout(graph)
+    
+  # For each edge, make an edge_trace, append to list
+  edge_trace = []
+  for edge in graph.edges():
+          field_1 = edge[0]
+          field_2 = edge[1]
+          x0, y0 = pos[field_1]
+          x1, y1 = pos[field_2]
+          text = field_1 + '--' + field_2 + ': ' + str(graph.edges()[edge]['weight'] )
+          trace  = make_edge([x0, x1, None], [y0, y1, None], text, 
+                            width = graph.edges()[edge]['weight'])
+          edge_trace.append(trace)
+  node_trace = go.Scatter(x         = [],
+                          y         = [],
+                          text      = [],
+                          textposition = "top center",
+                          textfont_size = 10,
+                          mode      = 'markers+text',
+                          hoverinfo = 'text',
+                          marker    = dict(colorscale='Viridis',
+                                              reversescale=False,
+                                              color=[],
+                                              size = [],
+                                            ))
+  # For each node in midsummer, get the position and size and add to the node_trace
+  for node in graph.nodes():
+      x, y = pos[node]
+      node_trace['x'] += tuple([x])
+      node_trace['y'] += tuple([y])
+      node_trace['marker']['color'] += tuple(['cornflowerblue'])
+      node_trace['marker']['size'] += tuple([graph.nodes()[node]['size']])
+      node_trace['text'] += tuple(['<b>' + node + '</b>'])
+  # Customize layout
+  layout = go.Layout(
+      height = 850,
+      paper_bgcolor='rgba(0,0,0,0)', # transparent background
+      plot_bgcolor='rgba(0,0,0,0)', # transparent 2nd background
+      xaxis =  {'showgrid': False, 'zeroline': False}, # no gridlines
+      yaxis = {'showgrid': False, 'zeroline': False}, # no gridlines.
+        hovermode='closest',
+    margin=dict(b=20,l=5,r=5,t=40),
+  )
+  node_adjacencies = []
+  node_text = []
+  for node, adjacencies in enumerate(graph.adjacency()):
+      node_adjacencies.append(len(adjacencies[1]))
+      node_text.append('# of connections: '+str(len(adjacencies[1])))
+
+  node_trace.marker.color = node_adjacencies
+  # Create figure
+  fig = go.Figure(layout = layout)
+  # Add all edge traces
+  for trace in edge_trace:
+      fig.add_trace(trace)
+  # Add node trace
+  fig.add_trace(node_trace)
+  # Remove legend
+  fig.update_layout(showlegend = False)
+  # Remove tick labels
+  fig.update_xaxes(showticklabels = False)
+  fig.update_yaxes(showticklabels = False)
+  # Show figure
+  return fig

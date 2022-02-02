@@ -108,6 +108,12 @@ if 'self_citations' not in st.session_state:
 else:
   d_self_citations = st.session_state['self_citations']
 
+if 'net_data' not in st.session_state:
+  net_data = parse_COCI.creat_vis_graph(data, tot=sum(init['tot_citations_distribution'])/1000)
+  st.session_state['net_data'] = net_data
+else:
+  net_data = st.session_state['net_data']
+
 col7, col8 = st.columns([3, 1])
 st.sidebar.header('Display general statistics or perform specific bibliometric analysis')
 initial_choice = st.sidebar.radio('', ('General Statistics', 'Bibliometric Analysis'))
@@ -680,3 +686,8 @@ if general_stats:
       fig = px.pie(df_d_asjc, values='values', names='category', )
       st.plotly_chart(fig, use_container_width=True) 
       st.write('Articles that mention publications belonging to the same academic field or of similar academic field (according to ASJC classification).')
+    
+    st.header('Network visualization')
+    st.plotly_chart(parse_COCI.creat_vis_graph(data, tot=sum(init['tot_citations_distribution'])/1000), use_container_width=True)
+    st.write('''This is a rough network visualization of the COCI dataset for 2020. Edges thickness is defined by the weight of each connection
+             i.e. the number of connection between two nodes, while the size of each node is defined by the total number of connections it has received or made.''')
