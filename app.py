@@ -99,7 +99,18 @@ if 'df_distribution' not in st.session_state:
   st.session_state['df_distribution'] = df_distribution
 else:
   df_distribution = st.session_state['df_distribution']
-  
+
+if 'self_citations' not in st.session_state:
+  d_self_citations = parse_COCI.self_citation(data, csvs)
+  st.session_state['self_citations'] = d_self_citations
+else:
+  d_self_citations = st.session_state['self_citations']
+
+if 'net_data' not in st.session_state:
+  net_data = parse_COCI.creat_vis_graph(data, tot=sum(init['tot_citations_distribution'])/1000)
+  st.session_state['net_data'] = net_data
+else:
+  net_data = st.session_state['net_data']
 
 col7, col8 = st.columns([3, 1])
 st.sidebar.header('Display general statistics or perform specific bibliometric analysis')
@@ -653,18 +664,6 @@ if general_stats:
         st.write(f'''The **subdivision** of the {len(source_fields['groups'].keys())} groups present in the COCI dataset according to supergroups. The** most popular supergroup** is
               **{list(source_fields['supergroups'].keys())[0]}** which received **{list(source_fields['supergroups'].values())[0]} mentions**. The least popular one is 
               {list(source_fields['supergroups'].keys())[-1]} with {list(source_fields['supergroups'].values())[-1]} citations.''')
-
-if 'self_citations' not in st.session_state:
-  d_self_citations = parse_COCI.self_citation(data, csvs)
-  st.session_state['self_citations'] = d_self_citations
-else:
-  d_self_citations = st.session_state['self_citations']
-
-if 'net_data' not in st.session_state:
-  net_data = parse_COCI.creat_vis_graph(data, tot=sum(init['tot_citations_distribution'])/1000)
-  st.session_state['net_data'] = net_data
-else:
-  net_data = st.session_state['net_data']
 
 
   with st.expander("Citations flow", expanded=True):
