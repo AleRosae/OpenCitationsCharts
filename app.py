@@ -14,6 +14,7 @@ st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wid
   'About': 'This app was developed for the epds course held by Prof. Marilena Daquino at the University of Bologna.'})
 st.title('''OpenCitations in Charts''')
 st.write('### A web application for visualizing the OpenCitations dataset in regards to publications distributed in 2020.')
+
 st.write('''[OpenCitations](https://opencitations.net/) is an infrastructure organization for open scholarship dedicated to the publication 
         of open citation data as Linked Open Data. It provides bibliographic metadata of academic
         publications that are free to access, analyse and republish for any purpose. This web application aims at providing
@@ -27,6 +28,7 @@ st.write('''The **first time** you open the web page, Streamlit takes **a couple
          as discriminators. Most of the charts are higly interactive, i.e. you can manipulate them to adjsut the scale, to zoom in or zoom out
          and you can always display them in full screen.''')
 st.header('How does it work?')
+
 st.write('''You can perform two kinds of research. Either you can ask for **specific information about journals** related to a field or 
           you can **compare journals** belonging two different fields based on the discriminators that you choose. For instance, you can confront
           journals of biology and philosophical journals in regards to how they tend to mention journals belonging to their own field. Or you can simply
@@ -35,12 +37,13 @@ st.write('''You can perform two kinds of research. Either you can ask for **spec
           For istance, if you want to search for medical journals, you might want to search for "General Medicine", instead of just typying "Medicine".
           The input boxes are case insensitive and if you make some mistakes or you submit a field that does not belong to the ASJC codes the system will automatically inform you and suggest you
           possible solutions.''')
+
+st.header('The story so far')
+
 st.write('''The application completely runs on GitHub thanks to the Streamlit services. The chance of sharing a data science app
          completely for free of course comes with some limits. It is impossible to load the entire COCI dataset and process it in real time
          due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
-         [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
-         portion of the dataset was pre-processed and loaded in the application.''')
-st.header('The story so far')
+         [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application.''')
 st.write('''Currently the application **only runs on a sample of the publications released in 2020** (you can fin more information about how the sample was created
          from the main dataset in the GitHub repository). It is meant to represent a small glimpse of how 2020 went in terms of academic publications, which were the most
          influencing journals and which the most important themes covered in them. Moreover, it is also informative in regards of how much specific fields tend to open up their
