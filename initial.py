@@ -1,4 +1,3 @@
-from numpy import source
 import parse_COCI
 import json
 
