@@ -17,4 +17,4 @@ Currently the streamlit application works in a hybrid way: the global statistics
 # What can you do with the application
 In addition to serve as a general display of the content of the COCI dataset, the web application is meant to perform some simple yet interesting bibliometric analysis on the fly. The left side-bar can be used to switch from the global visualization to the bibliometric tools, allowing for two kinds of query: a single field search, with which users can retrieve different information about one specific field or one specifi journal, and a multi fields comparison, that allows to compare different fields. Additionally, the latter allows for more sophisticated queries: for istance, it is possible to retrieve the journals of a specific field (e.g. philosophy) that are cited the most exclusively by journals of another field (e.g. medicine). 
 
-You can check the Streamlit demo here: https://share.streamlit.io/alerosae/opencitationscharts/epds-exam/app.py
+You can check the Streamlit application here: https://share.streamlit.io/alerosae/opencitationscharts/epds-exam/app.py
