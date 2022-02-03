@@ -467,7 +467,6 @@ def creat_vis_graph(d, tot):
     for k, v in value.items():
       graph.add_edge(key, k, weight=v / tot)
   pos = nx.spring_layout(graph)
-    
   # For each edge, make an edge_trace, append to list
   edge_trace = []
   for edge in graph.edges():
@@ -491,7 +490,6 @@ def creat_vis_graph(d, tot):
                                               color=[],
                                               size = [],
                                             ))
-  # For each node in midsummer, get the position and size and add to the node_trace
   for node in graph.nodes():
       x, y = pos[node]
       node_trace['x'] += tuple([x])
@@ -501,7 +499,7 @@ def creat_vis_graph(d, tot):
       node_trace['text'] += tuple(['<b>' + node + '</b>'])
   # Customize layout
   layout = go.Layout(
-      height = 850,
+      height = 800,
       paper_bgcolor='rgba(0,0,0,0)', # transparent background
       plot_bgcolor='rgba(0,0,0,0)', # transparent 2nd background
       xaxis =  {'showgrid': False, 'zeroline': False}, # no gridlines

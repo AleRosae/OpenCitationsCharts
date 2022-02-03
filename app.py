@@ -695,5 +695,7 @@ if general_stats:
     
     st.header('Network visualization')
     st.plotly_chart(net_data, use_container_width=True)
-    st.write('''This is a rough network visualization of the COCI dataset for 2020. Edges thickness is defined by the weight of each connection
-             i.e. the number of connection between two nodes, while the size of each node is defined by the total number of connections it has received or made.''')
+    st.write('''This is a simple yet effective visualization of the networks
+    created by the citations of the 27 groups present the COCI dataset for 2020. Edges thickness is defined by the number of connections between two nodes,
+    while the size of each node depends by its own degree i.e. the total number of connections (in and out). The position of the nodes
+    was layed out using the [Fruchterman-Reingold force-directed algorithm](https://networkx.org/documentation/stable/reference/generated/networkx.drawing.layout.spring_layout.html).''')
