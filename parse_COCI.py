@@ -211,7 +211,7 @@ def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente 
 
 def load_data(path):
   with ZipFile(path, 'r') as zip:
-    with zip.open('output_2020-04-25T04_48_36_1.json') as infile:
+    with zip.open('all_2020.json') as infile:
       data = json.load(infile)
       return data
 
@@ -460,8 +460,7 @@ def make_edge(x, y, text, width):
                       text      = ([text]),
                       mode      = 'lines')
     
-def creat_vis_graph(data, tot):
-  d = citations_networks(data)
+def creat_vis_graph(d, tot):
   graph = nx.Graph()
   for key, value in d.items():
     graph.add_node(key, size=sum(value.values())/tot)
