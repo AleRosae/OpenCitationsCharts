@@ -87,7 +87,6 @@ if 'net_data' not in st.session_state:
 else:
   net_data = st.session_state['net_data']
 
-col7, col8 = st.columns([3, 1])
 initial_choice = st.sidebar.radio('What do you want to see?', ('General Statistics', 'Bibliometric Analysis'))
 st.sidebar.markdown('***')
 if initial_choice == 'General Statistics':
@@ -128,10 +127,12 @@ if initial_choice == 'General Statistics':
             influencing journals and which the most important themes covered in them. Moreover, it is also informative in regards of how much specific fields tend to open up their
             publications metadata (if a publication is not contained in the COCI dataset it problably means that such metadata are not provide by the publishers).''')
   st.markdown("""---""")
+  col7, col8 = st.columns([3, 1])
   st.sidebar.write('''The charts that were drawn in the main page display information about the general composition of the COCI dataset
            in regards to the publications that appeared throughtout 2020.''')
   st.sidebar.write('''If you want to perform bibliometric analysis on the fly just check the 'Bibliometric analysis' box and fill all 
                    the input fields. Your results will appear on the main page.''')
+  
 else:
   state_exp=False
   general_stats = False
@@ -170,6 +171,7 @@ else:
             influencing journals and which the most important themes covered in them. Moreover, it is also informative in regards of how much specific fields tend to open up their
             publications metadata (if a publication is not contained in the COCI dataset it problably means that such metadata are not provide by the publishers).''')
   st.markdown("""---""")
+  col7, col8 = st.columns([3, 1])
 
   st.sidebar.write('Choose between one single input query or multiple inputs analysis. The results will appear on the main page.')
   search_choice = st.sidebar.radio('', ('Single field search', 'Compare different fields'))
@@ -181,22 +183,26 @@ else:
     if single_search == 'Top journals cited by a field':
       st.sidebar.write('Retrieve the top k journals belonging to a **specific field** according to how much they were cited.')
       input_field = st.sidebar.text_input('Journal field', '', key=1234, help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                            You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+                                            You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                            placeholder='e.g. philosophy')
       n_items = st.sidebar.slider('number of journals', 1, 20, 10)
     elif single_search == 'Top journals cited by another journal':
       st.sidebar.write('Retrieve the top k journals that received more citations from a **specific journal** (except itself!).')
       input_field = st.sidebar.text_input('Journal name', '', key=12335464, help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                            You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+                                            You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                            placeholder='e.g. The Lancet')
       n_items = st.sidebar.slider('number of journals', 1, 20, 10)
     elif single_search == 'Self citations of a field':
       st.sidebar.write('''Display how much journals belonging to a **specific field** tend to mentioned journals that belongs to their
        own field/group/supergroup (this may take a couple of minutes to process).''')
       input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                                placeholder='e.g. philosophy')
     elif single_search == 'Citations flow':
       st.sidebar.write('''Starting from a **specific field**, display which are the other most cited fields by it. ''')
       input_field = st.sidebar.text_input('Journal field', '', key=1122, help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                                placeholder='e.g. philosophy')
     button = st.sidebar.button('Go', key= 91239)
     if button and input_field != '' and single_search == 'Top journals cited by a field':
       result_mistakes = parse_COCI.spelling_mistakes(input_field)
@@ -380,35 +386,42 @@ else:
     st.sidebar.header('Compare different fields')
     multiple_search = st.sidebar.radio(
         "What do you want to search for?",
-        ('Number of citations per field', 'Self citations comparison', 'Citations flow', 'Journals flow'))
+        ('Number of citations per field', 'Self citations comparison', 'Citations flow', 'Cross citations flow'))
     if multiple_search == 'Number of citations per field':
       st.sidebar.write('Display a comparison between **two or more different fields** according to the number of citations they received. Simply type a list of fields to compare them.')
       input_compare_field = st.sidebar.text_area('Fields (separated with comma and space)', '', key=4321, help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                                placeholder='e.g. philosophy, general medicine, pharmacology')
       input_compare_field_cited = None
       button = st.sidebar.button('Go', key=7777)
     elif multiple_search == 'Self citations comparison':
       st.sidebar.write('''Display a comparison between **exactly two fields** in terms of how much they tend to mention disciplines belonging to their own field 
       (this may take a couple of minutes to process).''')
       input_compare_field = st.sidebar.text_input('Field 1', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
-      input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
+                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                                placeholder='e.g. philosophy')
+      input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''', 
+                                                        placeholder='e.g. general medicine')
       button = st.sidebar.button('Go', key=8888)  
     elif multiple_search == 'Citations flow':
       st.sidebar.write('''Display a comparison of the citations flow of **two different fields** i.e. which are the other fields that
                       received more citations from each of them (themselves excluded).''')
       input_compare_field= st.sidebar.text_input('Field 1', '', key=11223433, help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
-      input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''')
+                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                                placeholder='e.g. philosophy')
+      input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''',
+                                                        placeholder='e.g. general medicine')
       button = st.sidebar.button('Go', key = 9988)
 
-    elif multiple_search == 'Journals flow':
+    elif multiple_search == 'Cross citations flow':
       st.sidebar.write('''Retrieve the journals of a specific field that are cited the most by journals of another particular field.
                       You might be particularly interested in fields fairly distant from each other (e.g. philosophy and general medicine).''')
       input_compare_field= st.sidebar.text_input('Field that is citing', '', key=12456, help='''Fields must corrispond to ASJC fields (case insensitive). 
-                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+                                                You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                                placeholder='e.g. philosophy')
       input_compare_field_cited = st.sidebar.text_input('Field that received citations', '', key=12312, help='''Fields must corrispond to ASJC fields (case insensitive).
-                                                        [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''')
+                                                        [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
+                                                        placeholder='e.g. general medicine')
       button = st.sidebar.button('Go', key=9999)
 
     if input_compare_field != '' and multiple_search == 'Number of citations per field' and button: 
@@ -564,7 +577,7 @@ else:
                     histfunc='sum', height=800)
         st.plotly_chart(fig, use_container_width=True)
       st.markdown('***')
-    elif button and multiple_search == 'Journals flow' and input_compare_field != '' and input_compare_field_cited != '': 
+    elif button and multiple_search == 'Cross citations flow' and input_compare_field != '' and input_compare_field_cited != '': 
       col7, col8 = st.columns([4, 1])
       input = input_compare_field.strip() + '; ' + input_compare_field_cited.strip()
       input = input.split('; ')
