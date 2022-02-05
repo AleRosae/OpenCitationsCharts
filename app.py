@@ -14,38 +14,7 @@ st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wid
   'About': 'This app was developed for the epds course held by Prof. Marilena Daquino at the University of Bologna.'})
 st.title('''OpenCitations in Charts''')
 st.write('### A web application for visualizing the OpenCitations dataset in regards to publications distributed in 2020.')
-st.write('''[OpenCitations](https://opencitations.net/) is an infrastructure organization for open scholarship dedicated to the publication 
-        of open citation data as Linked Open Data. It provides bibliographic metadata of academic
-        publications that are free to access, analyse and republish for any purpose. This web application aims at providing
-        visualization of the COCI dataset of OpenCitations and allows users to perform simple bibliometric analysis just by using
-        the tools included in the left sidebar.''')
-st.write('''The **first time** you open the web page, Streamlit takes **a couple of minutes to load the dataset**. Grab a coffee in the meanwhile!
-          By default the **main page** contains **statistics** about the whole COCI dataset, in particular its composition
-          in terms of academic journals and subjects that are mentioned. This also serves as an example of the kind of analysis you can make with the 
-          tools hereby provided. **Always check the top right corner of the screen**: when the running icon appears, it means that streamlit is processing the data.
-         You can use the **sidebar** to visualize **more specific data visualizations**, either using journals or academic fields
-         as discriminators. Most of the charts are higly interactive, i.e. you can manipulate them to adjsut the scale, to zoom in or zoom out
-         and you can always display them in full screen.''')
-st.header('How does it work?')
-st.write('''You can perform two kinds of research. Either you can ask for **specific information about journals** related to a field or 
-          you can **compare journals** belonging two different fields based on the discriminators that you choose. For instance, you can confront
-          journals of biology and philosophical journals in regards to how they tend to mention journals belonging to their own field. Or you can simply
-          retrive the most mentioned journals in general medicine. The names of the fields that can be used to perform the analysis 
-          are those provided by the All Science Journal Classification (ASJC), which you can always consult [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).
-          For istance, if you want to search for medical journals, you might want to search for "General Medicine", instead of just typying "Medicine".
-          The input boxes are case insensitive and if you make some mistakes or you submit a field that does not belong to the ASJC codes the system will automatically inform you and suggest you
-          possible solutions.''')
-st.write('''The application completely runs on GitHub thanks to the Streamlit services. The chance of sharing a data science app
-         completely for free of course comes with some limits. It is impossible to load the entire COCI dataset and process it in real time
-         due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
-         [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
-         portion of the dataset was pre-processed and loaded in the application.''')
-st.header('The story so far')
-st.write('''Currently the application **only runs on a sample of the publications released in 2020** (you can fin more information about how the sample was created
-         from the main dataset in the GitHub repository). It is meant to represent a small glimpse of how 2020 went in terms of academic publications, which were the most
-         influencing journals and which the most important themes covered in them. Moreover, it is also informative in regards of how much specific fields tend to open up their
-         publications metadata (if a publication is not contained in the COCI dataset it problably means that such metadata are not provide by the publishers).''')
-st.markdown("""---""")
+
 
 @st.cache()
 def load_data(path):
@@ -113,16 +82,90 @@ else:
   net_data = st.session_state['net_data']
 
 col7, col8 = st.columns([3, 1])
-st.sidebar.header('Display general statistics or perform specific bibliometric analysis')
-initial_choice = st.sidebar.radio('', ('General Statistics', 'Bibliometric Analysis'))
+initial_choice = st.sidebar.radio('What do you want to see?', ('General Statistics', 'Bibliometric Analysis'))
+st.sidebar.markdown('***')
 if initial_choice == 'General Statistics':
+  state_exp=True
   general_stats = True
+  with st.expander('OpenCitations in Charts', expanded=state_exp):
+    st.write('''[OpenCitations](https://opencitations.net/) is an infrastructure organization for open scholarship dedicated to the publication 
+            of open citation data as Linked Open Data. It provides bibliographic metadata of academic
+            publications that are free to access, analyse and republish for any purpose. This web application aims at providing
+            visualization of the COCI dataset of OpenCitations and allows users to perform simple bibliometric analysis just by using
+            the tools included in the left sidebar.''')
+    st.write('''The **first time** you open the web page, Streamlit takes **a couple of minutes to load the dataset**. Grab a coffee in the meanwhile!
+              By default the **main page** contains **statistics** about the whole COCI dataset, in particular its composition
+              in terms of academic journals and subjects that are mentioned. This also serves as an example of the kind of analysis you can make with the 
+              tools hereby provided. **Always check the top right corner of the screen**: when the running icon appears, it means that streamlit is processing the data.
+            You can use the **sidebar** to visualize **more specific data visualizations**, either using journals or academic fields
+            as discriminators. Most of the charts are higly interactive, i.e. you can manipulate them to adjsut the scale, to zoom in or zoom out
+            and you can always display them in full screen.''')
+  with st.expander('How does it work?', expanded=state_exp):
+    st.header('How does it work?')
+    st.write('''You can perform two kinds of research. Either you can ask for **specific information about journals** related to a field or 
+              you can **compare journals** belonging two different fields based on the discriminators that you choose. For instance, you can confront
+              journals of biology and philosophical journals in regards to how they tend to mention journals belonging to their own field. Or you can simply
+              retrive the most mentioned journals in general medicine. The names of the fields that can be used to perform the analysis 
+              are those provided by the All Science Journal Classification (ASJC), which you can always consult [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).
+              For istance, if you want to search for medical journals, you might want to search for "General Medicine", instead of just typying "Medicine".
+              The input boxes are case insensitive and if you make some mistakes or you submit a field that does not belong to the ASJC codes the system will automatically inform you and suggest you
+              possible solutions.''')
+    st.write('''The application completely runs on GitHub thanks to the Streamlit services. The chance of sharing a data science app
+            completely for free of course comes with some limits. It is impossible to load the entire COCI dataset and process it in real time
+            due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
+            [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
+            portion of the dataset was pre-processed and loaded in the application.''')
+  with st.expander('The story so far', expanded=state_exp):
+    st.header('The story so far')
+    st.write('''Currently the application **only runs on a sample of the publications released in 2020** (you can fin more information about how the sample was created
+            from the main dataset in the GitHub repository). It is meant to represent a small glimpse of how 2020 went in terms of academic publications, which were the most
+            influencing journals and which the most important themes covered in them. Moreover, it is also informative in regards of how much specific fields tend to open up their
+            publications metadata (if a publication is not contained in the COCI dataset it problably means that such metadata are not provide by the publishers).''')
+  st.markdown("""---""")
   st.sidebar.write('''The charts that were drawn in the main page display information about the general composition of the COCI dataset
            in regards to the publications that appeared throughtout 2020.''')
+  st.sidebar.write('''If you want to perform bibliometric analysis on the fly just check the 'Bibliometric analysis' box and fill all 
+                   the input fields. Your results will appear on the main page.''')
 else:
+  state_exp=False
   general_stats = False
-  st.sidebar.header('Simple bibliometric analysis')
-  st.sidebar.write('Here you can perform simple bibliometric analysis, either by searching for a single academic field or making comparison between two or more fields.')
+  with st.expander('OpenCitations in Charts', expanded=state_exp):
+    st.write('''[OpenCitations](https://opencitations.net/) is an infrastructure organization for open scholarship dedicated to the publication 
+            of open citation data as Linked Open Data. It provides bibliographic metadata of academic
+            publications that are free to access, analyse and republish for any purpose. This web application aims at providing
+            visualization of the COCI dataset of OpenCitations and allows users to perform simple bibliometric analysis just by using
+            the tools included in the left sidebar.''')
+    st.write('''The **first time** you open the web page, Streamlit takes **a couple of minutes to load the dataset**. Grab a coffee in the meanwhile!
+              By default the **main page** contains **statistics** about the whole COCI dataset, in particular its composition
+              in terms of academic journals and subjects that are mentioned. This also serves as an example of the kind of analysis you can make with the 
+              tools hereby provided. **Always check the top right corner of the screen**: when the running icon appears, it means that streamlit is processing the data.
+            You can use the **sidebar** to visualize **more specific data visualizations**, either using journals or academic fields
+            as discriminators. Most of the charts are higly interactive, i.e. you can manipulate them to adjsut the scale, to zoom in or zoom out
+            and you can always display them in full screen.''')
+  with st.expander('How does it work?', expanded=state_exp):
+    st.header('How does it work?')
+    st.write('''You can perform two kinds of research. Either you can ask for **specific information about journals** related to a field or 
+              you can **compare journals** belonging two different fields based on the discriminators that you choose. For instance, you can confront
+              journals of biology and philosophical journals in regards to how they tend to mention journals belonging to their own field. Or you can simply
+              retrive the most mentioned journals in general medicine. The names of the fields that can be used to perform the analysis 
+              are those provided by the All Science Journal Classification (ASJC), which you can always consult [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).
+              For istance, if you want to search for medical journals, you might want to search for "General Medicine", instead of just typying "Medicine".
+              The input boxes are case insensitive and if you make some mistakes or you submit a field that does not belong to the ASJC codes the system will automatically inform you and suggest you
+              possible solutions.''')
+    st.write('''The application completely runs on GitHub thanks to the Streamlit services. The chance of sharing a data science app
+            completely for free of course comes with some limits. It is impossible to load the entire COCI dataset and process it in real time
+            due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
+            [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
+            portion of the dataset was pre-processed and loaded in the application.''')
+  with st.expander('The story so far', expanded=state_exp):
+    st.header('The story so far')
+    st.write('''Currently the application **only runs on a sample of the publications released in 2020** (you can fin more information about how the sample was created
+            from the main dataset in the GitHub repository). It is meant to represent a small glimpse of how 2020 went in terms of academic publications, which were the most
+            influencing journals and which the most important themes covered in them. Moreover, it is also informative in regards of how much specific fields tend to open up their
+            publications metadata (if a publication is not contained in the COCI dataset it problably means that such metadata are not provide by the publishers).''')
+  st.markdown("""---""")
+
+  st.sidebar.write('Choose between one single input query or multiple inputs analysis. The results will appear on the main page.')
   search_choice = st.sidebar.radio('', ('Single field search', 'Compare different fields'))
   if search_choice == 'Single field search':
     st.sidebar.header('Single field search')
@@ -589,6 +632,7 @@ else:
                       The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
                       {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
       st.markdown('***')
+
 
 if general_stats:
   st.header('General statistics')
