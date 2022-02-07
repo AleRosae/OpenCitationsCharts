@@ -118,7 +118,7 @@ if initial_choice == 'General Statistics':
     st.write('''The application completely runs on GitHub thanks to the Streamlit services. The chance of sharing a data science app
             completely for free of course comes with some limits. It is impossible to load the entire COCI dataset and process it in real time
             due to memory limits, thus the whole COCI dataset was pre-processed using the Python Notebook available on the
-            [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform to the memory limits of Streamlit (1 GB of RAM), only a small 
+            [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application. To conform with the memory limits of Streamlit (1 GB of RAM), only a small 
             portion of the dataset was pre-processed and loaded in the application.''')
   with st.expander('The story so far', expanded=state_exp):
     st.header('The story so far')
@@ -173,10 +173,10 @@ else:
   st.markdown("""---""")
   col7, col8 = st.columns([3, 1])
 
-  st.sidebar.write('Choose between one single input query or multiple inputs analysis. The results will appear on the main page.')
-  search_choice = st.sidebar.radio('', ('Single field search', 'Compare different fields'))
-  if search_choice == 'Single field search':
-    st.sidebar.header('Single field search')
+  st.sidebar.write('''Choose between one single input query or multiple inputs analysis, fill the text boxes
+                    and then **press Go**.''')
+  search_choice = st.sidebar.radio('', ('Single field', 'Multiple fields'))
+  if search_choice == 'Single field':
     single_search = st.sidebar.radio(
         "What do you want to search for?",
         ('Top journals cited by a field', 'Top journals cited by another journal','Self citations of a field', 'Citations flow'))
@@ -297,6 +297,44 @@ else:
             bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
                           color_continuous_scale='purples',  color_continuous_midpoint=list(result[input_field]['citations'].values())[3], height=800)
             st.plotly_chart(bars, use_container_width=True)
+
+          top_journal = list(result[input_field]['citations'].keys())[0]
+          st.header(f'What do we know about {top_journal}?')
+          st.write(f'''You might be interested in knowing something more about the most cited journal of {input_field}.
+                    Here you can see some information about it, provided that the 
+                    there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
+                    the same search with the related tool in the left sidebar.''')
+        col13, col14 = st.columns([3, 1])
+        with col13:
+          result_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=top_journal)
+          if top_journal not in result_journal.keys():
+              st.header('Journal not found!')
+              st.write('''It looks like the journal you searched did not make any citation in 2020 according to the COCI dataset.
+                        This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
+                        the 2020 data, which is in turn a small subset of the whole COCI dataset.
+                        Or maybe we need to open a little bit more this particular branch of science :)''')
+              st.markdown('***')
+          else:
+            st.header(f'The journals that are cited the most by {top_journal.capitalize()}')
+            source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 
+                                   'number of citations': list(result_journal[top_journal]['citations'].values())[:10]})
+            bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
+                          color_continuous_scale='purples',  color_continuous_midpoint=list(result_journal[top_journal]['citations'].values())[3], height=800)
+            st.plotly_chart(bars, use_container_width=True)
+            st.markdown('***')
+          if top_journal not in result_journal.keys():
+            pass
+          else:
+            with col14:
+              st.markdown('***')
+              st.write(f'''The bar chart displays which are the journals that received most citations from _{top_journal.capitalize()}_, 
+                          giving us the general idea of where it is most likely to find articles related to the same topic.''')
+              st.write(f'''_{top_journal.capitalize()}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
+                          {result_journal[top_journal]['group']} group.''')
+              st.write(f'''{len(list(result_journal[top_journal]['citations'].keys()))} unique journals have been cited by _{top_journal}_ for a total
+                      of {sum(list(result_journal[top_journal]['citations'].values()))} citations.
+                      The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
+                      {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
           st.markdown('***')
       elif result_mistakes == None:
         st.sidebar.write(f"Can't find {input_field}. Check the spelling")
@@ -382,11 +420,10 @@ else:
         check_spelling_selfcit = str(check_spelling_selfcit[input_field]).strip('][')
         st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?") 
         
-  elif search_choice == 'Compare different fields':
-    st.sidebar.header('Compare different fields')
+  elif search_choice == 'Multiple fields':
     multiple_search = st.sidebar.radio(
         "What do you want to search for?",
-        ('Number of citations per field', 'Self citations comparison', 'Citations flow', 'Cross citations flow'))
+        ('Number of citations per field', 'Self citations comparison', 'Citations flow comparison', 'Cross citations flow'))
     if multiple_search == 'Number of citations per field':
       st.sidebar.write('Display a comparison between **two or more different fields** according to the number of citations they received. Simply type a list of fields to compare them.')
       input_compare_field = st.sidebar.text_area('Fields (separated with comma and space)', '', key=4321, help='''Fields must corrispond to ASJC fields (case insensitive). 
@@ -403,7 +440,7 @@ else:
       input_compare_field_cited = st.sidebar.text_input('Field 2', '', key=234235, help='''Fields must corrispond to ASJC fields (case insensitive). ''', 
                                                         placeholder='e.g. general medicine')
       button = st.sidebar.button('Go', key=8888)  
-    elif multiple_search == 'Citations flow':
+    elif multiple_search == 'Citations flow comparison':
       st.sidebar.write('''Display a comparison of the citations flow of **two different fields** i.e. which are the other fields that
                       received more citations from each of them (themselves excluded).''')
       input_compare_field= st.sidebar.text_input('Field 1', '', key=11223433, help='''Fields must corrispond to ASJC fields (case insensitive). 
