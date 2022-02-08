@@ -1,4 +1,3 @@
-from matplotlib.pyplot import title
 from pandas.core.algorithms import mode
 import streamlit as st
 import json
