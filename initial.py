@@ -1,6 +1,9 @@
 import parse_COCI
 import json
 
+#run this script only when you update the general dataset
+#It provides the .json files for the global statistics visualization
+
 data = parse_COCI.load_data('all_2020.zip')
 csvs = parse_COCI.load_csvs()
 

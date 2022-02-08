@@ -522,7 +522,12 @@ def creat_vis_graph(d, tot):
   # Add node trace
   fig.add_trace(node_trace)
   # Remove legend
-  fig.update_layout(showlegend = False)
+  fig.update_layout(showlegend = False, 
+        title={
+        'text': '<b>Citations network</b>',
+        'x': 0.5,
+        'xanchor': 'center'
+      })
   # Remove tick labels
   fig.update_xaxes(showticklabels = False)
   fig.update_yaxes(showticklabels = False)
