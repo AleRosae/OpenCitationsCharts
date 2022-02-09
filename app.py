@@ -218,6 +218,7 @@ else:
             'xanchor':'center',
             'x': 0.5}
           )
+          bars.update_coloraxes(showscale=False)
           st.plotly_chart(bars, use_container_width=True)
           top_journal = list(result[input_field].keys())[0]
           st.header(f'What do we know about {top_journal}?')
@@ -247,6 +248,7 @@ else:
                 'xanchor':'center'
               }
             )
+            bars.update_coloraxes(showscale=False)
             st.plotly_chart(bars, use_container_width=True)
             st.markdown('***')
           if top_journal not in result_journal.keys():
@@ -300,6 +302,7 @@ else:
               'x': 0.5,
               'xanchor': 'center'
             })
+            bars.update_coloraxes(showscale=False)
             st.plotly_chart(bars, use_container_width=True)
 
           top_journal = list(result[input_field]['citations'].keys())[0]
@@ -328,6 +331,7 @@ else:
               'x': 0.5,
               'xanchor': 'center'
             })
+            bars.update_coloraxes(showscale=False)
             st.plotly_chart(bars, use_container_width=True)
             st.markdown('***')
           if top_journal not in result_journal.keys():
@@ -389,10 +393,11 @@ else:
           bars = px.bar(df_citflow, y="number of citations", x="fields", color='number of citations', orientation='v',
                           color_continuous_scale='blues',  color_continuous_midpoint=list(source_citflow['fields'].values())[3], height=800)
           bars.update_layout(title={
-            'text': f'<b>Fields mentioned more often by {input_field}',
+            'text': f'<b>Fields mentioned more often by {input_field}</b>',
             'x': 0.5,
             'xanchor': 'center'
           })
+          bars.update_coloraxes(showscale=False)
           st.plotly_chart(bars, use_container_width=True)
         with col8:
           tot_cit_supergroups = sum(source_citflow['supergroups'].values())
@@ -508,19 +513,19 @@ else:
       if render == True:
         st.header('Citations comparison by different fields')
         source = pd.DataFrame({'fields': output.keys(), 'number of citations': output.values()})
-        bars = px.bar(source, y="number of citations", x="fields", color='number of citations', orientation='v',
-                          color_continuous_scale='blues', height=700)
+        bars = px.bar(source, y="number of citations", x="fields",  orientation='v',
+                           height=700)
         bars.update_layout(title={
-          'text': '<b>Number of citations comparison',
+          'text': '<b>Number of citations comparison</b>',
           'x': 0.5,
           'xanchor': 'center'
         })
+        bars.update_coloraxes(showscale=False)
         st.plotly_chart(bars, use_container_width=True)
         st.write('''The bar chart above compares the number of citation received by each field.''')
         st.markdown('***')
 
     elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Self citations comparison' and button: 
-      col7, col8 = st.columns(2)
       input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
       input = input.split(', ')
       check_spelling = [parse_COCI.spelling_mistakes(inp) for inp in input]
@@ -536,12 +541,13 @@ else:
             mistake_value = str(mistake_value).strip('][')
             st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
       else: 
+        col7, col8 = st.columns(2)
         self_citation_field_1 = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input[0])
         df_selfcit_1 = pd.DataFrame({'fields': self_citation_field_1.keys(), 'values': self_citation_field_1.values()})
         self_citation_field_2 = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input[1])
         df_selfcit_2 = pd.DataFrame({'fields': self_citation_field_2.keys(), 'values': self_citation_field_2.values()})
         st.header('Self citations comparison')
-        st.write(f'''These pie charts  **confront how many articles** related to **{input_compare_field}** or to **{input_compare_field_cited}** tend to mention
+        st.write(f'''These pie charts **confront how many articles** related to **{input_compare_field}** or to **{input_compare_field_cited}** tend to mention
                     articles related to the **same field**. It is a rough discriminator of **how much a field tend to cross its disciplinary boundaries**
                     and cross with external subjects. Self citations are scored when an article mentions another article belonging to
                     the same exact ASJC code, while partial self citations includes articles that are not the exact match but
@@ -552,28 +558,29 @@ else:
                     articles related to the same field.''')
           fig = px.pie(df_selfcit_1, values='values', names='fields')
           fig.update_layout(title={
-            'text': f'<b>Self citations of {input[0]}',
+            'text': f'<b>Self citations of {input[0]}</b>',
             'x': 0.5,
             'xanchor':'center'
           })
           st.plotly_chart(fig, use_container_width=True) 
           st.write(f'''In **{input_compare_field}** there are **{df_selfcit_1.iloc[0,1]} self citations**,
-          **{df_selfcit_1.iloc[1,1]} partial self-citations**
-          and **{df_selfcit_1.iloc[2,1]} not self citations**.''')
+                    **{df_selfcit_1.iloc[1,1]} partial self-citations**
+                    and **{df_selfcit_1.iloc[2,1]} not self citations**.''')
         with col8:
           st.write(f'''How many articles belonging to **{input_compare_field_cited}** tend to mention
                     articles related to the same field.''')
           fig = px.pie(df_selfcit_2, values='values', names='fields')
           fig.update_layout(title={
-            'text': f'<b>Self citations of {input[1]}',
+            'text': f'<b>Self citations of {input[1]}</b>',
             'x': 0.5,
             'xanchor':'center'
           })
           st.plotly_chart(fig, use_container_width=True) 
           st.write(f'''In **{input_compare_field_cited}** there are **{df_selfcit_2.iloc[0,1]} self citations**,
-          **{df_selfcit_2.iloc[1,1]} partial self-citations**
-          and **{df_selfcit_2.iloc[2,1]} not self citations**.''')
-      st.markdown('***')
+                    **{df_selfcit_2.iloc[1,1]} partial self-citations**
+                    and **{df_selfcit_2.iloc[2,1]} not self citations**.''')
+
+        st.markdown('***')
     elif input_compare_field != '' and input_compare_field_cited != '' and multiple_search == 'Citations flow comparison' and button: 
       col7, col8 = st.columns([2, 1])
       input = input_compare_field.strip() + ', ' + input_compare_field_cited.strip()
@@ -594,8 +601,9 @@ else:
         source_citflow_1 = parse_COCI.citations_flow(data, csvs, specific_field=input[0])
         source_citflow_2 = parse_COCI.citations_flow(data, csvs, specific_field=input[1])
         st.header(f'''Citations flow comparison between {input[0]} and {input[1]}''')
-        st.write(f'''These pie charts below display the differences between how citations flow in {input[0]} and in {input[1]}, according to their group and supergroup
-                division. This visualization gives us a general idea of where the citations made by journals belongin to those two fields are usually headed to.''')
+        st.write(f'''These pie charts below display the differences between how citations flow in {input[0].capitalize()} and in {input[1].capitalize()}, 
+                according to their group and supergroup
+                division. This visualization gives us a general idea of where the citations made by journals belonging to those two fields are usually headed to.''')
         col7, col8 = st.columns(2)
         df_citflow_1 = pd.DataFrame({'fields': list(source_citflow_1['fields'].keys())[:10], 'values': list(source_citflow_1['fields'].values())[:10]})
         df_citflow_2 = pd.DataFrame({'fields': list(source_citflow_2['fields'].keys())[:10], 'values': list(source_citflow_2['fields'].values())[:10]})
@@ -664,7 +672,7 @@ else:
         df_citflow_merge = pd.DataFrame({'values':values_1+values_2, 'groups':keys_1+keys_2, 'field':[input[0] for i in range(len(keys_1))]+[input[1] for i in range(len(keys_2))]})
         st.write(f'''The bar chart below illustrates which are the disciplinary groups that both {input[0]} and {input[1]} tend to mention and their differences
                  in terms of absolute values. The groups that are mentioned by both fields were extracted and sorted considering the
-                  sum of the citations of {input[0]} and the citations of {input[1]}.''')
+                  sum of the citations of {input[0].capitalize()} and the citations of {input[1].capitalize()}.''')
         fig = px.histogram(df_citflow_merge, x="groups", y="values",
                     color='field', barmode='group',
                     histfunc='sum', height=800)
@@ -701,10 +709,11 @@ else:
                         color_continuous_scale='blues', 
                          color_continuous_midpoint=list(source_citflow_journal.values())[int(len(source_citflow_journal.values())/3)], height=700)
           bars.update_layout(title={
-            'text': f'<b>Journals citations flow',
+            'text': f'<b>Journals citations flow</b>',
             'x': 0.5,
             'xanchor':'center'
           })
+          bars.update_coloraxes(showscale=False)
           st.plotly_chart(bars, use_container_width=True)
         with col8:
           st.markdown("***")
@@ -742,13 +751,13 @@ else:
             'x': 0.5,
             'xanchor':'center'
           })
+            bars.update_coloraxes(showscale=False)
             st.plotly_chart(bars, use_container_width=True)
             st.markdown('***')
           if top_journal not in result_journal.keys():
             pass
           else:
             with col14:
-              st.markdown('***')
               st.write(f'''The bar chart displays which are the journals that received most citations from _{top_journal.capitalize()}_, 
                           giving us the general idea of where it is most likely to find articles related to the same topic.''')
               st.write(f'''_{top_journal.capitalize()}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
@@ -758,8 +767,6 @@ else:
                       The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
                       {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
       st.markdown('***')
-
-
 if general_stats:
   st.header('General statistics')
   st.write('''This dashboard is meant to tell how 2020 went in terms of academic publication. You can visualize multiple statistics that were elaborated from the the 
@@ -781,6 +788,7 @@ if general_stats:
               'text' :'<b>Top 20 journals by number of citations</b>',
               'x':0.5,
               'xanchor': 'center'})
+      bars.update_coloraxes(showscale=False)
       st.plotly_chart(bars, use_container_width=True)
     with col_text:
       st.write('')
@@ -801,6 +809,7 @@ if general_stats:
             'text' :'<b>Top 20 academic fields by number of citations</b>',
             'x':0.5,
             'xanchor': 'center'})
+      bars.update_coloraxes(showscale=False)
       st.plotly_chart(bars, use_container_width=True)
     with col_text:
       st.write('')
@@ -838,6 +847,7 @@ if general_stats:
     df_source_groups = pd.DataFrame({'groups': list(source_fields['groups'].keys()), 'number of citations': list(source_fields['groups'].values())})
     bars = px.bar(df_source_groups, y="number of citations", x="groups", color='number of citations', orientation='v',
                     color_continuous_scale='blues',  color_continuous_midpoint=list(source_fields['groups'].values())[3], height=700)
+    bars.update_coloraxes(showscale=False)
     bars.update_layout(
       title={
         'text': '<b>Academic groups by number of citations</b>',
