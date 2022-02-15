@@ -182,7 +182,7 @@ else:
       n_items = st.sidebar.slider('number of journals', 1, 20, 10)
     elif single_search == 'Self citations of a field':
       st.sidebar.write('''Display how much journals belonging to a **specific field** tend to mentioned journals that belongs to their
-       own field/group/supergroup (this may take a couple of minutes to process).''')
+       own field/group/subject area (this may take a couple of minutes to process).''')
       input_field = st.sidebar.text_input('Journal field', '', key=123, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                                 You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
                                                 placeholder='e.g. philosophy')
@@ -360,7 +360,7 @@ else:
         df_selfcit = pd.DataFrame({'fields': self_citation_field.keys(), 'values': self_citation_field.values()})
         with col7:
           st.header(f'Self citations of {input_field}')
-          fig = px.pie(df_selfcit, values='values', names='fields' )
+          fig = px.pie(df_selfcit, values='values', names='fields', color_discrete_sequence=['#00CC96', '#636EFA', '#EF553B'])
           st.plotly_chart(fig, use_container_width=True) 
         with col8:
           st.markdown('***')
@@ -403,9 +403,9 @@ else:
           tot_cit_supergroups = sum(source_citflow['supergroups'].values())
           df_cit_source_supergroups = pd.DataFrame({'supergroups': source_citflow['supergroups'].keys(), 
                                           'values': source_citflow['supergroups'].values()})
-          fig = px.pie(df_cit_source_supergroups, values='values', names='supergroups')
+          fig = px.pie(df_cit_source_supergroups, values='values', names='supergroups', color_discrete_sequence=px.colors.qualitative.D3)
           fig.update_layout(title={
-            'text': f'<b>Supergroups subdivision of articles mentioned by {input_field}',
+            'text': f'<b>Subject area of articles mentioned by {input_field}',
             'x': 0.5,
             'xanchor': 'center'
           })
@@ -433,7 +433,7 @@ else:
                   provides an idea of how these disciplines tend to communicate. In this case, the **most mentioned field is {list(source_citflow['fields'].keys())[0]}**,
                   with **{list(source_citflow['fields'].values())[0]} citations**. The **least one is {list(source_citflow['fields'].keys())[-1]}**, which apparently is the most distant
                   subject from {input_field}, with **only {list(source_citflow['fields'].values())[-1]} mentions**.''')
-        st.write('''The pie charts on the right column illustrate the same values but plotted according to the **groups/supergroups**
+        st.write('''The pie charts on the right column illustrate the same values but plotted according to the **groups/subject area**
                   subdivision. ''')
         if len(not_mentioned) > 0:
           st.write(f'''The following groups were **never mentioned by {input_field}**: {not_mentioned}.''')
@@ -478,8 +478,8 @@ else:
       button = st.sidebar.button('Go', key = 9988)
 
     elif multiple_search == 'Cross citations flow':
-      st.sidebar.write('''Retrieve the journals of a specific field that are cited the most by journals of another particular field.
-                      You might be particularly interested in fields fairly distant from each other (e.g. philosophy and general medicine).''')
+      st.sidebar.write('''Retrieve the journals of a specific field that are cited the most by journals of another particular field
+                      (you might be particularly interested in fields fairly distant from each other).''')
       input_compare_field= st.sidebar.text_input('Field that is citing', '', key=12456, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                                 You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
                                                 placeholder='e.g. philosophy')
@@ -556,7 +556,7 @@ else:
         with col7:
           st.write(f'''How many articles belonging to **{input_compare_field}** tend to mention
                     articles related to the same field.''')
-          fig = px.pie(df_selfcit_1, values='values', names='fields')
+          fig = px.pie(df_selfcit_1, values='values', names='fields', color_discrete_sequence=['#00CC96', '#636EFA', '#EF553B'])
           fig.update_layout(title={
             'text': f'<b>Self citations of {input[0]}</b>',
             'x': 0.5,
@@ -569,7 +569,7 @@ else:
         with col8:
           st.write(f'''How many articles belonging to **{input_compare_field_cited}** tend to mention
                     articles related to the same field.''')
-          fig = px.pie(df_selfcit_2, values='values', names='fields')
+          fig = px.pie(df_selfcit_2, values='values', names='fields', color_discrete_sequence=['#00CC96', '#636EFA', '#EF553B'])
           fig.update_layout(title={
             'text': f'<b>Self citations of {input[1]}</b>',
             'x': 0.5,
@@ -602,8 +602,8 @@ else:
         source_citflow_2 = parse_COCI.citations_flow(data, csvs, specific_field=input[1])
         st.header(f'''Citations flow comparison between {input[0]} and {input[1]}''')
         st.write(f'''These pie charts below display the differences between how citations flow in {input[0].capitalize()} and in {input[1].capitalize()}, 
-                according to their group and supergroup
-                division. This visualization gives us a general idea of where the citations made by journals belonging to those two fields are usually headed to.''')
+                according to their group and subject area.
+                 This visualization gives us a general idea of where the citations made by journals belonging to those two fields are usually headed to.''')
         col7, col8 = st.columns(2)
         df_citflow_1 = pd.DataFrame({'fields': list(source_citflow_1['fields'].keys())[:10], 'values': list(source_citflow_1['fields'].values())[:10]})
         df_citflow_2 = pd.DataFrame({'fields': list(source_citflow_2['fields'].keys())[:10], 'values': list(source_citflow_2['fields'].values())[:10]})
@@ -611,9 +611,9 @@ else:
           df_cit_source_supergroups_1 = pd.DataFrame({'supergroups': source_citflow_1['supergroups'].keys(), 
                                           'values': source_citflow_1['supergroups'].values()})
           st.header(f'{input[0].capitalize()}')
-          fig = px.pie(df_cit_source_supergroups_1, values='values', names='supergroups')
+          fig = px.pie(df_cit_source_supergroups_1, values='values', names='supergroups', color_discrete_sequence=px.colors.qualitative.D3)
           fig.update_layout(title={
-            'text': f'<b>Citations flow in {input[0]} (supergroups)</b>',
+            'text': f'<b>Citations flow in {input[0]} (subject area)</b>',
             'x': 0.5,
             'xanchor':'center'
           })
@@ -638,9 +638,9 @@ else:
           st.header(f'{input[1].capitalize()}')
           df_cit_source_supergroups_2 = pd.DataFrame({'supergroups': source_citflow_2['supergroups'].keys(), 
                                           'values': source_citflow_2['supergroups'].values()})
-          fig = px.pie(df_cit_source_supergroups_2, values='values', names='supergroups')
+          fig = px.pie(df_cit_source_supergroups_2, values='values', names='supergroups', color_discrete_sequence=px.colors.qualitative.D3)
           fig.update_layout(title={
-            'text': f'<b>Citations flow in {input[1]} (supergroups)</b>',
+            'text': f'<b>Citations flow in {input[1]} (subject area)</b>',
             'x': 0.5,
             'xanchor':'center'
           })
@@ -842,7 +842,7 @@ if general_stats:
     st.write('''The bar chart above displays the **most important fields** in 2020, i.e. those that received more citations. 
             However, **ASJC** also comes with a subdivion of those fields in
             more general groups that give us a general picture of the subjects that are covered. The pie charts offer a broader look at the composition
-            of the COCI dataset by illustrating the same data grouped according to the **group subdivision** and their **relative supergroups** (i.e. the most general
+            of the COCI dataset by illustrating the same data grouped according to the **group subdivision** and their **relative subject area** (i.e. the most general
             subdivision possible).''')
     df_source_groups = pd.DataFrame({'groups': list(source_fields['groups'].keys()), 'number of citations': list(source_fields['groups'].values())})
     bars = px.bar(df_source_groups, y="number of citations", x="groups", color='number of citations', orientation='v',
@@ -880,15 +880,15 @@ if general_stats:
       with col10:
         df_source_supergroups = pd.DataFrame({'supergroups': source_fields['supergroups'].keys(), 
                                         'values': source_fields['supergroups'].values()})
-        fig = px.pie(df_source_supergroups, values='values', names='supergroups')
+        fig = px.pie(df_source_supergroups, values='values', names='supergroups', color_discrete_sequence=px.colors.qualitative.D3)
         fig.update_layout(
         title={
-        'text': '<b>Academic supergroups subdivision</b>',
+        'text': '<b>Academic subject area subdivision</b>',
         'x': 0.4,
         'xanchor': 'center'
       })
         st.plotly_chart(fig, use_container_width=True) 
-        st.write(f'''The **subdivision** of the {len(source_fields['groups'].keys())} groups present in the COCI dataset according to supergroups. The **most popular supergroup** is
+        st.write(f'''The **subdivision** of the {len(source_fields['groups'].keys())} groups present in the COCI dataset according to subject areas. The **most popular subject area** is
               **{list(source_fields['supergroups'].keys())[0]}** which received **{list(source_fields['supergroups'].values())[0]} mentions**. The least popular one is 
               {list(source_fields['supergroups'].keys())[-1]} with {list(source_fields['supergroups'].values())[-1]} citations.''')
 
@@ -907,7 +907,7 @@ if general_stats:
     col1, col2 = st.columns(2)
     with col2:
       df_d = pd.DataFrame({'category': d_self_citations.keys(), 'values': d_self_citations.values()})
-      fig = px.pie(df_d, values='values', names='category')
+      fig = px.pie(df_d, values='values', names='category', color_discrete_sequence=['#636EFA', '#EF553B'])
       fig.update_layout(
         title={
         'text': '<b>Self citations (by journals)</b>',
@@ -918,7 +918,7 @@ if general_stats:
       st.write('Articles that mention publications that belong to the same journal of the citing article.')
     with col1:
       df_d_asjc = pd.DataFrame({'category': d_self_citations_asjc.keys(), 'values': d_self_citations_asjc.values()})
-      fig = px.pie(df_d_asjc, values='values', names='category')
+      fig = px.pie(df_d_asjc, values='values', names='category', color_discrete_sequence=['#00CC96', '#636EFA', '#EF553B'])
       fig.update_layout(
         title={
         'text': '<b>Self citations (by field)</b>',

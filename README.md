@@ -1,5 +1,7 @@
 # OpenCitationsCharts
 Repository for a web application that displays statistics about the OpenCitations COCI dataset. Currently the application is limited to a subset of the COCI dataset which includes only citations made during year 2020. It is meant as a project for the final examination of the Electronic Publishing and Digital Storytelling course held by Prof. Marilena Daquino at the University of Bologna in the Digital Humanities and Digital Knowledge master's degree. 
+You can access the Streamlit application here: https://share.streamlit.io/alerosae/opencitationscharts/epds-exam/app.py
+
 
 # Project workflow
 In order to build the application the following steps were made:
@@ -24,4 +26,3 @@ Currently the streamlit application works in a hybrid way: the global statistics
 
 In addition to serve as a general display of the content of the COCI dataset, the web application is meant to perform some simple yet interesting bibliometric analysis on the fly. The left side-bar can be used to switch from the global visualization to the bibliometric tools, allowing for two kinds of query: a single field search, with which users can retrieve different information about one specific field or one specifi journal, and a multi fields comparison, that allows to compare different fields. Additionally, the latter allows for more sophisticated queries: for istance, it is possible to retrieve the journals of a specific field (e.g. philosophy) that are cited the most exclusively by journals of another field (e.g. medicine). 
 
-You can access the Streamlit application here: https://share.streamlit.io/alerosae/opencitationscharts/epds-exam/app.py
