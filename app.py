@@ -109,21 +109,21 @@ if initial_choice == 'General Statistics':
     st.write('''You can perform two kinds of research. Either you can ask for **specific information about journals** related to a field or 
               you can **compare journals** belonging two different fields based on the discriminators that you choose. For instance, you can confront
               journals of biology and philosophical journals in regards to how they tend to mention journals belonging to their own field. Or you can simply
-              retrive the most mentioned journals in general medicine. The names of the fields that can be used to perform the analysis 
+              retrieve the most mentioned journals in general medicine. The names of the fields that can be used to perform the analysis 
               are those provided by the All Science Journal Classification (ASJC), which you can always consult [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).
-              For istance, if you want to search for medical journals, you might want to search for "General Medicine", instead of just typying "Medicine".
+              For instance, if you want to search for medical journals, you might want to search for "General Medicine", instead of just typing "Medicine".
               The input boxes are case insensitive and if you make some mistakes or you submit a field that does not belong to the ASJC codes the system will automatically inform you and suggest you
               possible solutions.''')
     st.write('''Currently the application **provides information about a sample of the publications released in 2020** (you can find more information about how the
-            data was parsed, processed and created starting from the COCI dataset in the [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application). 
+            data was parsed, processed and created starting from the COCI dataset in the [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts/tree/epds-exam) of the application). 
             It is meant to represent a small glimpse of how 2020 went in terms of academic publications, finding an answer to research questions such as:
             which were the most influencing journals? Which were the most important themes covered by them? 
-            Additionaly, since all the data comes from an Open Science project, it also gives an idea of which are the academic branches 
+            Additionally, since all the data comes from an Open Science project, it also gives an idea of which are the academic branches 
             and the scientific journals that are more prone to comply with the Open Science principles.''')
 
   col7, col8 = st.columns([3, 1])
   st.sidebar.write('''The charts that were drawn in the main page display information about the general composition of the COCI dataset
-           in regards to the publications that appeared throughtout 2020.''')
+           in regard to the publications that appeared throughout  2020.''')
   st.sidebar.write('''If you want to perform bibliometric analysis on the fly just check the 'Bibliometric analysis' box and fill all 
                    the input fields. Your results will appear on the main page.''')
   
@@ -148,16 +148,16 @@ else:
     st.write('''You can perform two kinds of research. Either you can ask for **specific information about journals** related to a field or 
               you can **compare journals** belonging two different fields based on the discriminators that you choose. For instance, you can confront
               journals of biology and philosophical journals in regards to how they tend to mention journals belonging to their own field. Or you can simply
-              retrive the most mentioned journals in general medicine. The names of the fields that can be used to perform the analysis 
+              retrieve the most mentioned journals in general medicine. The names of the fields that can be used to perform the analysis 
               are those provided by the All Science Journal Classification (ASJC), which you can always consult [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).
-              For istance, if you want to search for medical journals, you might want to search for "General Medicine", instead of just typying "Medicine".
+              For instance, if you want to search for medical journals, you might want to search for "General Medicine", instead of just typing "Medicine".
               The input boxes are case insensitive and if you make some mistakes or you submit a field that does not belong to the ASJC codes the system will automatically inform you and suggest you
               possible solutions.''')
     st.write('''Currently the application **provides information about a sample of the publications released in 2020** (you can find more information about how the
             data was parsed, processed and created starting from the COCI dataset in the [GitHub repository](https://github.com/AleRosae/OpenCitationsCharts) of the application). 
             It is meant to represent a small glimpse of how 2020 went in terms of academic publications, finding an answer to research questions such as:
             which were the most influencing journals? Which were the most important themes covered by them? 
-            Additionaly, since all the data comes from an Open Science project, it also gives an idea of which are the academic branches 
+            Additionally, since all the data comes from an Open Science project, it also gives an idea of which are the academic branches 
             and the scientific journals that are more prone to comply with the Open Science principles.''')
   col7, col8 = st.columns([3, 1])
 
@@ -223,7 +223,7 @@ else:
           top_journal = list(result[input_field].keys())[0]
           st.header(f'What do we know about {top_journal}?')
           st.write(f'''You might be interested in knowing something more about the most cited journal of {input_field}.
-                    Here you can see some information about it, provided that the 
+                    Here you can see some information about it, provided that
                     there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
                     the same search with the related tool in the left sidebar.''')
         col13, col14 = st.columns([3, 1])
@@ -232,7 +232,7 @@ else:
           if top_journal not in result_journal.keys():
               st.header('Journal not found!')
               st.write('''It looks like the journal you searched did not make any citation in 2020 according to the COCI dataset.
-                        This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
+                        This is probably due to the fact that the Streamlit application is currently running on a partial subset of
                         the 2020 data, which is in turn a small subset of the whole COCI dataset.
                         Or maybe we need to open a little bit more this particular branch of science :)''')
               st.markdown('***')
@@ -308,7 +308,7 @@ else:
           top_journal = list(result[input_field]['citations'].keys())[0]
           st.header(f'What do we know about {top_journal}?')
           st.write(f'''You might be interested in knowing something more about the most cited journal of {input_field}.
-                    Here you can see some information about it, provided that the 
+                    Here you can see some information about it, provided that 
                     there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
                     the same search with the related tool in the left sidebar.''')
         col13, col14 = st.columns([3, 1])
@@ -383,7 +383,7 @@ else:
       check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
       if check_spelling_selfcit == False:
         st.header(f'Citations flow in {input_field}')
-        st.write(f'''The charts below display **how citations have flowed** starting from journals related to **{input_field}**. It is a general ovwerview of how different
+        st.write(f'''The charts below display **how citations have flowed** starting from journals related to **{input_field}**. It is a general overview of how different
                     academic fields interact with each other, using citations as a proxy for linking two different fields.''')
         col7, col8 = st.columns(2)
         source_citflow = parse_COCI.citations_flow(data, csvs, specific_field=input_field)
@@ -429,7 +429,7 @@ else:
           st.plotly_chart(fig, use_container_width=True) 
         not_mentioned = str(parse_COCI.check_unmentioned(source_citflow['groups'])).strip('][')
 
-        st.write(f'''The bar charts illustrates which are the other fields that are mostly citited by articles of **{input_field}**. This 
+        st.write(f'''The bar chart illustrates which are the other fields that are mostly cited by articles of **{input_field}**. This 
                   provides an idea of how these disciplines tend to communicate. In this case, the **most mentioned field is {list(source_citflow['fields'].keys())[0]}**,
                   with **{list(source_citflow['fields'].values())[0]} citations**. The **least one is {list(source_citflow['fields'].keys())[-1]}**, which apparently is the most distant
                   subject from {input_field}, with **only {list(source_citflow['fields'].values())[-1]} mentions**.''')
@@ -495,7 +495,7 @@ else:
       dict_spelling = [el for el in check_spelling if type(el) == dict]
       if None in check_spelling:
         index_cantfind = check_spelling.index(None)
-        st.sidebar.write(f'''Can't find {input[index_cantfind]}. Check the spelling. Remember that you have to separte the fields only
+        st.sidebar.write(f'''Can't find {input[index_cantfind]}. Check the spelling. Remember that you have to separate the fields only
                           with a comma and space, do not press enter!''')
         render = False
       elif len(dict_spelling)> 0:
@@ -551,7 +551,7 @@ else:
                     articles related to the **same field**. It is a rough discriminator of **how much a field tend to cross its disciplinary boundaries**
                     and cross with external subjects. Self citations are scored when an article mentions another article belonging to
                     the same exact ASJC code, while partial self citations includes articles that are not the exact match but
-                    that belong to the same ASJC group. The comparison allows to detect substancial differences in the way in which fields belonging to different groups (e.g. medical sciences
+                    that belong to the same ASJC group. The comparison allows to detect substantial differences in the way in which fields belonging to different groups (e.g. medical sciences
                     and arts and humanities) tend to produce mentions related only to their own subject.''')
         with col7:
           st.write(f'''How many articles belonging to **{input_compare_field}** tend to mention
@@ -728,7 +728,7 @@ else:
         st.header(f'What do we know about {top_journal}?')
         st.write(f'''You might be interested in knowing something more about The **most popular journal 
                   of {input_compare_field_cited}** among researchers of **{input_compare_field}**.
-                  Here you can see some information about it, provided that the 
+                  Here you can see some information about it, provided that 
                   there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
                   the same search with the related tool in the left sidebar.''')
         col13, col14 = st.columns([3, 1])
@@ -769,8 +769,8 @@ else:
       st.markdown('***')
 if general_stats:
   st.header('General statistics')
-  st.write('''This dashboard is meant to tell how 2020 went in terms of academic publication. You can visualize multiple statistics that were elaborated from the the 
-           portion of COCI dataset that was pre-processed according to the constrains explaned in the introduction. Depending on the size of your screen, 
+  st.write('''This dashboard is meant to tell how 2020 went in terms of academic publication. You can visualize multiple statistics that were elaborated from the 
+           portion of COCI dataset that was pre-processed according to the constrains explained in the introduction. Depending on the size of your screen, 
            you might want to minimize the left sidebar.''')   
 
   with st.expander('General statistics', expanded=True):
@@ -794,7 +794,7 @@ if general_stats:
       st.write('')
       st.write('')
       st.write('')
-      st.write(f'''The chart displays the **journals that received the most number of citations** in 2020. It represents a rather simple overview of the most influencial
+      st.write(f'''The chart displays the **journals that received the most greatest number of citations** in 2020. It represents a rather simple overview of the most influential
                 scientific journals in 2020.''')
       st.write(f'''The **most cited journal** is _{list(source_journals.keys())[0]}_,
               with the astonishing number of **{list(source_journals.values())[0]} citations**. The **least cited journal** is _{list(source_journals.keys())[-1]}_,
@@ -830,17 +830,17 @@ if general_stats:
         'xanchor': 'center'
       })
     st.plotly_chart(histo_distr, use_container_width=True)
-    st.write(f'''**This chart displayes the distribution of the number of citations** of each citing article in 2020. On the x-axis you
+    st.write(f'''**This chart displays the distribution of the number of citations** of each citing article in 2020. On the x-axis you
             can find how many articles were mentioned (on a logarithmic scale), on the y-axis the number of instances of articles that cite n other articles.
-            The distribution appears to be **very skewed**, with a large part of the articles mentioning few publiscations and a very few other articles
-            citing hundred or thousands of other publications. It might be the case that the latter represents meta-reviews or a general overview
+            The distribution appears to be **very skewed**, with a large part of the articles mentioning few publications and a very few other articles
+            citing hundreds or thousands of other publications. It might be the case that the latter represents meta-reviews or a general overview
             of the current literature available for a specific topic.''')
     st.write(f'''The **average number of citations** for citing articles in 2020 was **{init['average_citations']}**, the mode (i.e. the most frequent value)
             was **{mode(init['tot_citations_distribution'])}**, which implies a very skewed distribution.
             The **maximum number of mentions** was **{max(init['tot_citations_distribution'])}**, while the **minimum was {min(init['tot_citations_distribution'])}**.''')
   with st.expander('Fields subdivision', expanded=True):
     st.write('''The bar chart above displays the **most important fields** in 2020, i.e. those that received more citations. 
-            However, **ASJC** also comes with a subdivion of those fields in
+            However, **ASJC** also comes with a subdivision of those fields in
             more general groups that give us a general picture of the subjects that are covered. The pie charts offer a broader look at the composition
             of the COCI dataset by illustrating the same data grouped according to the **group subdivision** and their **relative subject area** (i.e. the most general
             subdivision possible).''')
@@ -893,11 +893,11 @@ if general_stats:
               {list(source_fields['supergroups'].keys())[-1]} with {list(source_fields['supergroups'].values())[-1]} citations.''')
 
   with st.expander("Citations flow", expanded=True):
-    st.write('''Where did citations exactly went throughout 2020? This section offers a general overview of the network created by the scientific
-            publications according to their group subdivision. Moreover, it display how much journals of the same field tend to mention articles
+    st.write('''Where did citations exactly go throughout 2020? This section offers a general overview of the network created by the scientific
+            publications according to their group subdivision. Moreover, it displays how much journals of the same field tend to mention articles
             belonging to other fields.
             This is particularly interesting because it gives us an idea of how much the journals in the dataset are
-            **cross-disciplinary**. With the sidebar you can also see statistics related to one specific field in order to see which are the subject that are more 
+            **cross-disciplinary**. With the sidebar you can also see statistics related to one specific field in order to see which are the subject groups that are more 
             prone to cross the boundaries between different fields. ''')
     st.plotly_chart(net_data, use_container_width=True)
     st.write('''This is a simple yet effective visualization of the networks
