@@ -1,0 +1,729 @@
+target,source,weight
+"Biochemistry, Genetics and Molecular Biology ",Medicine ,260686
+"Biochemistry, Genetics and Molecular Biology ","Biochemistry, Genetics and Molecular Biology ",424140
+"Biochemistry, Genetics and Molecular Biology ",Multidisciplinary,95320
+"Biochemistry, Genetics and Molecular Biology ",Immunology and Microbiology ,42939
+"Biochemistry, Genetics and Molecular Biology ","Pharmacology, Toxicology and Pharmaceutics ",29332
+"Biochemistry, Genetics and Molecular Biology ",Neuroscience ,31245
+"Biochemistry, Genetics and Molecular Biology ",Mathematics ,10064
+"Biochemistry, Genetics and Molecular Biology ",Dentistry ,1903
+"Biochemistry, Genetics and Molecular Biology ",Chemistry ,27725
+"Biochemistry, Genetics and Molecular Biology ",Decision Sciences ,660
+"Biochemistry, Genetics and Molecular Biology ",Agricultural and Biological Sciences ,52246
+"Biochemistry, Genetics and Molecular Biology ",Health Professions ,2277
+"Biochemistry, Genetics and Molecular Biology ",Physics and Astronomy ,12483
+"Biochemistry, Genetics and Molecular Biology ",Engineering ,10757
+"Biochemistry, Genetics and Molecular Biology ",Computer Science ,1573
+"Biochemistry, Genetics and Molecular Biology ",Environmental Science ,11665
+"Biochemistry, Genetics and Molecular Biology ",Nursing ,9355
+"Biochemistry, Genetics and Molecular Biology ",Chemical Engineering ,4749
+"Biochemistry, Genetics and Molecular Biology ",Arts and Humanities ,1522
+"Biochemistry, Genetics and Molecular Biology ",Social Sciences ,1912
+"Biochemistry, Genetics and Molecular Biology ",Veterinary ,4932
+"Biochemistry, Genetics and Molecular Biology ",Materials Science ,5193
+"Biochemistry, Genetics and Molecular Biology ",Psychology ,894
+"Biochemistry, Genetics and Molecular Biology ",Earth and Planetary Sciences ,1849
+"Biochemistry, Genetics and Molecular Biology ","Business, Management and Accounting ",104
+"Biochemistry, Genetics and Molecular Biology ",Energy ,216
+"Biochemistry, Genetics and Molecular Biology ","Economics, Econometrics and Finance ",105
+Medicine ,Medicine ,1628435
+Medicine ,Immunology and Microbiology ,62014
+Medicine ,"Biochemistry, Genetics and Molecular Biology ",298812
+Medicine ,Multidisciplinary,101129
+Medicine ,Agricultural and Biological Sciences ,29395
+Medicine ,"Pharmacology, Toxicology and Pharmaceutics ",43268
+Medicine ,Nursing ,54124
+Medicine ,Neuroscience ,90905
+Medicine ,Physics and Astronomy ,14616
+Medicine ,Computer Science ,6638
+Medicine ,"Business, Management and Accounting ",3992
+Medicine ,Psychology ,29960
+Medicine ,Mathematics ,12769
+Medicine ,Chemistry ,40263
+Medicine ,Social Sciences ,26734
+Medicine ,Arts and Humanities ,13448
+Medicine ,Health Professions ,27919
+Medicine ,Dentistry ,7663
+Medicine ,Decision Sciences ,2944
+Medicine ,Environmental Science ,22679
+Medicine ,Veterinary ,5092
+Medicine ,Engineering ,18623
+Medicine ,Materials Science ,9055
+Medicine ,Chemical Engineering ,12185
+Medicine ,Earth and Planetary Sciences ,5807
+Medicine ,"Economics, Econometrics and Finance ",3021
+Medicine ,Energy ,736
+Mathematics ,Computer Science ,25535
+Mathematics ,Mathematics ,104146
+Mathematics ,Decision Sciences ,11478
+Mathematics ,Social Sciences ,3892
+Mathematics ,Engineering ,27408
+Mathematics ,Multidisciplinary,4725
+Mathematics ,Physics and Astronomy ,14540
+Mathematics ,Chemistry ,3319
+Mathematics ,"Business, Management and Accounting ",1371
+Mathematics ,Environmental Science ,1961
+Mathematics ,Earth and Planetary Sciences ,3132
+Mathematics ,Chemical Engineering ,1775
+Mathematics ,Energy ,1200
+Mathematics ,"Economics, Econometrics and Finance ",2148
+Mathematics ,Neuroscience ,1040
+Mathematics ,Materials Science ,1610
+Mathematics ,Agricultural and Biological Sciences ,1285
+Mathematics ,Arts and Humanities ,1274
+Mathematics ,Medicine ,6814
+Mathematics ,Psychology ,822
+Mathematics ,"Biochemistry, Genetics and Molecular Biology ",5421
+Mathematics ,Health Professions ,372
+Mathematics ,"Pharmacology, Toxicology and Pharmaceutics ",368
+Mathematics ,Dentistry ,34
+Mathematics ,Veterinary ,14
+Mathematics ,Immunology and Microbiology ,482
+Mathematics ,Nursing ,247
+Computer Science ,Neuroscience ,5948
+Computer Science ,Social Sciences ,12311
+Computer Science ,Arts and Humanities ,1956
+Computer Science ,Health Professions ,1147
+Computer Science ,Multidisciplinary,5300
+Computer Science ,Medicine ,10974
+Computer Science ,"Biochemistry, Genetics and Molecular Biology ",2678
+Computer Science ,Decision Sciences ,8964
+Computer Science ,Computer Science ,88989
+Computer Science ,Mathematics ,26178
+Computer Science ,Earth and Planetary Sciences ,3645
+Computer Science ,Physics and Astronomy ,7018
+Computer Science ,Chemical Engineering ,1231
+Computer Science ,Psychology ,4726
+Computer Science ,Engineering ,49435
+Computer Science ,Agricultural and Biological Sciences ,2192
+Computer Science ,Energy ,2177
+Computer Science ,"Business, Management and Accounting ",6507
+Computer Science ,Environmental Science ,3709
+Computer Science ,Immunology and Microbiology ,370
+Computer Science ,Chemistry ,1444
+Computer Science ,"Pharmacology, Toxicology and Pharmaceutics ",336
+Computer Science ,Nursing ,393
+Computer Science ,"Economics, Econometrics and Finance ",2681
+Computer Science ,Materials Science ,2239
+Computer Science ,Dentistry ,156
+Computer Science ,Veterinary ,28
+"Economics, Econometrics and Finance ","Economics, Econometrics and Finance ",57950
+"Economics, Econometrics and Finance ",Arts and Humanities ,1301
+"Economics, Econometrics and Finance ",Multidisciplinary,1066
+"Economics, Econometrics and Finance ",Social Sciences ,13008
+"Economics, Econometrics and Finance ","Business, Management and Accounting ",17593
+"Economics, Econometrics and Finance ",Medicine ,2122
+"Economics, Econometrics and Finance ",Psychology ,1443
+"Economics, Econometrics and Finance ",Mathematics ,3167
+"Economics, Econometrics and Finance ",Neuroscience ,149
+"Economics, Econometrics and Finance ",Engineering ,970
+"Economics, Econometrics and Finance ",Decision Sciences ,4413
+"Economics, Econometrics and Finance ",Computer Science ,999
+"Economics, Econometrics and Finance ",Environmental Science ,3903
+"Economics, Econometrics and Finance ",Health Professions ,40
+"Economics, Econometrics and Finance ",Earth and Planetary Sciences ,740
+"Economics, Econometrics and Finance ",Agricultural and Biological Sciences ,865
+"Economics, Econometrics and Finance ",Physics and Astronomy ,204
+"Economics, Econometrics and Finance ",Nursing ,243
+"Economics, Econometrics and Finance ","Biochemistry, Genetics and Molecular Biology ",79
+"Economics, Econometrics and Finance ",Energy ,752
+"Economics, Econometrics and Finance ",Veterinary ,15
+"Economics, Econometrics and Finance ","Pharmacology, Toxicology and Pharmaceutics ",15
+"Economics, Econometrics and Finance ",Chemistry ,21
+"Economics, Econometrics and Finance ",Chemical Engineering ,14
+"Economics, Econometrics and Finance ",Immunology and Microbiology ,31
+"Economics, Econometrics and Finance ",Materials Science ,18
+"Economics, Econometrics and Finance ",Dentistry ,5
+Neuroscience ,Neuroscience ,76763
+Neuroscience ,Nursing ,2635
+Neuroscience ,Health Professions ,1941
+Neuroscience ,Multidisciplinary,17697
+Neuroscience ,Arts and Humanities ,2581
+Neuroscience ,Medicine ,64512
+Neuroscience ,Computer Science ,2477
+Neuroscience ,Psychology ,7188
+Neuroscience ,Social Sciences ,1731
+Neuroscience ,Agricultural and Biological Sciences ,4177
+Neuroscience ,Physics and Astronomy ,1884
+Neuroscience ,"Biochemistry, Genetics and Molecular Biology ",30337
+Neuroscience ,Engineering ,1540
+Neuroscience ,Environmental Science ,557
+Neuroscience ,Chemical Engineering ,128
+Neuroscience ,"Business, Management and Accounting ",236
+Neuroscience ,"Pharmacology, Toxicology and Pharmaceutics ",5394
+Neuroscience ,Immunology and Microbiology ,3029
+Neuroscience ,Chemistry ,1333
+Neuroscience ,Materials Science ,167
+Neuroscience ,Dentistry ,249
+Neuroscience ,Veterinary ,123
+Neuroscience ,Decision Sciences ,234
+Neuroscience ,Mathematics ,974
+Neuroscience ,Earth and Planetary Sciences ,76
+Neuroscience ,"Economics, Econometrics and Finance ",140
+Neuroscience ,Energy ,2
+Agricultural and Biological Sciences ,Environmental Science ,63337
+Agricultural and Biological Sciences ,Agricultural and Biological Sciences ,284693
+Agricultural and Biological Sciences ,Medicine ,52769
+Agricultural and Biological Sciences ,Materials Science ,2420
+Agricultural and Biological Sciences ,"Biochemistry, Genetics and Molecular Biology ",95352
+Agricultural and Biological Sciences ,Engineering ,7846
+Agricultural and Biological Sciences ,Mathematics ,5776
+Agricultural and Biological Sciences ,Physics and Astronomy ,3965
+Agricultural and Biological Sciences ,Decision Sciences ,1017
+Agricultural and Biological Sciences ,Nursing ,11660
+Agricultural and Biological Sciences ,Multidisciplinary,48630
+Agricultural and Biological Sciences ,Earth and Planetary Sciences ,21897
+Agricultural and Biological Sciences ,Arts and Humanities ,1347
+Agricultural and Biological Sciences ,Immunology and Microbiology ,14773
+Agricultural and Biological Sciences ,Chemistry ,9905
+Agricultural and Biological Sciences ,Social Sciences ,4355
+Agricultural and Biological Sciences ,Neuroscience ,6845
+Agricultural and Biological Sciences ,Computer Science ,1316
+Agricultural and Biological Sciences ,"Pharmacology, Toxicology and Pharmaceutics ",6514
+Agricultural and Biological Sciences ,"Economics, Econometrics and Finance ",1512
+Agricultural and Biological Sciences ,"Business, Management and Accounting ",1698
+Agricultural and Biological Sciences ,Energy ,706
+Agricultural and Biological Sciences ,Dentistry ,358
+Agricultural and Biological Sciences ,Veterinary ,3726
+Agricultural and Biological Sciences ,Chemical Engineering ,2771
+Agricultural and Biological Sciences ,Health Professions ,1184
+Agricultural and Biological Sciences ,Psychology ,1219
+Earth and Planetary Sciences ,Earth and Planetary Sciences ,390189
+Earth and Planetary Sciences ,Multidisciplinary,24135
+Earth and Planetary Sciences ,Environmental Science ,35779
+Earth and Planetary Sciences ,Social Sciences ,8620
+Earth and Planetary Sciences ,Agricultural and Biological Sciences ,18699
+Earth and Planetary Sciences ,Medicine ,4807
+Earth and Planetary Sciences ,Computer Science ,5431
+Earth and Planetary Sciences ,Physics and Astronomy ,15197
+Earth and Planetary Sciences ,Chemistry ,5153
+Earth and Planetary Sciences ,Engineering ,19004
+Earth and Planetary Sciences ,Materials Science ,2772
+Earth and Planetary Sciences ,Chemical Engineering ,1984
+Earth and Planetary Sciences ,Mathematics ,4395
+Earth and Planetary Sciences ,Arts and Humanities ,1233
+Earth and Planetary Sciences ,"Biochemistry, Genetics and Molecular Biology ",1629
+Earth and Planetary Sciences ,Decision Sciences ,1118
+Earth and Planetary Sciences ,"Business, Management and Accounting ",1840
+Earth and Planetary Sciences ,Nursing ,83
+Earth and Planetary Sciences ,Energy ,2615
+Earth and Planetary Sciences ,Psychology ,319
+Earth and Planetary Sciences ,Neuroscience ,211
+Earth and Planetary Sciences ,"Economics, Econometrics and Finance ",1277
+Earth and Planetary Sciences ,"Pharmacology, Toxicology and Pharmaceutics ",234
+Earth and Planetary Sciences ,Immunology and Microbiology ,588
+Earth and Planetary Sciences ,Veterinary ,26
+Earth and Planetary Sciences ,Health Professions ,73
+Earth and Planetary Sciences ,Dentistry ,13
+Social Sciences ,Social Sciences ,192670
+Social Sciences ,"Business, Management and Accounting ",24167
+Social Sciences ,Multidisciplinary,6050
+Social Sciences ,Decision Sciences ,5713
+Social Sciences ,"Economics, Econometrics and Finance ",20224
+Social Sciences ,Environmental Science ,12995
+Social Sciences ,Arts and Humanities ,23098
+Social Sciences ,Medicine ,34691
+Social Sciences ,"Biochemistry, Genetics and Molecular Biology ",2559
+Social Sciences ,Computer Science ,9221
+Social Sciences ,Engineering ,6449
+Social Sciences ,Psychology ,24240
+Social Sciences ,Neuroscience ,4893
+Social Sciences ,Nursing ,3125
+Social Sciences ,"Pharmacology, Toxicology and Pharmaceutics ",1143
+Social Sciences ,Chemical Engineering ,424
+Social Sciences ,Chemistry ,1712
+Social Sciences ,Materials Science ,856
+Social Sciences ,Mathematics ,3418
+Social Sciences ,Physics and Astronomy ,1404
+Social Sciences ,Health Professions ,2594
+Social Sciences ,Earth and Planetary Sciences ,6882
+Social Sciences ,Agricultural and Biological Sciences ,4157
+Social Sciences ,Energy ,675
+Social Sciences ,Immunology and Microbiology ,340
+Social Sciences ,Dentistry ,185
+Social Sciences ,Veterinary ,82
+"Business, Management and Accounting ","Business, Management and Accounting ",115545
+"Business, Management and Accounting ","Economics, Econometrics and Finance ",19410
+"Business, Management and Accounting ",Social Sciences ,26685
+"Business, Management and Accounting ",Psychology ,9666
+"Business, Management and Accounting ",Medicine ,5434
+"Business, Management and Accounting ",Decision Sciences ,10113
+"Business, Management and Accounting ",Environmental Science ,4218
+"Business, Management and Accounting ",Earth and Planetary Sciences ,770
+"Business, Management and Accounting ",Mathematics ,1824
+"Business, Management and Accounting ",Agricultural and Biological Sciences ,836
+"Business, Management and Accounting ",Engineering ,8771
+"Business, Management and Accounting ",Arts and Humanities ,2784
+"Business, Management and Accounting ",Multidisciplinary,1054
+"Business, Management and Accounting ",Energy ,510
+"Business, Management and Accounting ",Computer Science ,5272
+"Business, Management and Accounting ",Neuroscience ,641
+"Business, Management and Accounting ",Nursing ,972
+"Business, Management and Accounting ",Physics and Astronomy ,270
+"Business, Management and Accounting ",Health Professions ,431
+"Business, Management and Accounting ","Pharmacology, Toxicology and Pharmaceutics ",86
+"Business, Management and Accounting ","Biochemistry, Genetics and Molecular Biology ",189
+"Business, Management and Accounting ",Materials Science ,372
+"Business, Management and Accounting ",Chemical Engineering ,86
+"Business, Management and Accounting ",Chemistry ,105
+"Business, Management and Accounting ",Dentistry ,10
+"Business, Management and Accounting ",Immunology and Microbiology ,64
+"Business, Management and Accounting ",Veterinary ,9
+Arts and Humanities ,Social Sciences ,15639
+Arts and Humanities ,Arts and Humanities ,19772
+Arts and Humanities ,"Business, Management and Accounting ",1806
+Arts and Humanities ,"Economics, Econometrics and Finance ",1344
+Arts and Humanities ,Environmental Science ,815
+Arts and Humanities ,Medicine ,7983
+Arts and Humanities ,Engineering ,889
+Arts and Humanities ,Psychology ,5369
+Arts and Humanities ,Nursing ,447
+Arts and Humanities ,Earth and Planetary Sciences ,1098
+Arts and Humanities ,Multidisciplinary,1709
+Arts and Humanities ,Computer Science ,1442
+Arts and Humanities ,"Biochemistry, Genetics and Molecular Biology ",976
+Arts and Humanities ,Neuroscience ,3805
+Arts and Humanities ,Health Professions ,309
+Arts and Humanities ,Agricultural and Biological Sciences ,841
+Arts and Humanities ,Mathematics ,952
+Arts and Humanities ,Physics and Astronomy ,382
+Arts and Humanities ,Decision Sciences ,218
+Arts and Humanities ,Materials Science ,166
+Arts and Humanities ,Energy ,28
+Arts and Humanities ,Chemistry ,219
+Arts and Humanities ,Immunology and Microbiology ,141
+Arts and Humanities ,"Pharmacology, Toxicology and Pharmaceutics ",310
+Arts and Humanities ,Dentistry ,5
+Arts and Humanities ,Veterinary ,48
+Arts and Humanities ,Chemical Engineering ,29
+Health Professions ,Medicine ,31280
+Health Professions ,Health Professions ,20061
+Health Professions ,Neuroscience ,2754
+Health Professions ,Nursing ,2929
+Health Professions ,"Biochemistry, Genetics and Molecular Biology ",3781
+Health Professions ,Chemistry ,317
+Health Professions ,Social Sciences ,2598
+Health Professions ,Multidisciplinary,1391
+Health Professions ,"Pharmacology, Toxicology and Pharmaceutics ",439
+Health Professions ,Agricultural and Biological Sciences ,493
+Health Professions ,Psychology ,3630
+Health Professions ,Arts and Humanities ,634
+Health Professions ,"Business, Management and Accounting ",417
+Health Professions ,Environmental Science ,232
+Health Professions ,Mathematics ,584
+Health Professions ,Physics and Astronomy ,735
+Health Professions ,Computer Science ,636
+Health Professions ,Engineering ,937
+Health Professions ,Immunology and Microbiology ,371
+Health Professions ,Earth and Planetary Sciences ,37
+Health Professions ,Veterinary ,58
+Health Professions ,Decision Sciences ,304
+Health Professions ,"Economics, Econometrics and Finance ",116
+Health Professions ,Materials Science ,104
+Health Professions ,Chemical Engineering ,57
+Health Professions ,Energy ,9
+Health Professions ,Dentistry ,454
+Psychology ,Psychology ,43811
+Psychology ,Social Sciences ,20980
+Psychology ,Arts and Humanities ,6912
+Psychology ,Medicine ,36694
+Psychology ,Mathematics ,1274
+Psychology ,Neuroscience ,12672
+Psychology ,Nursing ,2043
+Psychology ,"Business, Management and Accounting ",6884
+Psychology ,Multidisciplinary,3938
+Psychology ,Agricultural and Biological Sciences ,1506
+Psychology ,Computer Science ,2236
+Psychology ,"Biochemistry, Genetics and Molecular Biology ",1038
+Psychology ,"Economics, Econometrics and Finance ",1399
+Psychology ,Health Professions ,3179
+Psychology ,Physics and Astronomy ,371
+Psychology ,Environmental Science ,745
+Psychology ,Earth and Planetary Sciences ,166
+Psychology ,Decision Sciences ,618
+Psychology ,Engineering ,585
+Psychology ,Energy ,13
+Psychology ,Chemistry ,55
+Psychology ,"Pharmacology, Toxicology and Pharmaceutics ",296
+Psychology ,Immunology and Microbiology ,142
+Psychology ,Veterinary ,31
+Psychology ,Dentistry ,75
+Psychology ,Chemical Engineering ,20
+Psychology ,Materials Science ,10
+Materials Science ,Engineering ,102445
+Materials Science ,Chemistry ,85466
+Materials Science ,Materials Science ,174178
+Materials Science ,Multidisciplinary,17836
+Materials Science ,Mathematics ,3471
+Materials Science ,Energy ,5645
+Materials Science ,Environmental Science ,13589
+Materials Science ,Physics and Astronomy ,64404
+Materials Science ,Medicine ,12562
+Materials Science ,Chemical Engineering ,36046
+Materials Science ,"Biochemistry, Genetics and Molecular Biology ",15479
+Materials Science ,"Pharmacology, Toxicology and Pharmaceutics ",8793
+Materials Science ,Computer Science ,1955
+Materials Science ,Dentistry ,1983
+Materials Science ,Nursing ,305
+Materials Science ,Agricultural and Biological Sciences ,3728
+Materials Science ,Immunology and Microbiology ,2157
+Materials Science ,"Economics, Econometrics and Finance ",211
+Materials Science ,Earth and Planetary Sciences ,3851
+Materials Science ,Social Sciences ,849
+Materials Science ,Arts and Humanities ,165
+Materials Science ,Neuroscience ,856
+Materials Science ,Health Professions ,243
+Materials Science ,Veterinary ,90
+Materials Science ,Decision Sciences ,136
+Materials Science ,"Business, Management and Accounting ",226
+Materials Science ,Psychology ,59
+Engineering ,Engineering ,245731
+Engineering ,Mathematics ,29927
+Engineering ,Computer Science ,36643
+Engineering ,Multidisciplinary,16239
+Engineering ,Earth and Planetary Sciences ,19553
+Engineering ,Nursing ,2159
+Engineering ,Medicine ,30228
+Engineering ,"Biochemistry, Genetics and Molecular Biology ",17013
+Engineering ,Physics and Astronomy ,58381
+Engineering ,Chemistry ,33625
+Engineering ,Energy ,9460
+Engineering ,Environmental Science ,13198
+Engineering ,Chemical Engineering ,17892
+Engineering ,Materials Science ,71395
+Engineering ,"Pharmacology, Toxicology and Pharmaceutics ",5582
+Engineering ,Social Sciences ,5487
+Engineering ,"Business, Management and Accounting ",6389
+Engineering ,Agricultural and Biological Sciences ,12400
+Engineering ,Immunology and Microbiology ,3156
+Engineering ,Neuroscience ,2751
+Engineering ,Dentistry ,951
+Engineering ,"Economics, Econometrics and Finance ",1952
+Engineering ,Arts and Humanities ,758
+Engineering ,Health Professions ,1895
+Engineering ,Decision Sciences ,5740
+Engineering ,Psychology ,1135
+Engineering ,Veterinary ,194
+Veterinary ,"Biochemistry, Genetics and Molecular Biology ",5208
+Veterinary ,Veterinary ,16798
+Veterinary ,Immunology and Microbiology ,3430
+Veterinary ,Medicine ,11363
+Veterinary ,Agricultural and Biological Sciences ,3263
+Veterinary ,Environmental Science ,913
+Veterinary ,Health Professions ,133
+Veterinary ,"Pharmacology, Toxicology and Pharmaceutics ",725
+Veterinary ,Multidisciplinary,1930
+Veterinary ,Nursing ,347
+Veterinary ,Neuroscience ,520
+Veterinary ,Arts and Humanities ,81
+Veterinary ,Chemical Engineering ,31
+Veterinary ,Physics and Astronomy ,96
+Veterinary ,Social Sciences ,138
+Veterinary ,Earth and Planetary Sciences ,33
+Veterinary ,Dentistry ,65
+Veterinary ,Chemistry ,243
+Veterinary ,Mathematics ,199
+Veterinary ,Engineering ,153
+Veterinary ,Computer Science ,31
+Veterinary ,Decision Sciences ,36
+Veterinary ,"Business, Management and Accounting ",9
+Veterinary ,"Economics, Econometrics and Finance ",7
+Veterinary ,Psychology ,46
+Veterinary ,Materials Science ,23
+Veterinary ,Energy ,2
+Nursing ,Nursing ,26977
+Nursing ,Medicine ,62148
+Nursing ,Psychology ,2026
+Nursing ,Social Sciences ,3245
+Nursing ,"Biochemistry, Genetics and Molecular Biology ",10447
+Nursing ,Agricultural and Biological Sciences ,4971
+Nursing ,"Pharmacology, Toxicology and Pharmaceutics ",1604
+Nursing ,Environmental Science ,788
+Nursing ,Arts and Humanities ,787
+Nursing ,Multidisciplinary,3194
+Nursing ,Neuroscience ,2254
+Nursing ,Materials Science ,183
+Nursing ,Immunology and Microbiology ,1225
+Nursing ,Chemistry ,1290
+Nursing ,Chemical Engineering ,417
+Nursing ,Energy ,15
+Nursing ,Engineering ,904
+Nursing ,Earth and Planetary Sciences ,87
+Nursing ,"Business, Management and Accounting ",778
+Nursing ,Mathematics ,378
+Nursing ,Decision Sciences ,149
+Nursing ,Health Professions ,2034
+Nursing ,Dentistry ,114
+Nursing ,Computer Science ,137
+Nursing ,"Economics, Econometrics and Finance ",169
+Nursing ,Physics and Astronomy ,171
+Nursing ,Veterinary ,181
+Dentistry ,Medicine ,11592
+Dentistry ,Dentistry ,22456
+Dentistry ,Psychology ,163
+Dentistry ,"Biochemistry, Genetics and Molecular Biology ",3685
+Dentistry ,Computer Science ,59
+Dentistry ,Mathematics ,108
+Dentistry ,Multidisciplinary,1025
+Dentistry ,Materials Science ,501
+Dentistry ,Physics and Astronomy ,131
+Dentistry ,"Pharmacology, Toxicology and Pharmaceutics ",411
+Dentistry ,Arts and Humanities ,102
+Dentistry ,Engineering ,2037
+Dentistry ,Nursing ,318
+Dentistry ,Neuroscience ,558
+Dentistry ,Chemistry ,207
+Dentistry ,Health Professions ,249
+Dentistry ,Immunology and Microbiology ,825
+Dentistry ,Earth and Planetary Sciences ,10
+Dentistry ,Social Sciences ,304
+Dentistry ,Agricultural and Biological Sciences ,194
+Dentistry ,Chemical Engineering ,71
+Dentistry ,"Business, Management and Accounting ",18
+Dentistry ,Environmental Science ,135
+Dentistry ,Decision Sciences ,16
+Dentistry ,"Economics, Econometrics and Finance ",17
+Dentistry ,Veterinary ,26
+"Pharmacology, Toxicology and Pharmaceutics ",Medicine ,64127
+"Pharmacology, Toxicology and Pharmaceutics ","Biochemistry, Genetics and Molecular Biology ",46307
+"Pharmacology, Toxicology and Pharmaceutics ","Pharmacology, Toxicology and Pharmaceutics ",40347
+"Pharmacology, Toxicology and Pharmaceutics ",Chemical Engineering ,3394
+"Pharmacology, Toxicology and Pharmaceutics ",Physics and Astronomy ,2785
+"Pharmacology, Toxicology and Pharmaceutics ",Engineering ,5189
+"Pharmacology, Toxicology and Pharmaceutics ",Materials Science ,4749
+"Pharmacology, Toxicology and Pharmaceutics ",Agricultural and Biological Sciences ,5322
+"Pharmacology, Toxicology and Pharmaceutics ",Nursing ,2756
+"Pharmacology, Toxicology and Pharmaceutics ",Chemistry ,15000
+"Pharmacology, Toxicology and Pharmaceutics ",Immunology and Microbiology ,8133
+"Pharmacology, Toxicology and Pharmaceutics ",Multidisciplinary,12996
+"Pharmacology, Toxicology and Pharmaceutics ",Social Sciences ,890
+"Pharmacology, Toxicology and Pharmaceutics ",Neuroscience ,11591
+"Pharmacology, Toxicology and Pharmaceutics ",Environmental Science ,4216
+"Pharmacology, Toxicology and Pharmaceutics ",Dentistry ,550
+"Pharmacology, Toxicology and Pharmaceutics ",Health Professions ,556
+"Pharmacology, Toxicology and Pharmaceutics ",Veterinary ,516
+"Pharmacology, Toxicology and Pharmaceutics ",Mathematics ,1177
+"Pharmacology, Toxicology and Pharmaceutics ",Earth and Planetary Sciences ,245
+"Pharmacology, Toxicology and Pharmaceutics ",Arts and Humanities ,448
+"Pharmacology, Toxicology and Pharmaceutics ",Psychology ,506
+"Pharmacology, Toxicology and Pharmaceutics ",Energy ,71
+"Pharmacology, Toxicology and Pharmaceutics ",Computer Science ,316
+"Pharmacology, Toxicology and Pharmaceutics ","Business, Management and Accounting ",82
+"Pharmacology, Toxicology and Pharmaceutics ","Economics, Econometrics and Finance ",50
+"Pharmacology, Toxicology and Pharmaceutics ",Decision Sciences ,82
+Environmental Science ,Engineering ,33273
+Environmental Science ,Physics and Astronomy ,7189
+Environmental Science ,Chemical Engineering ,14214
+Environmental Science ,Mathematics ,5019
+Environmental Science ,Chemistry ,21358
+Environmental Science ,Energy ,11294
+Environmental Science ,Earth and Planetary Sciences ,48247
+Environmental Science ,Materials Science ,14567
+Environmental Science ,"Biochemistry, Genetics and Molecular Biology ",22364
+Environmental Science ,Environmental Science ,193593
+Environmental Science ,Agricultural and Biological Sciences ,83964
+Environmental Science ,Computer Science ,5088
+Environmental Science ,"Business, Management and Accounting ",23644
+Environmental Science ,Multidisciplinary,25357
+Environmental Science ,Social Sciences ,26216
+Environmental Science ,"Economics, Econometrics and Finance ",15391
+Environmental Science ,Arts and Humanities ,2253
+Environmental Science ,Decision Sciences ,5156
+Environmental Science ,Medicine ,33037
+Environmental Science ,Health Professions ,486
+Environmental Science ,Psychology ,3180
+Environmental Science ,Neuroscience ,1988
+Environmental Science ,Immunology and Microbiology ,7402
+Environmental Science ,"Pharmacology, Toxicology and Pharmaceutics ",8344
+Environmental Science ,Nursing ,1664
+Environmental Science ,Veterinary ,1265
+Environmental Science ,Dentistry ,176
+Chemical Engineering ,Energy ,3084
+Chemical Engineering ,Physics and Astronomy ,8304
+Chemical Engineering ,Engineering ,15632
+Chemical Engineering ,Environmental Science ,7475
+Chemical Engineering ,Chemistry ,27648
+Chemical Engineering ,Earth and Planetary Sciences ,1143
+Chemical Engineering ,Chemical Engineering ,19790
+Chemical Engineering ,Mathematics ,2115
+Chemical Engineering ,Materials Science ,19108
+Chemical Engineering ,Immunology and Microbiology ,1834
+Chemical Engineering ,Medicine ,7084
+Chemical Engineering ,Agricultural and Biological Sciences ,5495
+Chemical Engineering ,"Pharmacology, Toxicology and Pharmaceutics ",3759
+Chemical Engineering ,"Biochemistry, Genetics and Molecular Biology ",7938
+Chemical Engineering ,Multidisciplinary,3497
+Chemical Engineering ,Social Sciences ,354
+Chemical Engineering ,Nursing ,796
+Chemical Engineering ,Neuroscience ,393
+Chemical Engineering ,"Business, Management and Accounting ",78
+Chemical Engineering ,Dentistry ,105
+Chemical Engineering ,Arts and Humanities ,58
+Chemical Engineering ,Computer Science ,857
+Chemical Engineering ,Decision Sciences ,64
+Chemical Engineering ,"Economics, Econometrics and Finance ",60
+Chemical Engineering ,Health Professions ,85
+Chemical Engineering ,Veterinary ,74
+Chemical Engineering ,Psychology ,29
+Chemistry ,Chemistry ,306598
+Chemistry ,Materials Science ,102663
+Chemistry ,Chemical Engineering ,77580
+Chemistry ,Engineering ,50401
+Chemistry ,Physics and Astronomy ,56457
+Chemistry ,Earth and Planetary Sciences ,6065
+Chemistry ,Environmental Science ,20323
+Chemistry ,Multidisciplinary,44414
+Chemistry ,Computer Science ,1683
+Chemistry ,Energy ,7028
+Chemistry ,Medicine ,91914
+Chemistry ,Decision Sciences ,179
+Chemistry ,"Biochemistry, Genetics and Molecular Biology ",106911
+Chemistry ,"Pharmacology, Toxicology and Pharmaceutics ",31390
+Chemistry ,Agricultural and Biological Sciences ,26105
+Chemistry ,Social Sciences ,2480
+Chemistry ,Nursing ,3262
+Chemistry ,Mathematics ,6967
+Chemistry ,Immunology and Microbiology ,12597
+Chemistry ,Neuroscience ,11126
+Chemistry ,Dentistry ,859
+Chemistry ,Health Professions ,944
+Chemistry ,Arts and Humanities ,552
+Chemistry ,Veterinary ,811
+Chemistry ,"Business, Management and Accounting ",89
+Chemistry ,"Economics, Econometrics and Finance ",72
+Chemistry ,Psychology ,78
+Physics and Astronomy ,Physics and Astronomy ,411021
+Physics and Astronomy ,Engineering ,83570
+Physics and Astronomy ,Multidisciplinary,46221
+Physics and Astronomy ,Materials Science ,51717
+Physics and Astronomy ,"Biochemistry, Genetics and Molecular Biology ",29402
+Physics and Astronomy ,Neuroscience ,5716
+Physics and Astronomy ,Medicine ,19176
+Physics and Astronomy ,Computer Science ,9858
+Physics and Astronomy ,Mathematics ,22904
+Physics and Astronomy ,Decision Sciences ,2134
+Physics and Astronomy ,Social Sciences ,2112
+Physics and Astronomy ,Earth and Planetary Sciences ,19803
+Physics and Astronomy ,Immunology and Microbiology ,4141
+Physics and Astronomy ,Chemistry ,41454
+Physics and Astronomy ,Nursing ,366
+Physics and Astronomy ,"Pharmacology, Toxicology and Pharmaceutics ",3171
+Physics and Astronomy ,Chemical Engineering ,15790
+Physics and Astronomy ,Dentistry ,170
+Physics and Astronomy ,Environmental Science ,6104
+Physics and Astronomy ,Agricultural and Biological Sciences ,5704
+Physics and Astronomy ,Arts and Humanities ,720
+Physics and Astronomy ,Energy ,4917
+Physics and Astronomy ,"Economics, Econometrics and Finance ",519
+Physics and Astronomy ,Health Professions ,1036
+Physics and Astronomy ,Veterinary ,74
+Physics and Astronomy ,"Business, Management and Accounting ",386
+Physics and Astronomy ,Psychology ,439
+Energy ,Engineering ,24364
+Energy ,Computer Science ,2745
+Energy ,Energy ,19714
+Energy ,Physics and Astronomy ,4595
+Energy ,Social Sciences ,814
+Energy ,Environmental Science ,11134
+Energy ,Arts and Humanities ,61
+Energy ,"Business, Management and Accounting ",660
+Energy ,Decision Sciences ,490
+Energy ,"Economics, Econometrics and Finance ",696
+Energy ,Multidisciplinary,1739
+Energy ,Mathematics ,1543
+Energy ,Chemistry ,10038
+Energy ,Neuroscience ,50
+Energy ,Materials Science ,10192
+Energy ,Chemical Engineering ,5503
+Energy ,Earth and Planetary Sciences ,4116
+Energy ,Nursing ,56
+Energy ,Medicine ,1850
+Energy ,"Biochemistry, Genetics and Molecular Biology ",939
+Energy ,Agricultural and Biological Sciences ,1622
+Energy ,Immunology and Microbiology ,790
+Energy ,Dentistry ,7
+Energy ,"Pharmacology, Toxicology and Pharmaceutics ",157
+Energy ,Psychology ,53
+Energy ,Health Professions ,15
+Energy ,Veterinary ,10
+Decision Sciences ,Decision Sciences ,13418
+Decision Sciences ,Nursing ,134
+Decision Sciences ,Environmental Science ,1683
+Decision Sciences ,Mathematics ,7401
+Decision Sciences ,Medicine ,2204
+Decision Sciences ,"Biochemistry, Genetics and Molecular Biology ",328
+Decision Sciences ,Engineering ,5942
+Decision Sciences ,Earth and Planetary Sciences ,437
+Decision Sciences ,Multidisciplinary,841
+Decision Sciences ,Health Professions ,230
+Decision Sciences ,Computer Science ,5003
+Decision Sciences ,"Economics, Econometrics and Finance ",6167
+Decision Sciences ,Social Sciences ,4164
+Decision Sciences ,Psychology ,635
+Decision Sciences ,Agricultural and Biological Sciences ,269
+Decision Sciences ,Physics and Astronomy ,2356
+Decision Sciences ,"Pharmacology, Toxicology and Pharmaceutics ",47
+Decision Sciences ,Immunology and Microbiology ,24
+Decision Sciences ,Arts and Humanities ,240
+Decision Sciences ,"Business, Management and Accounting ",7340
+Decision Sciences ,Neuroscience ,204
+Decision Sciences ,Chemistry ,184
+Decision Sciences ,Energy ,412
+Decision Sciences ,Materials Science ,114
+Decision Sciences ,Chemical Engineering ,53
+Decision Sciences ,Veterinary ,3
+Decision Sciences ,Dentistry ,14
+Immunology and Microbiology ,Medicine ,62285
+Immunology and Microbiology ,"Biochemistry, Genetics and Molecular Biology ",52835
+Immunology and Microbiology ,Immunology and Microbiology ,45521
+Immunology and Microbiology ,"Pharmacology, Toxicology and Pharmaceutics ",4603
+Immunology and Microbiology ,Environmental Science ,7134
+Immunology and Microbiology ,Multidisciplinary,23377
+Immunology and Microbiology ,Physics and Astronomy ,2571
+Immunology and Microbiology ,Health Professions ,498
+Immunology and Microbiology ,Computer Science ,318
+Immunology and Microbiology ,Decision Sciences ,109
+Immunology and Microbiology ,Nursing ,1112
+Immunology and Microbiology ,Neuroscience ,6748
+Immunology and Microbiology ,Psychology ,224
+Immunology and Microbiology ,Arts and Humanities ,353
+Immunology and Microbiology ,Mathematics ,1731
+Immunology and Microbiology ,Agricultural and Biological Sciences ,13768
+Immunology and Microbiology ,Dentistry ,865
+Immunology and Microbiology ,Social Sciences ,315
+Immunology and Microbiology ,Chemistry ,4028
+Immunology and Microbiology ,"Economics, Econometrics and Finance ",60
+Immunology and Microbiology ,Veterinary ,2314
+Immunology and Microbiology ,Chemical Engineering ,1363
+Immunology and Microbiology ,Earth and Planetary Sciences ,557
+Immunology and Microbiology ,Engineering ,2927
+Immunology and Microbiology ,Energy ,306
+Immunology and Microbiology ,Materials Science ,1083
+Immunology and Microbiology ,"Business, Management and Accounting ",62
+Multidisciplinary,Medicine ,98921
+Multidisciplinary,"Pharmacology, Toxicology and Pharmaceutics ",6618
+Multidisciplinary,Environmental Science ,16282
+Multidisciplinary,Multidisciplinary,44487
+Multidisciplinary,Engineering ,16119
+Multidisciplinary,Physics and Astronomy ,18440
+Multidisciplinary,Chemical Engineering ,3957
+Multidisciplinary,Materials Science ,7819
+Multidisciplinary,Chemistry ,10673
+Multidisciplinary,Immunology and Microbiology ,13355
+Multidisciplinary,"Biochemistry, Genetics and Molecular Biology ",73356
+Multidisciplinary,Agricultural and Biological Sciences ,33119
+Multidisciplinary,Veterinary ,2238
+Multidisciplinary,Nursing ,4341
+Multidisciplinary,Mathematics ,7222
+Multidisciplinary,Earth and Planetary Sciences ,13014
+Multidisciplinary,Neuroscience ,21177
+Multidisciplinary,Computer Science ,5480
+Multidisciplinary,Decision Sciences ,1493
+Multidisciplinary,Social Sciences ,5807
+Multidisciplinary,"Business, Management and Accounting ",1601
+Multidisciplinary,Arts and Humanities ,2197
+Multidisciplinary,Energy ,1066
+Multidisciplinary,Psychology ,4614
+Multidisciplinary,Health Professions ,2509
+Multidisciplinary,Dentistry ,1218
+Multidisciplinary,"Economics, Econometrics and Finance ",1690

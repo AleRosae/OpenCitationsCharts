@@ -533,3 +533,25 @@ def creat_vis_graph(d, tot):
   fig.update_yaxes(showticklabels = False)
   # Show figure
   return fig
+
+
+def create_gephi_data():
+  with open (r'C:/Users/alero/Desktop/final_results.json', 'r') as f:
+    data = json.load(f)
+  edges = {'target': [], 'source': [], 'weight': []}
+  nodes = {'IDs': [], 'labels': []}
+
+  for key, value in data['net'].items():
+    for el, weight in value.items():
+      edges['target'].append(key)
+      edges['source'].append(el)
+      edges['weight'].append(weight)
+  nodes['IDs'] = list(data['net'].keys())
+  nodes['labels'] = list(data['net'].keys())
+  
+  df = pd.DataFrame.from_dict(edges)
+  df.to_csv('edges.csv', index = False)
+  df = pd.DataFrame.from_dict(nodes)
+  df.to_csv('nodes.csv', index = None)
+
+

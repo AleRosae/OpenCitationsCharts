@@ -8,6 +8,10 @@ import sys
 data = parse_COCI.load_data('all_2020.zip')
 csvs = parse_COCI.load_csvs()
 
+print('gephi data...')
+parse_COCI.create_gephi_data()
+print('done!')
+
 def get_general_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
 
@@ -36,5 +40,6 @@ def get_general_processing(data, csvs, folder):
 
     print('Done!')
 
-if __name__ == "__main__":
-    get_general_processing(data, csvs, sys.argv[1])
+#if __name__ == "__main__":
+  # get_general_processing(data, csvs, sys.argv[1])
+
