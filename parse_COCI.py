@@ -535,19 +535,19 @@ def creat_vis_graph(d, tot):
   return fig
 
 
-def create_gephi_data():
-  with open (r'C:/Users/alero/Desktop/final_results.json', 'r') as f:
+def create_gephi_data(folder):
+  with open (folder + r'/final_results.json', 'r') as f:
     data = json.load(f)
   edges = {'target': [], 'source': [], 'weight': []}
-  nodes = {'IDs': [], 'labels': []}
+  nodes = {'id': [], 'label': []}
 
   for key, value in data['net'].items():
     for el, weight in value.items():
       edges['target'].append(key)
       edges['source'].append(el)
-      edges['weight'].append(weight)
-  nodes['IDs'] = list(data['net'].keys())
-  nodes['labels'] = list(data['net'].keys())
+      edges['weight'].append(weight/sum(value.values()))
+  nodes['id'] = list(data['net'].keys())
+  nodes['label'] = list(data['net'].keys())
   
   df = pd.DataFrame.from_dict(edges)
   df.to_csv('edges.csv', index = False)

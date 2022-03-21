@@ -13,7 +13,7 @@ csvs = parse_COCI.load_csvs()
 def get_single_field_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
     fields = csvs['df_asjc']['Description'].tolist()
-    fields = fields [:10]
+    fields = fields
     results = {}
     print('processing most cited by single field...')
     with alive_bar(len(fields)) as bar:
@@ -25,7 +25,6 @@ def get_single_field_processing(data, csvs, folder):
         json.dump(results, fp)
     print('Done!')
 
-#if __name__ == "__main__":
-    #get_single_field_processing(data, csvs,  sys.argv[1])
+if __name__ == "__main__":
+    get_single_field_processing(data, csvs,  sys.argv[1])
 
-get_single_field_processing(data, csvs, r'C:/Users/alero/Desktop/single_field')
