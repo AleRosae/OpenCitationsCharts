@@ -14,14 +14,8 @@ st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wid
 st.title('''OpenCitations in Charts''')
 st.write('### A web application for visualizing the OpenCitations dataset in regards to publications distributed in 2020.')
 
-@st.cache()
-def load_data(path):
-  with ZipFile(path, 'r') as zip:
-    with zip.open('all_2020.json') as infile:
-      d = json.load(infile)
-      return d
 if 'data' not in st.session_state:
-  data = load_data(r'all_2020.zip')
+  data = 'No data here'
   st.session_state['data'] = data
 else:
   data = st.session_state['data']
@@ -37,30 +31,29 @@ if 'csvs' not in st.session_state:
 else:
   csvs = st.session_state['csvs']
 
+with open(r'results/final_results.json', 'r') as j_file:
+  general_data = json.load(j_file)
+
 if 'init' not in st.session_state:
-  with open(r'results/initial.json', 'r') as j_file:
-    init = json.load(j_file)
+  init = general_data['init']
   st.session_state['init'] = init
 else:
   init = st.session_state['init']
 
 if 'self_citations_asjc' not in st.session_state:
-  with open(r'results/d_self_citations_asjc.json', 'r') as j_file:
-    d_self_citations_asjc = json.load(j_file)
+  d_self_citations_asjc = general_data['self_cit_area']
   st.session_state['self_citations_asjc'] = d_self_citations_asjc
 else:
   d_self_citations_asjc = st.session_state['self_citations_asjc']
 
 if 'source_journals' not in st.session_state:
-  with open(r'results/source_journals.json', 'r') as j_file:
-    source_journals = json.load(j_file)
+  source_journals = general_data['journals']
   st.session_state['source_journals'] = source_journals
 else:
   source_journals = st.session_state['source_journals']
 
 if 'source_fields' not in st.session_state:
-  with open(r'results/source_fields.json', 'r') as j_file:
-    source_fields = json.load(j_file)
+  source_fields = general_data['areas']
   st.session_state['source_fields'] = source_fields
 else:
   source_fields = st.session_state['source_fields']
@@ -72,15 +65,13 @@ else:
   df_distribution = st.session_state['df_distribution']
 
 if 'self_citations' not in st.session_state:
-  with open(r'results/d_self_citations.json', 'r') as j_file:
-    d_self_citations = json.load(j_file)
+  d_self_citations = general_data['self_cit_journals']
   st.session_state['self_citations'] = d_self_citations
 else:
   d_self_citations = st.session_state['self_citations']
 
 if 'net_data' not in st.session_state:
-  with open(r'results/net_data.json', 'r') as j_file:
-    d = json.load(j_file)
+  d = general_data['net']
   net_data = parse_COCI.creat_vis_graph(d, tot=sum(init['tot_citations_distribution'])/1000)
   st.session_state['net_data'] = net_data
 else:
