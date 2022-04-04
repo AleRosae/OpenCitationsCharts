@@ -57,9 +57,8 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
     else:
       results = {'fields':{}, 'groups':{}, 'supergroups': {}}
       df_supergroups = csvs['df_supergroups']
-    for issn, value in input_issn.items():
+    for search_issn, value in input_issn.items():
       try:
-        search_issn = re.sub("'", "", issn)
         tmp = df_issn.at[search_issn, 'ASJC']
         tmp = tmp.split(';')
         field =  df_asjc.at[int(tmp[0].strip()), 'Description'] #only gets the first disciplinary field, which should be the primary one
@@ -86,8 +85,7 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
     return results
   else:
     results = []
-    for issn in input_issn:
-      search_issn = re.sub("'", "", issn)
+    for search_issn in input_issn:
       try:
         results.append(df_issn.at[search_issn, 'Title'])
       except KeyError:
@@ -100,20 +98,17 @@ def parse_data(data, csvs, asjc_fields = False, most_cited = False,
   counting_all = {}
   if most_cited: #only gets the articles that have been cited
     for item in data:
-      for k in item['has_cited_n_times']:
-        issn = re.sub('-', "", k)
-        counting_all[issn] = counting_all[issn] + item['has_cited_n_times'][k] 
+      for issn in item['has_cited_n_times']:
+        counting_all[issn] = counting_all[issn] + item['has_cited_n_times'][issn] 
   else:  
     for item in data:
       issn = item['issn']
-      issn = re.sub('-', "", issn)
       counting_all[issn] = 1
-      for k in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
-        issn = re.sub('-', "", k)
+      for issn in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
         if issn in counting_all.keys():
-          counting_all[issn] = counting_all[issn] + item['has_cited_n_times'][k]
+          counting_all[issn] = counting_all[issn] + item['has_cited_n_times'][issn]
         else:
-          counting_all[issn] = item['has_cited_n_times'][k]
+          counting_all[issn] = item['has_cited_n_times'][issn]
   alt_c = dict(sorted(counting_all.items(), key=lambda item: item[1], reverse=True))
   if asjc_fields: #converts the issn list in disciplinary fields
     if specific_field != None:
@@ -128,7 +123,6 @@ def parse_data(data, csvs, asjc_fields = False, most_cited = False,
   else: 
     new_issn = get_journal_issn(list(alt_c.keys()), csvs)
     values = list(alt_c.values())
-    counter = 0
     for index, el in enumerate(new_issn):
       output_dict[el] = values[index]
   return output_dict
@@ -167,40 +161,36 @@ def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente 
   results = {}
   for value in data:
     try:
-      search_issn = re.sub("'", "", value['issn'])
-      search_issn = re.sub("-", "", search_issn)
+      search_issn = value['issn']
       citing_code = df_issn.at[search_issn, 'ASJC']
       citing_code = citing_code.split(';')[0]
       if specific_field == None:
-        for k in value['has_cited_n_times'].keys():  
+        for search_cited in value['has_cited_n_times'].keys():  
           try:
-            search_cited= re.sub("'", "", k)
-            search_cited = re.sub("-", "", search_cited)
             cited_code = df_issn.at[search_cited, 'ASJC']
             cited_code = cited_code.split(';')[0]
             if citing_code == cited_code:
-              self_citations += value['has_cited_n_times'][k]
+              self_citations += value['has_cited_n_times'][search_cited]
             elif citing_code[:1] == cited_code[:1]:
-              partial_self_citations += value['has_cited_n_times'][k]
+              partial_self_citations += value['has_cited_n_times'][search_cited]
             else:
-              not_self_citations += value['has_cited_n_times'][k]
+              not_self_citations += value['has_cited_n_times'][search_cited]
           except KeyError:
-            not_found += value['has_cited_n_times'][k]
+            not_found += value['has_cited_n_times'][search_cited]
       else:        
-        for k in value['has_cited_n_times'].keys():  
+        for search_cited in value['has_cited_n_times'].keys():  
           try:          
-            search_cited= re.sub("'", "", k)
-            search_cited = re.sub("-", "", search_cited)
+
             cited_code = df_issn.at[search_cited, 'ASJC']
             cited_code = cited_code.split(';')[0]
             if citing_code == cited_code and citing_code == specific_code:
-              self_citations += value['has_cited_n_times'][k]
+              self_citations += value['has_cited_n_times'][search_cited]
             elif citing_code[:1] == cited_code[:1] and citing_code == specific_code:
-              partial_self_citations += value['has_cited_n_times'][k]
+              partial_self_citations += value['has_cited_n_times'][search_cited]
             elif citing_code == specific_code:
-              not_self_citations += value['has_cited_n_times'][k]
+              not_self_citations += value['has_cited_n_times'][search_cited]
           except KeyError:
-              not_found += value['has_cited_n_times'][k]
+              not_found += value['has_cited_n_times'][search_cited]
     except KeyError:
       continue        
   results['self'] = self_citations
@@ -211,7 +201,8 @@ def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente 
 
 def load_data(path):
   with ZipFile(path, 'r') as zip:
-    with zip.open('all_2020.json') as infile:
+    f_json = path.replace('.zip', '.json')
+    with zip.open(f_json) as infile:
       data = json.load(infile)
       return data
 
@@ -260,9 +251,7 @@ def citations_flow(data, csvs, specific_field = None):
   df_asjc = csvs['df_asjc']
   df_supergroups = csvs['df_supergroups']
   for item in data:
-    issn = item['issn']
-    search_issn = re.sub("'", "", issn)
-    search_issn = re.sub('-', "", search_issn)
+    search_issn = item['issn']
     try:
       tmp = df_issn.at[search_issn, 'ASJC']
     except KeyError:
@@ -270,9 +259,7 @@ def citations_flow(data, csvs, specific_field = None):
     tmp = tmp.split(';')
     field_citing =  df_asjc.at[int(tmp[0].strip()), 'Description']
     if field_citing.lower() == specific_field.lower():
-      for k in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
-        issn_cited = re.sub('-', "", k)
-        issn_cited = re.sub("'", "", issn_cited)
+      for issn_cited in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
         try:
           tmp_cited= df_issn.at[issn_cited, 'ASJC']
         except KeyError:
@@ -283,17 +270,17 @@ def citations_flow(data, csvs, specific_field = None):
         supergroup = df_supergroups.at[str(tmp_cited[0].strip())[:2]+'**', 'Supergroup']
         if field_cited.lower() != specific_field.lower(): 
           if field_cited in output_dict['fields'].keys():
-            output_dict['fields'][field_cited] += item['has_cited_n_times'][k]
+            output_dict['fields'][field_cited] += item['has_cited_n_times'][issn_cited]
           else:
-            output_dict['fields'][field_cited] = item['has_cited_n_times'][k]           
+            output_dict['fields'][field_cited] = item['has_cited_n_times'][issn_cited]           
           if group in output_dict['groups'].keys():
-            output_dict['groups'][group] += item['has_cited_n_times'][k]
+            output_dict['groups'][group] += item['has_cited_n_times'][issn_cited]
           else:
-            output_dict['groups'][group] = item['has_cited_n_times'][k]      
+            output_dict['groups'][group] = item['has_cited_n_times'][issn_cited]      
           if supergroup in output_dict['supergroups'].keys():
-            output_dict['supergroups'][supergroup] += item['has_cited_n_times'][k]
+            output_dict['supergroups'][supergroup] += item['has_cited_n_times'][issn_cited]
           else:    
-            output_dict['supergroups'][supergroup] =  item['has_cited_n_times'][k] 
+            output_dict['supergroups'][supergroup] =  item['has_cited_n_times'][issn_cited] 
         else:
           continue
     else:
@@ -308,9 +295,7 @@ def citations_flow_journals(data, csvs, specific_fields = None):
   df_issn = csvs['df_issn']
   df_asjc = csvs['df_asjc']
   for item in data:
-    issn = item['issn']
-    search_issn = re.sub("'", "", issn)
-    search_issn = re.sub('-', "", search_issn)
+    search_issn = item['issn']
     try:
       journal_citing = df_issn.at[search_issn, 'Title']
       tmp = df_issn.at[search_issn, 'ASJC']
@@ -319,9 +304,7 @@ def citations_flow_journals(data, csvs, specific_fields = None):
     tmp = tmp.split(';')
     field_citing =  df_asjc.at[int(tmp[0].strip()), 'Description']
     if field_citing.lower() == specific_fields[0].lower():
-      for k in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
-        issn_cited = re.sub('-', "", k)
-        issn_cited = re.sub("'", "", issn_cited)
+      for issn_cited in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
         try:
           tmp_cited= df_issn.at[issn_cited, 'ASJC']
           journal_cited = df_issn.at[issn_cited, 'Title']
@@ -331,9 +314,9 @@ def citations_flow_journals(data, csvs, specific_fields = None):
         field_cited =  df_asjc.at[int(tmp_cited[0].strip()), 'Description']
         if field_cited.lower() == specific_fields[1].lower():
           if journal_cited in output_dict.keys():
-            output_dict[journal_cited] += item['has_cited_n_times'][k]
+            output_dict[journal_cited] += item['has_cited_n_times'][issn_cited]
           else:
-            output_dict[journal_cited] = item['has_cited_n_times'][k]
+            output_dict[journal_cited] = item['has_cited_n_times'][issn_cited]
         else:
           continue
     else:
@@ -357,9 +340,7 @@ def search_specific_journal(data, csvs, specific_journal = None):
   df_issn = csvs['df_issn']
   df_asjc = csvs['df_asjc']
   df_supergroups = csvs['df_supergroups']
-  for item in data:
-    search_issn = re.sub("'", "", item['issn'])
-    search_issn = re.sub("-", "", search_issn)
+  for search_issn in data:
     try:
       journal = df_issn.at[search_issn, 'Title']
     except KeyError:
@@ -375,7 +356,7 @@ def search_specific_journal(data, csvs, specific_journal = None):
         output_dict[title]['field'] = field
         output_dict[title]['group'] = group
         output_dict[title]['citations'] = {}
-      for k in item['has_cited_n_times']: 
+      for k in search_issn['has_cited_n_times']: 
         cited_issn = re.sub("-", "", k)
         cited_issn = re.sub("'", "", cited_issn)
         if cited_issn != search_issn:      
@@ -384,9 +365,9 @@ def search_specific_journal(data, csvs, specific_journal = None):
           except KeyError:
             continue
           if title_cited in output_dict[title]['citations'].keys():
-            output_dict[title]['citations'][title_cited] += item['has_cited_n_times'][k]
+            output_dict[title]['citations'][title_cited] += search_issn['has_cited_n_times'][k]
           else:
-            output_dict[title]['citations'][title_cited] = item['has_cited_n_times'][k]
+            output_dict[title]['citations'][title_cited] = search_issn['has_cited_n_times'][k]
         else:
           continue
   try:
@@ -406,9 +387,7 @@ def citations_networks(data):
   df_supergroups = pd.read_csv(r'supergroups.csv')
   df_supergroups.set_index('code', inplace=True)
   for item in data:
-    issn = item['issn']
-    search_issn = re.sub("'", "", issn)
-    search_issn = re.sub('-', "", search_issn)
+    search_issn = item['issn']
     try:
       tmp_citing = df_issn.at[search_issn, 'ASJC']
     except KeyError:

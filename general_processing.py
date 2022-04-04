@@ -5,7 +5,7 @@ import sys
 #run this script only when you update the general dataset
 #It provides the .json files for the global statistics visualization
 
-data = parse_COCI.load_data('all_2020.zip')
+data = parse_COCI.load_data('prova_result_db.zip')
 csvs = parse_COCI.load_csvs()
 
 
@@ -31,7 +31,7 @@ def get_general_processing(data, csvs, folder):
     net_data = parse_COCI.citations_networks(data)
 
     results = {'init': init, 'self_cit_area': d_self_citations_asjc, 'self_cit_journals': d_self_citations,
-                'journals': source_journals, 'areas': 'source_fields', 'net': net_data}
+                'journals': source_journals, 'areas': source_fields, 'net': net_data}
     with open( folder + r'/final_results.json', 'w') as fp:
         json.dump(results, fp)
 
