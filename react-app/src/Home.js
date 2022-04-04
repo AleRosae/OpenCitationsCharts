@@ -1,4 +1,8 @@
 import React, {Component} from 'react';
+import Container from 'react-bootstrap/Container';
+import Button from 'react-bootstrap/Button';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 class CreateHome extends Component {
     render() {
@@ -11,10 +15,13 @@ class CreateHome extends Component {
                     <li>About</li>
                 </nav>
             </header>
-            <div>
-            <h2>Explore the COCI dataset of OpenCitations</h2>
-            <p>Blah Blah something about OpenCitations and COCI</p>
-            </div>
+                <h2>Explore the COCI dataset of OpenCitations</h2>
+                <Container fluid="md">
+                    <Row>
+                        <Col>Blah blah blah something about COCI and OpenCitations</Col>
+                    </Row>
+                    </Container>
+                <span><Button variant="primary">Primary</Button>{''}</span>
         </div>
     )};
 }

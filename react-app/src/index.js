@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import CreateHome from './Home.js';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App () {
