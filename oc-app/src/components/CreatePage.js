@@ -1,17 +1,34 @@
-import React from "react";
+import React, {useState} from "react";
+import NavBar from "./NavBar";
+import CreateDataVis from "./DataVis";
 
-export default function CreatePage(props){
+export default function CreatePage(){
+    const [Page, setPage] = useState(0)
+    const [Min, Max] = [0, 1]
+    function handlePrev() {
+        if (Page > Min) {
+        setPage((Page) => {
+            return Page - 1}
+        )}
 
+        console.log(Page)
+    }
+    function handleProx() {
+        if (Page < Max) {
+        setPage((Page) => {
+            return Page + 1}
+        )};
+
+        console.log(Page)
+    }
     return (
         <div>
-            <div className="row">
-                <div className="col-sm">
-                    <h1>Gratico {props.title}</h1>
+            <NavBar />
+            <CreateDataVis n_page = {Page}/>
+                <div>
+                    <button onClick={handlePrev}>Prev</button>
+                    <button onClick={handleProx}>Prox</button>
                 </div>
-                <div className="col-sm">
-                    <p>{props.text}</p>
-                </div>
-            </div>
         </div>
     )
 }
