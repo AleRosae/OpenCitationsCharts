@@ -8,11 +8,8 @@ import HomePage from "./HomePage";
 function MainPage () {
     const [VisStarted, setVisStarted] = useState(false)
     function HandleStartVis () {
-        if (VisStarted === false){
-        setVisStarted(true)}
-        else {
-            setVisStarted(false)
-        }
+        setVisStarted(!VisStarted)
+
         console.log(VisStarted)
     }
     

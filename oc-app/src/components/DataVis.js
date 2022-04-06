@@ -1,7 +1,11 @@
 import React from "react";
+import data from "../data/final_results.json";
+import { BarChart } from 'reaviz';
 
+const d = data
+console.log(d)
 export default function CreateDataVis(props) {
-    const my_dict = {0:{"title":"ecco qua", "text": "qua ancora non c'è nulla"}, 1: {"title":"Grafico", "text":"questo invece è un grafico"}}
+    const my_dict = {0:{"title":"Initial", "text": d.init.cited}, 1: {"title":"Grafico", "text":"questo invece è un grafico"}}
     console.log(props)
     return (<div>
         <div className="row">
