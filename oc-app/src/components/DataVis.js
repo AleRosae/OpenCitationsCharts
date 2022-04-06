@@ -1,6 +1,5 @@
 import React from "react";
 import data from "../data/final_results.json";
-import { BarChart } from 'reaviz';
 
 const d = data
 console.log(d)
