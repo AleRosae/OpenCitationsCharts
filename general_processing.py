@@ -17,9 +17,23 @@ def get_general_processing(data, csvs, folder):
 
     print('processing self citations by area...')
     d_self_citations_asjc = parse_COCI.self_citation(data, csvs, asjc_fields=True)
+    new_selfcit= []
+    for key, value in d_self_citations_asjc.items():
+        tmp = {}
+        tmp['key'] = key
+        tmp['data'] = value
+        new_selfcit.append(tmp)
+    d_self_citations_asjc = new_selfcit  
         
     print('processing self citations by journals...')
     d_self_citations = parse_COCI.self_citation(data, csvs)
+    new_selfcit= []
+    for key, value in d_self_citations.items():
+        tmp = {}
+        tmp['key'] = key
+        tmp['data'] = value
+        new_selfcit.append(tmp)
+    d_self_citations = new_selfcit  
 
     print('processing journals...')
     source_journals = parse_COCI.parse_data(data, csvs)
@@ -29,7 +43,6 @@ def get_general_processing(data, csvs, folder):
         tmp['key'] = key
         tmp['data'] = value
         new_journals.append(tmp)
-
     source_journals = new_journals
 
     print('processing academic areas...')

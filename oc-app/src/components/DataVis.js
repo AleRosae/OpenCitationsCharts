@@ -1,19 +1,21 @@
 import React from "react";
-import CreatePlot from "./CreatePlot";
+import CreatePlot, {CreateText} from "./CreatePlot";
 
 export default function CreateDataVis(props) {
-    const page_properties = {0:{"title":"Initial", "text": "d", "data": "None"}, 1: {"title":"Grafico", "text":"questo invece è un grafico", 
-                            "data": "journals"}, 2:{"title":"Altro grafico", "text":"altro testo", "data": "areas_fields"}}
+    const page_properties = {0:{"title":"Initial", "data": "None"}, 1: {"title":"Grafico", "type": "bar",
+                            "data": "journals"}, 2:{"title":"Altro grafico", "type": "bar", "data": "areas_fields"},
+                            3:{"title": "Self citation journals", "type":"pie", "data": "self_cit_journals"},
+                            4:{"title": "Self citation area", "type":"pie", "data": "self_cit_area"}}
     console.log(props)
     if (props.n_page > 0) {
     return (<div>
         <div className="row">
             <div className="col-sm">
                 <h1>{page_properties[props.n_page].title}</h1>
-                <CreatePlot type="Bar" page = {props.n_page} data = {page_properties[props.n_page].data}/>
+                <CreatePlot type={page_properties[props.n_page].type}  data = {page_properties[props.n_page].data}/>
             </div>
             <div className="col-sm">
-                <p>{page_properties[props.n_page].text} </p>
+                <CreateText page={props.n_page}/>
             </div>
         </div>
     </div>
@@ -22,12 +24,8 @@ export default function CreateDataVis(props) {
     else {
         return (<div>
             <div className="row">
-                <div className="col-sm">
                     <h1>{page_properties[props.n_page].title}</h1>
-                </div>
-                <div className="col-sm">
-                    <p>{page_properties[props.n_page].text} </p>
-                </div>
+                        <CreateText page={props.n_page}/>
             </div>
         </div>
         )  

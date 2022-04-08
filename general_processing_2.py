@@ -3,19 +3,17 @@ import json
 with open(r'D:/GitHub desktop/OpenCitationsCharts/oc-app/src/data/final_results.json', 'r') as fp:
     data = json.load(fp)
 
-print(data.keys())
-print(data["areas"].keys())
-for k in data["areas"].keys():
-    new_areas = []
-    for key, value in data['areas'][k].items():
-        tmp = {}
-        tmp['key'] = key
-        tmp['data'] = value
-        new_areas.append(tmp)
-    data["areas"][k] = new_areas 
+#print(data.keys())
+#print(data["init"].keys())
+new_selfcit= []
+for key, value in data['self_cit_area'].items():
+    tmp = {}
+    tmp['key'] = key
+    tmp['data'] = value
+    new_selfcit.append(tmp)
 
-print(data['areas'].keys())
-print(data['areas']['fields'][:5])
+data['self_cit_area'] = new_selfcit  
 
+print(data['self_cit_area'])
 with open(r'C:/Users/alero/Desktop/final_results.json', 'w') as j:
     data = json.dump(data, j)
