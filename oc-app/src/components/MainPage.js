@@ -15,18 +15,22 @@ function MainPage () {
         }
         console.log(VisStarted)
     }
+    function handleScroll () {
+        console.log("succedono cose")
+    }
     
     if (VisStarted === false) {
     return (
         <div>
         <HomePage />
-            <div className="StartVis">
+            <div className="StartVis" onScroll={handleScroll}>
                 <h2>Curios about what we have in our pockets?</h2>
                 <button onClick ={HandleStartVis} id='btn-startvis' className="btn btn-info">Click here!</button>
+            </div>
                 <div>
                     <p>Scroll down here!</p>
                 </div>
-        </div>
+
     </div>
         )}
         else {

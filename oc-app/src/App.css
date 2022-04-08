@@ -23,3 +23,52 @@ header {
   margin: 25px auto;
   display: flex;
 }
+
+App {
+  
+
+  display:flex;
+  flex-direction: column;
+  padding:5rem;
+  }
+  
+  .title{
+    text-transform: uppercase;
+    align-self: center;
+    margin-bottom:8rem;
+    font-size:4vw;
+  }
+
+  
+  
+  .scrollbar-track{
+    background-color: transparent !important;
+  }
+  
+  .scrollbar-track-y{
+    width:12px !important;
+  }
+  
+  
+  .scrollbar-thumb{
+    width:12px !important;
+    background-color: black !important;
+    border-radius: 0 !important;
+  }
+  .App > div {
+    min-height: 100vh;
+    margin-top: 100px;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding: 20px 0;
+    position: fixed;
+    top: 0;
+  }
+  
+  li {
+    cursor: pointer;
+  }

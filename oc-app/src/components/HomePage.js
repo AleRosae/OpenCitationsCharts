@@ -4,7 +4,6 @@ import NavBar from "./NavBar";
 export default function CreateHome() {
     return (
     <div>
-        <NavBar />
         <div className='Main'>
             <h1>
                 Explore the OpenCitations dataset
