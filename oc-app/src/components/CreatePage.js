@@ -5,14 +5,14 @@ import CreateDataVis from "./DataVis";
 
 export default function CreatePage(){
     const [Page, setPage] = useState(0)
-    const [Min, Max] = [0, 1]
+    const [Min, Max] = [0, 2]
     function handlePrev() {
         if (Page > Min) {
         setPage((Page) => {
             return Page - 1}
         )}
 
-        console.log(Page)
+       // console.log(Page)
     }
     function handleProx() {
         if (Page < Max) {
@@ -20,7 +20,7 @@ export default function CreatePage(){
             return Page + 1}
         )};
 
-        console.log(Page)
+        //console.log(Page)
     }
     return (
         <div>   
