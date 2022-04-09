@@ -13,17 +13,15 @@ export default function CreateDataVis(props) {
     return (
         <div className="row">
             
-            <div className="col-sm">
                 <h1>{page_properties[props.n_page].title}</h1>
-                <ScrollAnimation animateIn="backInDown" delay={800}>
+                <ScrollAnimation animateIn='slideInLeft' animateOut="slideOutLeft" duration={2}
+                                 delay={0}>
                     <CreatePlot type={page_properties[props.n_page].type}  data = {page_properties[props.n_page].data}/>
                 </ScrollAnimation>
-            </div>
 
-            <ScrollAnimation animateIn="backInRight" delay={1000}>
-                <div className="col-sm">
+                <ScrollAnimation animateIn='slideInRight' animateOut="slideOutRight" duration={2}
+                                 delay={200}>
                     <CreateText page={props.n_page}/>
-                </div>
             </ScrollAnimation>
         </div>
     )

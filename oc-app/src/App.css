@@ -57,7 +57,7 @@ header {
   }
   .sections {
     min-height: 100vh;
-    margin-top: 50px;
+    margin-top: 50;
     border-style: dotted;
   }
 
@@ -78,3 +78,7 @@ header {
     cursor: pointer;
   }
 
+  .active {
+    color: red !important;
+  }
+  

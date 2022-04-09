@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import CreatePage from './CreatePage';
 import HomePage from "./HomePage";
-import Scroll, {Link} from 'react-scroll';
+import {Link, Element, Events, scroller, animateScroll as scroll} from 'react-scroll';
 import CreateDataVis from './DataVis';
+
 
 
 
@@ -31,7 +31,7 @@ function MainPage () {
                     spy={true}
                     smooth={true}
                     offset={-100}
-                    duration={500}
+                    duration={800}
                     delay={100}>
                         <button onClick ={HandleStartVis} id='btn-startvis' className="btn btn-info">Click here!</button>
                 </Link>  
@@ -44,51 +44,49 @@ function MainPage () {
         else {
             return (
                 <div>
-                    <HomePage />
-                    <div className="StartVis">
-                        <h2>Curios about what we have in our pockets?</h2>
+            <nav className="navbar navbar-default navbar-fixed-top">
+            <div className="container-fluid">
+              <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul className="nav navbar-nav">{
+                    pages.map(
+                      page =><li key={"li_"+page}>
+                          <Link  activeClass="active" className="test1" to={"Section"+page} offset={-50}
+                          spy={true} smooth={true} duration={1000} delay={50}>{"Section"+page}</Link>
+                          </li>
+                    )
+                  }
+                    <li onClick ={HandleStartVis}>
                         <Link
-                            activeClass="active"
                             to={"Section0"}
                             spy={true}
                             smooth={true}
-                            offset={-100}
-                            duration={500}
+                            offset={0}
+                            duration={800}
                             delay={100}>
-                                <button onClick ={HandleStartVis} id='btn-startvis' className="btn btn-info">Back on top</button>
-                        </Link>    
+                            Back on top
+                        </Link> 
+                    </li>
+                  </ul>
+            </div>
+            </div>
+          </nav>
+                    <HomePage />
+                    <div className="StartVis">
+                        <h2>Curios about what we have in our pockets?</h2>
+   
                     </div>
-                <ul className="header">{
-                    pages.map(
-                      page => <li key = {"key_ul_n"+page}>
-                              <Link
-                                  activeClass="active"
-                                  to={"Section"+page}
-                                spy={true}
-                                smooth={'easeInQuad'}
-                                offset={-50}
-                                duration={1000}
-                                delay={200}>
-                                    {"Section"+page}
-                                </Link>
-                      </li>
-                    )
-                  }</ul>
+
                <div>
                         {
                         pages.map(
                         page => 
-                            <div key = {"key_n"+page} className='sections' id={"Section"+page}>
+                            <Element key = {"key_n"+page} className='sections' name={"Section"+page}>
                                 <CreateDataVis n_page={page}/>
-                            </div>
+                            </Element>
                         )
                     }
-
                     </div>
-
-                </div>
-
-                
+        </div>
             )
         }
     
