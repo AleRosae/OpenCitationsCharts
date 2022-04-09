@@ -10,7 +10,7 @@ from alive_progress import alive_bar
 
 
 def get_issn_crossref(coci_files):
-  db_path = 'crossref_pulito.db'
+  db_path = 'E:/Github desktop/crossref_pulito_indexed.db'
   connection = sqlite3.connect(db_path)
   cursor = connection.cursor()
   memory_dict = {}

@@ -12,7 +12,7 @@ from alive_progress import alive_bar
 connection = sqlite3.connect("crossref_pulito.db")
 cursor = connection.cursor()
 cursor.execute("CREATE TABLE IF NOT EXISTS articles (doi TEXT PRIMARY KEY, issn TEXT)")
-cursor.execute("CREATE TABLE IF NOT EXISTS books (doi TEXT PRIMARY KEY, issn TEXT)")
+cursor.execute("CREATE TABLE IF NOT EXISTS books (doi TEXT PRIMARY KEY, issn TEXT)") #should be isbn not issn
 connection.commit()
 
 
