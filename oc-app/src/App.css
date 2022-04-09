@@ -24,7 +24,7 @@ header {
   display: flex;
 }
 
-App {
+.App {
   
 
   display:flex;
@@ -55,11 +55,16 @@ App {
     background-color: black !important;
     border-radius: 0 !important;
   }
-  .App > div {
+  .sections {
     min-height: 100vh;
-    margin-top: 100px;
+    margin-top: 50px;
+    border-style: dotted;
   }
 
+.sections > .row{
+  margin-right: 0 !important;
+  margin-left: 0 !important;
+}
   .header {
     display: flex;
     justify-content: space-around;
@@ -72,3 +77,4 @@ App {
   li {
     cursor: pointer;
   }
+

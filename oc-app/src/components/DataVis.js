@@ -1,5 +1,7 @@
 import React from "react";
 import CreatePlot, {CreateText} from "./CreatePlot";
+import ScrollAnimation from 'react-animate-on-scroll';
+
 
 export default function CreateDataVis(props) {
     const page_properties = {0:{"title":"Initial", "data": "None"}, 1: {"title":"Grafico", "type": "bar",
@@ -8,26 +10,30 @@ export default function CreateDataVis(props) {
                             4:{"title": "Self citation area", "type":"pie", "data": "self_cit_area"}}
     console.log(props)
     if (props.n_page > 0) {
-    return (<div>
+    return (
         <div className="row">
+            
             <div className="col-sm">
                 <h1>{page_properties[props.n_page].title}</h1>
-                <CreatePlot type={page_properties[props.n_page].type}  data = {page_properties[props.n_page].data}/>
+                <ScrollAnimation animateIn="backInDown" delay={800}>
+                    <CreatePlot type={page_properties[props.n_page].type}  data = {page_properties[props.n_page].data}/>
+                </ScrollAnimation>
             </div>
-            <div className="col-sm">
-                <CreateText page={props.n_page}/>
-            </div>
+
+            <ScrollAnimation animateIn="backInRight" delay={1000}>
+                <div className="col-sm">
+                    <CreateText page={props.n_page}/>
+                </div>
+            </ScrollAnimation>
         </div>
-    </div>
     )
     }
     else {
-        return (<div>
+        return (
             <div className="row">
                     <h1>{page_properties[props.n_page].title}</h1>
                         <CreateText page={props.n_page}/>
             </div>
-        </div>
         )  
     }
 

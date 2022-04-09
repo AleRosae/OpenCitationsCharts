@@ -8,10 +8,12 @@
     "@testing-library/user-event": "^13.5.0",
     "framer-motion": "^6.2.9",
     "react": "^18.0.0",
+    "react-animate-on-scroll": "^2.1.5",
     "react-dom": "^18.0.0",
     "react-scripts": "5.0.0",
+    "react-scroll": "^1.8.6",
     "reaviz": "^12.2.1",
-    "smooth-scrollbar": "^8.7.4",
+    "styled-components": "^5.3.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
