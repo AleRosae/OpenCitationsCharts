@@ -24,7 +24,6 @@ export default function CreatePage(){
     }
     return (
         <div>   
-            <NavBar />
             <CreateDataVis n_page = {Page}/>
                 <div>
                     <button onClick={handlePrev}>Prev</button>

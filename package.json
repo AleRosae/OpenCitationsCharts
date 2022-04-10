@@ -1,1 +1,8 @@
-{}
+{
+  "dependencies": {
+    "react-in-viewport": "^1.0.0-alpha.26",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-visibility-sensor": "^5.1.1",
+    "recharts": "^2.1.9"
+  }
+}

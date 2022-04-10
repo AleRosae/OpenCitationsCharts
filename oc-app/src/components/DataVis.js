@@ -8,21 +8,18 @@ export default function CreateDataVis(props) {
                             "data": "journals"}, 2:{"title":"Altro grafico", "type": "bar", "data": "areas_fields"},
                             3:{"title": "Self citation journals", "type":"pie", "data": "self_cit_journals"},
                             4:{"title": "Self citation area", "type":"pie", "data": "self_cit_area"}}
-    console.log(props)
     if (props.n_page > 0) {
     return (
-        <div className="row">
-            
-                <h1>{page_properties[props.n_page].title}</h1>
-                <ScrollAnimation animateIn='slideInLeft' animateOut="slideOutLeft" duration={2}
-                                 delay={0}>
-                    <CreatePlot type={page_properties[props.n_page].type}  data = {page_properties[props.n_page].data}/>
-                </ScrollAnimation>
-
-                <ScrollAnimation animateIn='slideInRight' animateOut="slideOutRight" duration={2}
-                                 delay={200}>
-                    <CreateText page={props.n_page}/>
-            </ScrollAnimation>
+        <div className="container">
+        <h2>{page_properties[props.n_page].title}</h2>
+            <div className="row">
+                    <div className="col col-md">
+                        <CreatePlot type={page_properties[props.n_page].type} n_clic={page_properties[props.n_page].title+"_"+props.n_clic} data = {page_properties[props.n_page].data}/>
+                    </div>
+                    <div className="col col-md">
+                        <CreateText page={props.n_page}/>
+                    </div>
+            </div>
         </div>
     )
     }
