@@ -7,7 +7,10 @@ export default function CreateDataVis(props) {
     const page_properties = {0:{"title":"Initial", "data": "None"}, 1: {"title":"Grafico", "type": "bar",
                             "data": "journals"}, 2:{"title":"Altro grafico", "type": "bar", "data": "areas_fields"},
                             3:{"title": "Self citation journals", "type":"pie", "data": "self_cit_journals"},
-                            4:{"title": "Self citation area", "type":"pie", "data": "self_cit_area"}}
+                            4:{"title": "Self citation area", "type":"pie", "data": "self_cit_area"}, 5: {
+                                "title":"top 20 fields", "type":"bar", "data": "areas_fields"},
+                                6:{"title":"Groups and supergroups subdivion", "type":"pie", "data": "areas_groups"
+                            }}
     if (props.n_page > 0) {
     return (
         <div className="container">

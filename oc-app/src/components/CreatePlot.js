@@ -1,5 +1,6 @@
 import React, { PureComponent }  from "react";
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie } from 'recharts';
+import ScrollAnimation from 'react-animate-on-scroll';
 
 const my_data = require('../data/final_results.json'); 
 
@@ -18,12 +19,23 @@ export default function CreatePlot(props) {
             </BarChart>
 )}
         
+
+else if (props.type === 'pie' && props.data == "areas_groups") {
+    var MyChart   = () => 
+        <PieChart width={800} height={600} isAnimationActive={false}>
+        <Pie data={my_data[props.data]} nameKey="key" dataKey="data" cx="50%" cy="50%" outerRadius={160} fill="#8884d8" />
+        <Pie data={my_data["areas_supergroups"]} dataKey="data" nameKey="key"  cx="50%" cy="50%" innerRadius={180} outerRadius={240} fill="#82ca9d" label />
+        <Tooltip />
+        </PieChart>}
+        
 else if (props.type === 'pie') {
     var MyChart   = () => 
         <PieChart width={800} height={600} isAnimationActive={false}>
         <Pie data={my_data[props.data]} dataKey="data" nameKey="key" cx="50%" cy="50%"  outerRadius={200} fill="#82ca9d" label />
         <Tooltip />
         </PieChart>}
+
+
 
     return (
             <MyChart />
@@ -34,9 +46,11 @@ const texts = {0: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quis
             1: `Questo è il testo per il grafico che parla dei giornali. Il journal con più citazioni è ${my_data.journals[0].key}, con
                 ben ${my_data.journals[0].data} citazioni.`,
             2: "Questo è il testo per il grafico che parla delle aree tematiche", 3:"Questo è il grafico delle self cit per journal",
-            4:"Questo è il grafico delle self cit per area invece"}
+            4:'Questo è il grafico delle self cit per area invece', 5: `The chart displays the fields that received the most number of citations in 2020. It represents the main themes and subjects that are covered by the articles that were published in 2020 The most popular field is ${my_data.areas_fields[0].key}, with the astonishing number of ${my_data.areas_fields[0].data} citations. The least popular one is ${my_data.areas_fields[my_data.areas_fields.length-1].key}, which received only ${my_data.areas_fields[my_data.areas_fields.length-1].data} mentions.`, 6: `The subdivision of the 325 fields present in the COCI dataset in groups. The most popular group is ${my_data.areas_groups[0].key} which received ${my_data.areas_groups[0].data} mentions. The least popular one is ${my_data.areas_fields[my_data.areas_groups.length-1].key} with ${my_data.areas_fields[my_data.areas_groups.length-1].data} citations.`}
 
     return (
-        <p className="plotdescr">{texts[props.page]}</p>
+        <ScrollAnimation animateIn="fadeInRight">
+            <p className="plotdescr">{texts[props.page]}</p>
+        </ScrollAnimation>
     )
 }

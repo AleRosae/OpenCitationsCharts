@@ -5,7 +5,7 @@ import CreateDataVis from './DataVis';
 
 
 function MainPage () {
-    const [pages, setPages] = useState([0, 1, 2, 3, 4])
+    const [pages, setPages] = useState([0, 1, 2, 3, 4, 5, 6])
     const [n_clic, set_nclic] = useState(0)
     console.log(n_clic)
 
@@ -36,7 +36,7 @@ function MainPage () {
                     spy={true} smooth={true} duration={1200} delay={150}>{"Home"}</Link></li>
             {pages.map(
                 page =><li key={"li_"+page}>
-                    <Link  onClick={handleChange} activeClass="nav-item active" className="nav-link" to={"Section"+page} offset={-50}
+                    <Link  onClick={handleChange} activeClass="nav-item active" className="nav-link" to={"Section"+page} offset={-60}
                     spy={true} smooth={true} duration={1000} delay={100}>{"Section"+page}</Link>
                     </li>
             )
