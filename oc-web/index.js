@@ -1,6 +1,8 @@
 import jsonData from './final_results.json' assert { type: "json" };
+
 console.log(jsonData['journals'].slice(0, 10));
-    
+
+// self citation pie by area
 let self_cit_area_chart = am4core.create("self-cit-pie", am4charts.PieChart);
 
 var series = self_cit_area_chart.series.push(new am4charts.PieSeries());
@@ -40,7 +42,12 @@ am4core.ready(function() {
       }
       return dy;
     });
-    
+
+    // fix labels
+    categoryAxis.renderer.labels.template.wrap = true;
+    categoryAxis.renderer.labels.template.truncate = true;
+    categoryAxis.renderer.labels.template.maxWidth = 200;
+
     var valueAxis = bar_chart_journals.yAxes.push(new am4charts.ValueAxis());
     
     // Create series
@@ -70,7 +77,7 @@ am4core.ready(function() {
   var bar_chart_journals = am4core.create("top-fields", am4charts.XYChart);
   
   // Add data
-  bar_chart_journals.data = jsonData['journals'].slice(0, 10);
+  bar_chart_journals.data = jsonData['areas_fields'].slice(0, 10);
   
   // Create axes
   
@@ -79,6 +86,11 @@ am4core.ready(function() {
   categoryAxis.renderer.grid.template.location = 0;
   categoryAxis.renderer.minGridDistance = 30;
   
+//fix labels
+categoryAxis.renderer.labels.template.wrap = true;
+categoryAxis.renderer.labels.template.truncate = true;
+categoryAxis.renderer.labels.template.maxWidth = 200;
+
   categoryAxis.renderer.labels.template.adapter.add("dy", function(dy, target) {
     if (target.dataItem && target.dataItem.index & 2 == 2) {
       return dy + 25;
