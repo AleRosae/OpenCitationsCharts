@@ -1,8 +1,19 @@
 {
+  "name": "oc-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "react-in-viewport": "^1.0.0-alpha.26",
-    "react-infinite-scroll-component": "^6.1.0",
-    "react-visibility-sensor": "^5.1.1",
-    "recharts": "^2.1.9"
+    "fs": "^0.0.1-security",
+    "module": "^1.2.5",
+    "require": "^2.4.20"
+  },
+  "devDependencies": {
+    "@web/dev-server": "^0.1.30"
   }
 }
