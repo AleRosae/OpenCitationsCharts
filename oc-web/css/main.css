@@ -479,11 +479,14 @@ xclip
   opacity: 1;
 }
 
+#mainNav {
+    background-color: #3b21c4f2;;
+}
 
 #mainNav.navbar-shrink {
     padding-top: 5px;
     padding-bottom: 5px;
-    background-color: #a24df3;
+    background-color: #3b21c4f2
 }
 
 #clouds{
@@ -1089,19 +1092,7 @@ xclip
   left: calc(50% - 35px);
 }
 
-#loader {
-  width: 70px;
-  height: 70px;
-  border-style: solid;
-  border-top-color: #FFF;
-  border-right-color: #FFF;
-  border-left-color: transparent;
-  border-bottom-color: transparent;
-  border-radius: 50%;
-  box-sizing: border-box;
-  animation: rotate 3s ease-in-out infinite;
-  transform: rotate(-200deg)
-}
+
 
 
 
@@ -1189,4 +1180,14 @@ mark {
 .chord-charts {
     width: 100%;
     height: 800px;
+}
+
+.oc-violet {
+    color: #b86ffd;
+    text-decoration: underline;
+}
+
+.oc-blue {
+    color: #4125c7;
+    text-decoration: underline;
 }

@@ -1,6 +1,6 @@
 import jsonData from './final_results.json' assert { type: "json" };
 
-console.log(jsonData['journals'].slice(0, 10));
+console.log(jsonData);
 
 // self citation pie by area
 let self_cit_area_chart = am4core.create("self-cit-pie", am4charts.PieChart);
@@ -335,3 +335,8 @@ am5.ready(function() {
     
     // Make stuff animate on load
     series.appear(1000, 100);}); // end am5.ready()
+
+
+//inserting text
+
+$("#articles-counter").html('<p style="margin: 0; position: absolute; top: 30%;transform: translateY(-50%);">' + jsonData['init']['journals'] + ' different journals </p> <p style="margin: 0; position: absolute; top: 60%;transform: translateY(-50%);">' + String(jsonData['init']['citing'] + jsonData['init']['cited']) + ' total citations </p>')
