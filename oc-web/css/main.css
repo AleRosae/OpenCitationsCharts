@@ -1180,3 +1180,17 @@ mark {
 }
 
 
+.bar-charts {
+    width: 100%;
+    height: 700px;
+}
+
+.pie-charts {
+    width: 100%;
+    height: 600px;
+}
+
+.chord-charts {
+    width: 100%;
+    height: 800px;
+}

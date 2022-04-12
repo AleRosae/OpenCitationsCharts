@@ -1,12 +1,14 @@
 import parse_COCI
 import json
 import sys
+import pandas as pd
 
 #run this script only when you update the general dataset
 #It provides the .json files for the global statistics visualization
 
 data = parse_COCI.load_data('prova_result_db.zip')
 csvs = parse_COCI.load_csvs()
+df = csvs['df_supergroups'].set_index('Description')
 
 
 def get_general_processing(data, csvs, folder):
@@ -56,12 +58,29 @@ def get_general_processing(data, csvs, folder):
             new_areas.append(tmp)
         source_fields[k] = new_areas 
 
+    new_groupssupergroups = []
+    for area in source_fields['areas_supergroups']:
+        tmp = {}
+        tmp['category'] = area['key']
+        tmp['value'] = area['data']
+        tmp['subData'] = []
+        for field in source_fields['areas_groups']:
+            subtmp = {}
+            if area['key'] == df.at[field['key'], 'Supergroup']:
+                subtmp['category'] = field['key']
+                subtmp['value'] = field['data']
+                tmp['subData'].append(subtmp)
+
+        new_groupssupergroups.append(tmp)
+
+    source_fields['areas_GroupsAndSuper'] = new_groupssupergroups
+
     print('processing network data...')
     net_data = parse_COCI.citations_networks(data)
 
     results = {'init': init, 'self_cit_area': d_self_citations_asjc, 'self_cit_journals': d_self_citations,
                 'journals': source_journals, 'areas_fields': source_fields['fields'], 'areas_groups':source_fields['groups'],
-                'areas_supergroups': source_fields['supergroups'], 'net': net_data}
+                'areas_supergroups': source_fields['supergroups'], 'net': net_data, 'areas_GroupsAndSuper': source_fields['areas_GroupsAndSuper']}
     with open( folder + r'/final_results.json', 'w') as fp:
         json.dump(results, fp)
 
