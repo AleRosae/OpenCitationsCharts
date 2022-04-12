@@ -12,8 +12,6 @@ series.dataFields.category = "key";
 // Add data
 self_cit_area_chart.data = jsonData['self_cit_area'];
 
-// And, for a good measure, let's add a legend
-self_cit_area_chart.legend = new am4charts.Legend();
 
 // bar chart //
 
