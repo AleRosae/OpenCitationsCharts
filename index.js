@@ -75,7 +75,7 @@ am4core.ready(function() {
   var bar_chart_journals = am4core.create("top-fields", am4charts.XYChart);
   
   // Add data
-  bar_chart_journals.data = jsonData['areas_fields'].slice(0, 10);
+  bar_chart_journals.data = jsonData['areas_fields'].slice(0, 20);
   
   // Create axes
   
@@ -337,4 +337,4 @@ am5.ready(function() {
 
 //inserting text
 
-$("#articles-counter").html('<p style="margin: 0; position: absolute; top: 30%;transform: translateY(-50%);">' + jsonData['init']['journals'] + ' different journals </p> <p style="margin: 0; position: absolute; top: 60%;transform: translateY(-50%);">' + String(jsonData['init']['citing'] + jsonData['init']['cited']) + ' total citations </p>')
+$("#articles-counter").html('<p style="margin: 0; position: absolute; font-weight: 600; top: 30%;transform: translateY(-50%);">' + jsonData['init']['journals'] + ' Different Journals </p> <p style="margin: 0; position: absolute; top: 60%;transform: translateY(-50%); font-weight: 600;">' + String(jsonData['init']['citing'] + jsonData['init']['cited']) + ' Total Citations </p>')

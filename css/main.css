@@ -1179,15 +1179,13 @@ mark {
 
 .chord-charts {
     width: 100%;
-    height: 800px;
+    height: 900px;
 }
 
 .oc-violet {
     color: #b86ffd;
-    text-decoration: underline;
 }
 
 .oc-blue {
     color: #4125c7;
-    text-decoration: underline;
 }
