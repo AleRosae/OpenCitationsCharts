@@ -340,7 +340,8 @@ def search_specific_journal(data, csvs, specific_journal = None):
   df_issn = csvs['df_issn']
   df_asjc = csvs['df_asjc']
   df_supergroups = csvs['df_supergroups']
-  for search_issn in data:
+  for item in data:
+    search_issn = item['issn']
     try:
       journal = df_issn.at[search_issn, 'Title']
     except KeyError:
