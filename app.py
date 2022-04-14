@@ -59,7 +59,7 @@ st.sidebar.write('''Choose between one single input query or multiple inputs ana
                   and then **press Go**.''')
 search_choice = st.sidebar.radio('', ('Single field', 'Multiple fields'))
 if search_choice == 'Single field':
-  single_search = st.sidebar.radio(
+  single_search = st.sidebar.selectbox(
       "What do you want to search for?",
       ('Top journals cited by a field', 'Top journals cited by another journal','Self citations of a field', 'Citations flow'))
   if single_search == 'Top journals cited by a field':
@@ -89,11 +89,12 @@ if search_choice == 'Single field':
   if button and input_field != '' and single_search == 'Top journals cited by a field':
     result_mistakes = parse_COCI.spelling_mistakes(input_field)
     if result_mistakes == False:
-      result = data['single_field_data'][input_field.lower()]
+      input_field = input_field.lower()
+      result = data['single_field_data'][input_field]
       with col8:
         st.markdown('***')
         if sum(list(result[input_field].values())) > 10: #placeholder per la media di citazioni globali
-          st.write(f'''In the COCI dataset there are **{str(len(result[input_field.lower()].keys()))} journals** related to **{input_field}**,
+          st.write(f'''In the COCI dataset there are **{str(len(result[input_field].keys()))} journals** related to **{input_field}**,
             for a total of **{str(sum(result[input_field].values()))} citations**.
           This is higher than the average number of citations for a single field (10).''')
         else:
@@ -130,6 +131,7 @@ if search_choice == 'Single field':
   elif button and input_field != "" and single_search == 'Top journals cited by another journal':
     result_mistakes = parse_COCI.spelling_mistakes(input_field, journal=True)
     if result_mistakes == False:
+      input_field = input_field.lower()
       result = data['single_journals_data'][input_field]
       if len(result) == 0:
         with col8:
@@ -208,6 +210,7 @@ if search_choice == 'Single field':
       st.write(f'''The charts below display **how citations have flowed** starting from journals related to **{input_field}**. It is a general overview of how different
                   academic fields interact with each other, using citations as a proxy for linking two different fields.''')
       col7, col8 = st.columns(2)
+      input_field = input_field.lower()
       source_citflow = data['citations_flow_data'][input_field]
       df_citflow = pd.DataFrame({'fields': list(source_citflow['fields'].keys())[:10], 'number of citations': list(source_citflow['fields'].values())[:10]})
 
@@ -270,7 +273,7 @@ if search_choice == 'Single field':
       st.sidebar.write(f"Can't find {input_field}. Did you mean one of the following: {check_spelling_selfcit} ?") 
       
 elif search_choice == 'Multiple fields':
-  multiple_search = st.sidebar.radio(
+  multiple_search = st.sidebar.selectbox(
       "What do you want to search for?",
       ('Number of citations per field', 'Self citations comparison', 'Citations flow comparison', 'Cross citations flow'))
   if multiple_search == 'Number of citations per field':
@@ -281,8 +284,7 @@ elif search_choice == 'Multiple fields':
     input_compare_field_cited = None
     button = st.sidebar.button('Go', key=7777)
   elif multiple_search == 'Self citations comparison':
-    st.sidebar.write('''Display a comparison between **exactly two fields** in terms of how much they tend to mention disciplines belonging to their own field 
-    (this may take a couple of minutes to process).''')
+    st.sidebar.write('''Display a comparison between **exactly two fields** in terms of how much they tend to mention disciplines belonging to their own field.''')
     input_compare_field = st.sidebar.text_input('Field 1', '', key=3342, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                               You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
                                               placeholder='e.g. philosophy')
@@ -327,11 +329,11 @@ elif search_choice == 'Multiple fields':
           st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
           render = False    
     else: 
-      result = parse_COCI.parse_data(data, csvs, asjc_fields=True)['fields']
+      result = data['citations_flow_data']
       output = {}
-      result = {k.lower():v for k, v in result.items()}
       for item in input:
-        output[item.capitalize()] = result[item.lower()]
+        output[item] = sum(result[item.lower()]["fields"].values())
+        print(output)
     if render == True:
       st.header('Citations comparison by different fields')
       source = pd.DataFrame({'fields': output.keys(), 'number of citations': output.values()})
@@ -364,9 +366,9 @@ elif search_choice == 'Multiple fields':
           st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
     else: 
       col7, col8 = st.columns(2)
-      self_citation_field_1 = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input[0])
+      self_citation_field_1 = data['self_citations_data'][input[0].lower()]
       df_selfcit_1 = pd.DataFrame({'fields': self_citation_field_1.keys(), 'values': self_citation_field_1.values()})
-      self_citation_field_2 = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input[1])
+      self_citation_field_2 = data['self_citations_data'][input[1].lower()]
       df_selfcit_2 = pd.DataFrame({'fields': self_citation_field_2.keys(), 'values': self_citation_field_2.values()})
       st.header('Self citations comparison')
       st.write(f'''These pie charts **confront how many articles** related to **{input_compare_field}** or to **{input_compare_field_cited}** tend to mention
@@ -420,8 +422,8 @@ elif search_choice == 'Multiple fields':
           mistake_value = str(mistake_value).strip('][')
           st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
     else:
-      source_citflow_1 = parse_COCI.citations_flow(data, csvs, specific_field=input[0])
-      source_citflow_2 = parse_COCI.citations_flow(data, csvs, specific_field=input[1])
+      source_citflow_1 = data['citations_flow_data'][input[0].lower()]
+      source_citflow_2 = data['citations_flow_data'][input[0].lower()]
       st.header(f'''Citations flow comparison between {input[0]} and {input[1]}''')
       st.write(f'''These pie charts below display the differences between how citations flow in {input[0].capitalize()} and in {input[1].capitalize()}, 
               according to their group and subject area.
@@ -499,7 +501,7 @@ elif search_choice == 'Multiple fields':
                   color='field', barmode='group',
                   histfunc='sum', height=800)
       fig.update_layout(title={
-          'text': f'<b>Groups mentioned both by{input[0]} and {input[1]}',
+          'text': f'<b>Groups mentioned both by {input[0]} and {input[1]}',
           'x': 0.5,
           'xanchor':'center'
         })
@@ -522,7 +524,9 @@ elif search_choice == 'Multiple fields':
           mistake_value = str(mistake_value).strip('][')
           st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
     else:
-      source_citflow_journal = parse_COCI.citations_flow_journals(data, csvs, specific_fields=input)
+      input = str((input[0].lower(), input[1].lower()))
+      print(input)
+      source_citflow_journal = data['cross_citations_flow_data'][input]
       df_source_citflow_journal = pd.DataFrame({'journals': list(source_citflow_journal.keys())[:10], 
         'number of citations': list(source_citflow_journal.values())[:10]})
       with col7:

@@ -27,10 +27,11 @@ def get_single_journal_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
     journals = csvs['df_issn']['Title'].tolist()[:10]
     results = {}
+    print('Processing most cited by single journal')
     with alive_bar(len(journals)) as bar:
         for input_journal in journals:
             journals_cited_by_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=input_journal)
-            results[input_journal.lower()] = journals_cited_by_journal[input_journal]
+            results[input_journal.lower()] = journals_cited_by_journal
             bar()
     with open(folder + r'/journals_cited_by_journal_results.json', 'w') as fp:
         json.dump(results, fp)
@@ -90,10 +91,10 @@ def get_cross_citationsflow_processing(data, csvs, folder):
 def main(folder):
     data = parse_COCI.load_data('prova_result_db.zip') #the results of the first processing
     csvs = parse_COCI.load_csvs()
-    get_cross_citationsflow_processing(data, csvs, folder)
-    get_single_field_processing(data, csvs, folder)
-    get_single_citationsflow_processing(data, csvs, folder)
-    get_single_selfcitations_processing(data, csvs, folder)
+    #get_cross_citationsflow_processing(data, csvs, folder)
+    #get_single_field_processing(data, csvs, folder)
+    #get_single_citationsflow_processing(data, csvs, folder)
+    #get_single_selfcitations_processing(data, csvs, folder)
     get_single_journal_processing(data, csvs, folder)
 
 

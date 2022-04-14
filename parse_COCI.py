@@ -64,7 +64,7 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
         field =  df_asjc.at[int(tmp[0].strip()), 'Description'].lower() #only gets the first disciplinary field, which should be the primary one
         if specific_field != None:
           if field.lower() == specific_field.lower():
-            results[specific_field][df_issn.at[search_issn, 'Title']] = int(value)
+            results[specific_field.lower()][df_issn.at[search_issn, 'Title']] = int(value)
         else:
           group = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Description'].lower()
           supergroup = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Supergroup'].lower()
@@ -351,7 +351,7 @@ def search_specific_journal(data, csvs, specific_journal = None):
       code = code.split(';')[0]
       field = df_asjc.at[int(code), 'Description']
       group = df_supergroups.at[code[:2].strip()+'**', 'Description']
-      title = specific_journal
+      title = specific_journal.lower()
       if title not in output_dict.keys():
         output_dict[title] = {}
         output_dict[title]['field'] = field
