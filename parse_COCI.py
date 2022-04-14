@@ -53,7 +53,7 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
   if asjc: #load the asjc csv and search the disciplinary code in there
     df_asjc = csvs['df_asjc']
     if specific_field != None:
-      results = results = {'fields':{}, 'groups':{}, 'supergroups': {}, specific_field:{}}
+      results = results = {'fields':{}, 'groups':{}, 'supergroups': {}, specific_field.lower():{}}
     else:
       results = {'fields':{}, 'groups':{}, 'supergroups': {}}
       df_supergroups = csvs['df_supergroups']
@@ -61,13 +61,13 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
       try:
         tmp = df_issn.at[search_issn, 'ASJC']
         tmp = tmp.split(';')
-        field =  df_asjc.at[int(tmp[0].strip()), 'Description'] #only gets the first disciplinary field, which should be the primary one
+        field =  df_asjc.at[int(tmp[0].strip()), 'Description'].lower() #only gets the first disciplinary field, which should be the primary one
         if specific_field != None:
           if field.lower() == specific_field.lower():
             results[specific_field][df_issn.at[search_issn, 'Title']] = int(value)
         else:
-          group = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Description']
-          supergroup = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Supergroup']
+          group = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Description'].lower()
+          supergroup = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Supergroup'].lower()
           if field in results['fields'].keys():
             results['fields'][field] = int(results['fields'][field]) + int(value)
           else:
@@ -357,7 +357,7 @@ def search_specific_journal(data, csvs, specific_journal = None):
         output_dict[title]['field'] = field
         output_dict[title]['group'] = group
         output_dict[title]['citations'] = {}
-      for k in search_issn['has_cited_n_times']: 
+      for k in item['has_cited_n_times']: 
         cited_issn = re.sub("-", "", k)
         cited_issn = re.sub("'", "", cited_issn)
         if cited_issn != search_issn:      
@@ -366,9 +366,9 @@ def search_specific_journal(data, csvs, specific_journal = None):
           except KeyError:
             continue
           if title_cited in output_dict[title]['citations'].keys():
-            output_dict[title]['citations'][title_cited] += search_issn['has_cited_n_times'][k]
+            output_dict[title]['citations'][title_cited] += item['has_cited_n_times'][k]
           else:
-            output_dict[title]['citations'][title_cited] = search_issn['has_cited_n_times'][k]
+            output_dict[title]['citations'][title_cited] = item['has_cited_n_times'][k]
         else:
           continue
   try:

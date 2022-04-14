@@ -10,14 +10,41 @@ from zipfile import ZipFile
 import plotly.express as px
 
 st.set_page_config(page_title='OpenCitationsCharts', page_icon=None, layout="wide", initial_sidebar_state="auto", menu_items={
-  'About': 'This app was developed for the epds course held by Prof. Marilena Daquino at the University of Bologna.'})
+  'About': 'Alessandro Rosa, DHARC - Unviersity of Bologna.'})
 st.title('''OpenCitations in Charts''')
-st.write('### A web application for visualizing the OpenCitations dataset in regards to publications distributed in 2020.')
+st.write('### A web application for visualizing the articles in the COCI dataset.')
+st.write('Start exploring COCI using the left sidebar! Choose your type of query, ask for a specific field or journal, and see the results!')
+st.markdown('***')
 
 @st.cache()
 def load_csvs():
   csvs = parse_COCI.load_csvs()
   return csvs
+
+@st.cache()
+def load_data():
+  with open(r"results/journals_cited_by_field_results.json", 'r') as fp:
+    single_field_data = json.load(fp)
+  with open(r'results/journals_cited_by_journal_results.json', 'r') as fp:
+    single_journals_data = json.load(fp)
+  with open(r'results/self_citations_by_field_results.json', 'r') as fp:
+    self_citations_data = json.load(fp)
+  with open(r'results/citations_flow_by_field_results.json', 'r') as fp:
+    citations_flow_data = json.load(fp)
+  with open(r'results/cross_citations_flow_by_field_results.json', 'r') as fp:
+    cross_citations_flow_data = json.load(fp)
+  
+  data = {"single_field_data": single_field_data, "single_journals_data" : single_journals_data, 
+          "self_citations_data": self_citations_data, "citations_flow_data": citations_flow_data, 
+          "cross_citations_flow_data": cross_citations_flow_data}
+
+  return data
+
+if 'data' not in st.session_state:
+  data = load_data()
+  st.session_state['data'] = data
+else:
+  data = st.session_state['data']
 
 if 'csvs' not in st.session_state:
   csvs = load_csvs()
@@ -62,16 +89,16 @@ if search_choice == 'Single field':
   if button and input_field != '' and single_search == 'Top journals cited by a field':
     result_mistakes = parse_COCI.spelling_mistakes(input_field)
     if result_mistakes == False:
-      result = parse_COCI.parse_data(data, csvs, asjc_fields = True, specific_field=input_field)
+      result = data['single_field_data'][input_field.lower()]
       with col8:
         st.markdown('***')
-        if sum(list(result[input_field].values())) > round(np.mean(list(source_fields['fields'].values()))):
-          st.write(f'''In the COCI dataset there are **{str(len(result[input_field].keys()))} journals** related to **{input_field}**,
+        if sum(list(result[input_field].values())) > 10: #placeholder per la media di citazioni globali
+          st.write(f'''In the COCI dataset there are **{str(len(result[input_field.lower()].keys()))} journals** related to **{input_field}**,
             for a total of **{str(sum(result[input_field].values()))} citations**.
-          This is higher than the average number of citations for a single field ({round(np.mean(list(source_fields['fields'].values())))}).''')
+          This is higher than the average number of citations for a single field (10).''')
         else:
           st.write(f'''There are **{str(len(result[input_field].keys()))} journals** related to **{input_field}**, for a total of **{str(sum(result[input_field].values()))} citations**.
-          This is below the average number of citations for a single field ({round(np.mean(list(source_fields['fields'].values())))}).''')
+          This is below the average number of citations for a single field (10).''')
         st.write(f'''The most important journal is _{list(result[input_field].keys())[0]}_, which received {list(result[input_field].values())[0]} citations.
         The journal with less citations is _{list(result[input_field].keys())[-1]}_, which was mentioned only {list(result[input_field].values())[-1]} times.''')   
         st.write(f'''The average number of citations for each journal of {input_field} is around {round(mean(result[input_field].values()))}.''') 
@@ -93,44 +120,7 @@ if search_choice == 'Single field':
                   Here you can see some information about it, provided that
                   there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
                   the same search with the related tool in the left sidebar.''')
-      col13, col14 = st.columns([3, 1])
-      with col13:
-        result_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=top_journal)
-        if top_journal not in result_journal.keys():
-            st.header('Journal not found!')
-            st.write('''It looks like the journal you searched did not make any citation in 2020 according to the COCI dataset.
-                      This is probably due to the fact that the Streamlit application is currently running on a partial subset of
-                      the 2020 data, which is in turn a small subset of the whole COCI dataset.
-                      Or maybe we need to open a little bit more this particular branch of science :)''')
-            st.markdown('***')
-        else:
-          source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 
-                                  'number of citations': list(result_journal[top_journal]['citations'].values())[:10]})
-          bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
-                        color_continuous_scale='purples',  color_continuous_midpoint=list(result_journal[top_journal]['citations'].values())[3], height=800)
-          bars.update_layout(
-            title={
-              'text': f'<b>The journals that are cited the most by {top_journal.capitalize()}</b>',
-              'x':0.5,
-              'xanchor':'center'
-            }
-          )
-          bars.update_coloraxes(showscale=False)
-          st.plotly_chart(bars, use_container_width=True)
-          st.markdown('***')
-        if top_journal not in result_journal.keys():
-          pass
-        else:
-          with col14:
-            st.markdown('***')
-            st.write(f'''The bar chart displays which are the journals that received most citations from _{top_journal.capitalize()}_, 
-                        giving us the general idea of where it is most likely to find articles related to the same topic.''')
-            st.write(f'''_{top_journal.capitalize()}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
-                        {result_journal[top_journal]['group']} group.''')
-            st.write(f'''{len(list(result_journal[top_journal]['citations'].keys()))} unique journals have been cited by _{top_journal}_ for a total
-                    of {sum(list(result_journal[top_journal]['citations'].values()))} citations.
-                    The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
-                    {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
+
     elif result_mistakes == None:
       st.sidebar.write(f"Can't find {input_field}. Check the spelling")
     else:
@@ -140,7 +130,7 @@ if search_choice == 'Single field':
   elif button and input_field != "" and single_search == 'Top journals cited by another journal':
     result_mistakes = parse_COCI.spelling_mistakes(input_field, journal=True)
     if result_mistakes == False:
-      result = parse_COCI.search_specific_journal(data, csvs, specific_journal=input_field)
+      result = data['single_journals_data'][input_field]
       if len(result) == 0:
         with col8:
           st.header('Journal not found!')
@@ -178,42 +168,7 @@ if search_choice == 'Single field':
                   Here you can see some information about it, provided that 
                   there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
                   the same search with the related tool in the left sidebar.''')
-      col13, col14 = st.columns([3, 1])
-      with col13:
-        result_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=top_journal)
-        if top_journal not in result_journal.keys():
-            st.header('Journal not found!')
-            st.write('''It looks like the journal you searched did not make any citation in 2020 according to the COCI dataset.
-                      This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
-                      the 2020 data, which is in turn a small subset of the whole COCI dataset.
-                      Or maybe we need to open a little bit more this particular branch of science :)''')
-            st.markdown('***')
-        else:
-          source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 
-                                  'number of citations': list(result_journal[top_journal]['citations'].values())[:10]})
-          bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
-                        color_continuous_scale='purples',  color_continuous_midpoint=list(result_journal[top_journal]['citations'].values())[3], height=800)
-          bars.update_layout(title={
-            'text': f'<b>Top journals cited by {top_journal.capitalize()}</b>',
-            'x': 0.5,
-            'xanchor': 'center'
-          })
-          bars.update_coloraxes(showscale=False)
-          st.plotly_chart(bars, use_container_width=True)
-          st.markdown('***')
-        if top_journal not in result_journal.keys():
-          pass
-        else:
-          with col14:
-            st.markdown('***')
-            st.write(f'''The bar chart displays which are the journals that received most citations from _{top_journal.capitalize()}_, 
-                        giving us the general idea of where it is most likely to find articles related to the same topic.''')
-            st.write(f'''_{top_journal.capitalize()}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
-                        {result_journal[top_journal]['group']} group.''')
-            st.write(f'''{len(list(result_journal[top_journal]['citations'].keys()))} unique journals have been cited by _{top_journal}_ for a total
-                    of {sum(list(result_journal[top_journal]['citations'].values()))} citations.
-                    The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
-                    {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
+
     elif result_mistakes == None:
       st.sidebar.write(f"Can't find {input_field}. Check the spelling")
     else:
@@ -223,7 +178,7 @@ if search_choice == 'Single field':
   elif button and input_field != "" and single_search == 'Self citations of a field':
     check_spelling_selfcit = parse_COCI.spelling_mistakes(input_field)
     if check_spelling_selfcit == False:
-      self_citation_field = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input_field)
+      self_citation_field = data['self_citations_data'][input_field.lower()]
       df_selfcit = pd.DataFrame({'fields': self_citation_field.keys(), 'values': self_citation_field.values()})
       with col7:
         st.header(f'Self citations of {input_field}')
@@ -253,7 +208,7 @@ if search_choice == 'Single field':
       st.write(f'''The charts below display **how citations have flowed** starting from journals related to **{input_field}**. It is a general overview of how different
                   academic fields interact with each other, using citations as a proxy for linking two different fields.''')
       col7, col8 = st.columns(2)
-      source_citflow = parse_COCI.citations_flow(data, csvs, specific_field=input_field)
+      source_citflow = data['citations_flow_data'][input_field]
       df_citflow = pd.DataFrame({'fields': list(source_citflow['fields'].keys())[:10], 'number of citations': list(source_citflow['fields'].values())[:10]})
 
       with col7:
