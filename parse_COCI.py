@@ -66,9 +66,8 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
           if field.lower() == specific_field.lower():
             results[specific_field.lower()][df_issn.at[search_issn, 'Title']] = int(value)
         else:
-          group = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Description'].lower()
-          supergroup = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Supergroup'].lower()
-          print(type(field), group, supergroup)
+          group = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Description']
+          supergroup = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Supergroup']
           if field in results['fields'].keys():
             results['fields'][field] = int(results['fields'][field]) + int(value)
           else:

@@ -8,18 +8,14 @@ import pandas as pd
 
 data = parse_COCI.load_data('prova_result_db.zip')
 csvs = parse_COCI.load_csvs()
-df = csvs['df_supergroups']
-df["Description"] = [el.lower() for el in df['Description'].tolist()]
-df.set_index('Description', inplace=True)
+
 
 
 def get_general_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
 
-
     print('processing academic areas...')
     source_fields = parse_COCI.parse_data(data, csvs, asjc_fields=True)
-    print(source_fields)
     for k in source_fields.keys():
         new_areas = []
         for key, value in source_fields[k].items():
@@ -28,19 +24,18 @@ def get_general_processing(data, csvs, folder):
             tmp['data'] = value
             new_areas.append(tmp)
         source_fields[k] = new_areas 
-    print('oooooiii')
-    print(source_fields)
     new_groupssupergroups = []
+    df = csvs['df_supergroups']
+    df["Description"] = [el.lower() for el in df['Description'].tolist()]
+    df_new = df.set_index('Description')
     for area in source_fields['supergroups']:
-        print("aoo")
         tmp = {}
         tmp['category'] = area['key']
         tmp['value'] = area['data']
         tmp['subData'] = []
         for field in source_fields['groups']:
             subtmp = {}
-            print(area['key'], field['key'])
-            if area['key'] == df.at[field['key'], 'Supergroup']:
+            if area['key'] == df_new.at[field['key'].lower(), 'Supergroup']:
                 subtmp['category'] = field['key']
                 subtmp['value'] = field['data']
                 tmp['subData'].append(subtmp)
@@ -97,8 +92,6 @@ def get_general_processing(data, csvs, folder):
                 'areas_supergroups': source_fields['supergroups'], 'net': net_data, 'areas_GroupsAndSuper': source_fields['areas_GroupsAndSuper']}
     with open( folder + r'/final_results.json', 'w') as fp:
         json.dump(results, fp)
-
-    print('Done!')
 
 if __name__ == "__main__":
     get_general_processing(data, csvs, sys.argv[1])
