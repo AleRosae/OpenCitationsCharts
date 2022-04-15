@@ -33,6 +33,7 @@ am4core.ready(function() {
     categoryAxis.dataFields.category = "key";
     categoryAxis.renderer.grid.template.location = 0;
     categoryAxis.renderer.minGridDistance = 30;
+    categoryAxis.renderer.labels.template.fontSize = 11;
     
     categoryAxis.renderer.labels.template.adapter.add("dy", function(dy, target) {
       if (target.dataItem && target.dataItem.index & 2 == 2) {
@@ -42,9 +43,9 @@ am4core.ready(function() {
     });
 
     // fix labels
-    categoryAxis.renderer.labels.template.wrap = true;
     categoryAxis.renderer.labels.template.truncate = true;
-    categoryAxis.renderer.labels.template.maxWidth = 200;
+
+    categoryAxis.renderer.labels.template.maxWidth = 180;
 
     var valueAxis = bar_chart_journals.yAxes.push(new am4charts.ValueAxis());
     
@@ -75,7 +76,7 @@ am4core.ready(function() {
   var bar_chart_journals = am4core.create("top-fields", am4charts.XYChart);
   
   // Add data
-  bar_chart_journals.data = jsonData['areas_fields'].slice(0, 20);
+  bar_chart_journals.data = jsonData['areas_fields'].slice(0, 10);
   
   // Create axes
   
@@ -85,9 +86,9 @@ am4core.ready(function() {
   categoryAxis.renderer.minGridDistance = 30;
   
 //fix labels
-categoryAxis.renderer.labels.template.wrap = true;
 categoryAxis.renderer.labels.template.truncate = true;
-categoryAxis.renderer.labels.template.maxWidth = 200;
+categoryAxis.renderer.labels.template.maxWidth = 180;
+categoryAxis.renderer.labels.template.fontSize = 11;
 
   categoryAxis.renderer.labels.template.adapter.add("dy", function(dy, target) {
     if (target.dataItem && target.dataItem.index & 2 == 2) {
@@ -337,4 +338,4 @@ am5.ready(function() {
 
 //inserting text
 
-$("#articles-counter").html('<p style="margin: 0; position: absolute; font-weight: 600; top: 30%;transform: translateY(-50%);">' + jsonData['init']['journals'] + ' Different Journals </p> <p style="margin: 0; position: absolute; top: 60%;transform: translateY(-50%); font-weight: 600;">' + String(jsonData['init']['citing'] + jsonData['init']['cited']) + ' Total Citations </p>')
+$("#articles-counter").html('<p style="margin: 0; position: absolute; font-weight: 600; top: 30%;transform: translateY(-50%);"> <span class="oc-violet">' + jsonData['init']['journals'] + '</span> Different Journals </p> <p style="margin: 0; position: absolute; top: 60%;transform: translateY(-50%); font-weight: 600;"><span class="oc-violet">' + String(jsonData['init']['citing'] + jsonData['init']['cited']) + '</span> Citations Between Articles </p>')

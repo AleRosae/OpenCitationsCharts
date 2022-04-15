@@ -68,6 +68,7 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
         else:
           group = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Description'].lower()
           supergroup = df_supergroups.at[str(tmp[0].strip())[:2]+'**', 'Supergroup'].lower()
+          print(type(field), group, supergroup)
           if field in results['fields'].keys():
             results['fields'][field] = int(results['fields'][field]) + int(value)
           else:
@@ -82,6 +83,7 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
             results['supergroups'][supergroup] = int(value)  
       except KeyError:
         continue
+    print(results)
     return results
   else:
     results = []

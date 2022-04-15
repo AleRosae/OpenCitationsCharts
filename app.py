@@ -116,11 +116,6 @@ if search_choice == 'Single field':
         bars.update_coloraxes(showscale=False)
         st.plotly_chart(bars, use_container_width=True)
         top_journal = list(result[input_field].keys())[0]
-        st.header(f'What do we know about {top_journal}?')
-        st.write(f'''You might be interested in knowing something more about the most cited journal of {input_field}.
-                  Here you can see some information about it, provided that
-                  there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
-                  the same search with the related tool in the left sidebar.''')
 
     elif result_mistakes == None:
       st.sidebar.write(f"Can't find {input_field}. Check the spelling")
@@ -165,11 +160,7 @@ if search_choice == 'Single field':
           st.plotly_chart(bars, use_container_width=True)
 
         top_journal = list(result[input_field]['citations'].keys())[0]
-        st.header(f'What do we know about {top_journal}?')
-        st.write(f'''You might be interested in knowing something more about the most cited journal of {input_field}.
-                  Here you can see some information about it, provided that 
-                  there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
-                  the same search with the related tool in the left sidebar.''')
+
 
     elif result_mistakes == None:
       st.sidebar.write(f"Can't find {input_field}. Check the spelling")

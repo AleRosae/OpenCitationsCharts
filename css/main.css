@@ -48,6 +48,10 @@ body.demos .service-widget {
 body.demos .container-fluid {
     max-width: 1080px
 }
+.container {
+    padding-left: 5px;
+    padding-right: 5px;
+}
 
 a {
     color: #1f1f1f;
@@ -1188,4 +1192,8 @@ mark {
 
 .oc-blue {
     color: #4125c7;
+}
+
+p.charts-p {
+    margin-top: 25px;
 }
