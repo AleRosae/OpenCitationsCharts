@@ -69,7 +69,7 @@ if search_choice == 'Single field':
                                           placeholder='e.g. philosophy')
     n_items = st.sidebar.slider('number of journals', 1, 20, 10)
   elif single_search == 'Top journals cited by another journal':
-    st.sidebar.write('Retrieve the top k journals that received more citations from a **specific journal** (except itself!).')
+    st.sidebar.write('Retrieve the top k journals that received more citations from a **specific journal**.')
     input_field = st.sidebar.text_input('Journal name', '', key=12335464, help='''Fields must corrispond to ASJC fields (case insensitive). 
                                           You can check the full list [here](https://support.qs.com/hc/en-gb/articles/4406036892562-All-Science-Journal-Classifications).''',
                                           placeholder='e.g. The Lancet')
@@ -127,7 +127,7 @@ if search_choice == 'Single field':
     result_mistakes = parse_COCI.spelling_mistakes(input_field, journal=True)
     if result_mistakes == False:
       input_field = input_field.lower()
-      result = data['single_journals_data'][input_field]
+      result = data['single_journals_data']
       if len(result) == 0:
         with col8:
           st.header('Journal not found!')

@@ -11,7 +11,7 @@ import time
 
 def get_single_field_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
-    fields = csvs['df_asjc']['Description'].tolist()[:10]
+    fields = csvs['df_asjc']['Description'].tolist()
     results = {}
     print('processing most cited by single field...')
     with alive_bar(len(fields)) as bar:
@@ -25,35 +25,24 @@ def get_single_field_processing(data, csvs, folder):
 
 def get_single_journal_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
-    journals = csvs['df_issn']['Title'].tolist()[:10]
-    results = {}
+    
     print('Processing most cited by single journal')
-    with alive_bar(len(journals)) as bar:
-        for input_journal in journals:
-            journals_cited_by_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=input_journal)
-            results[input_journal.lower()] = journals_cited_by_journal
-            bar()
+    results = parse_COCI.search_specific_journal(data, csvs)
     with open(folder + r'/journals_cited_by_journal_results.json', 'w') as fp:
         json.dump(results, fp)
     print('Done!')
 
 def get_single_selfcitations_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
-    fields = csvs['df_asjc']['Description'].tolist()[:10]
-    results = {}
     print('processing self-citations of a single field...')
-    with alive_bar(len(fields)) as bar:
-        for input_field in fields:
-            self_citation_field = parse_COCI.self_citation(data, csvs, asjc_fields=True, specific_field=input_field)
-            results[input_field.lower()] = self_citation_field
-            bar()
+    results = parse_COCI.query_self_citation(data, csvs)
     with open( folder + r'/self_citations_by_field_results.json', 'w') as fp:
         json.dump(results, fp)
     print('Done!')
 
 def get_single_citationsflow_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
-    fields = csvs['df_asjc']['Description'].tolist()[:10]
+    fields = csvs['df_asjc']['Description'].tolist()
     results = {}
     print('processing citations flow by field...')
     with alive_bar(len(fields)) as bar:
@@ -68,7 +57,7 @@ def get_single_citationsflow_processing(data, csvs, folder):
 
 def get_cross_citationsflow_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
-    fields_tmp = csvs['df_asjc']['Description'].tolist()[:10]
+    fields_tmp = csvs['df_asjc']['Description'].tolist()
     fields_1 = [(fields_tmp[index].lower(), fields_tmp[index+1].lower()) for index, el in enumerate(fields_tmp) if index < len(fields_tmp)-1] #citing -> cited
     fields_2 = [(fields_tmp[index+1], fields_tmp[index]) for index, el in enumerate(fields_tmp) if index < len(fields_tmp)-1] #cited -> citing
     results = {}

@@ -6,6 +6,7 @@ from streamlit.state.session_state import Value
 from zipfile import ZipFile
 import plotly.graph_objects as go
 import networkx as nx
+from alive_progress import alive_bar
 
 def initial_parsing(data, asjc_fields = None):
   output_dict = {}
@@ -82,7 +83,6 @@ def get_journal_issn(input_issn, csvs, asjc = None, specific_field = None):
             results['supergroups'][supergroup] = int(value)  
       except KeyError:
         continue
-    print(results)
     return results
   else:
     results = []
@@ -181,7 +181,6 @@ def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente 
       else:        
         for search_cited in value['has_cited_n_times'].keys():  
           try:          
-
             cited_code = df_issn.at[search_cited, 'ASJC']
             cited_code = cited_code.split(';')[0]
             if citing_code == cited_code and citing_code == specific_code:
@@ -336,23 +335,24 @@ def check_unmentioned(data):
   return result
       
 
-def search_specific_journal(data, csvs, specific_journal = None):
+def search_specific_journal(data, csvs):
   output_dict = {}
   df_issn = csvs['df_issn']
   df_asjc = csvs['df_asjc']
   df_supergroups = csvs['df_supergroups']
-  for item in data:
-    search_issn = item['issn']
-    try:
-      journal = df_issn.at[search_issn, 'Title']
-    except KeyError:
-      continue
-    if journal.lower() == specific_journal.lower():
+  with alive_bar(len(data)) as bar:
+    for item in data:
+      bar()
+      search_issn = item['issn']
+      try:
+        journal = df_issn.at[search_issn, 'Title']
+      except KeyError:
+        continue
       code = df_issn.at[search_issn, 'ASJC']
       code = code.split(';')[0]
       field = df_asjc.at[int(code), 'Description']
       group = df_supergroups.at[code[:2].strip()+'**', 'Description']
-      title = specific_journal.lower()
+      title = journal.lower()
       if title not in output_dict.keys():
         output_dict[title] = {}
         output_dict[title]['field'] = field
@@ -361,21 +361,17 @@ def search_specific_journal(data, csvs, specific_journal = None):
       for k in item['has_cited_n_times']: 
         cited_issn = re.sub("-", "", k)
         cited_issn = re.sub("'", "", cited_issn)
-        if cited_issn != search_issn:      
-          try:
-            title_cited = df_issn.at[cited_issn, 'Title']
-          except KeyError:
-            continue
-          if title_cited in output_dict[title]['citations'].keys():
-            output_dict[title]['citations'][title_cited] += item['has_cited_n_times'][k]
-          else:
-            output_dict[title]['citations'][title_cited] = item['has_cited_n_times'][k]
-        else:
+        try:
+          title_cited = df_issn.at[cited_issn, 'Title']
+        except KeyError:
           continue
-  try:
-    output_dict[title]['citations'] = dict(sorted(output_dict[title]['citations'].items(), key=lambda item: item[1], reverse = True))
-  except:
-    output_dict = {}
+        if title_cited in output_dict[title]['citations'].keys():
+          output_dict[title]['citations'][title_cited] += item['has_cited_n_times'][k]
+        else:
+          output_dict[title]['citations'][title_cited] = item['has_cited_n_times'][k]
+
+      output_dict[title]['citations'] = dict(sorted(output_dict[title]['citations'].items(), key=lambda item: item[1], reverse = True))
+
   return output_dict
 
 
@@ -414,7 +410,53 @@ def citations_networks(data):
         output_dict[group_citing][group_cited] = item['has_cited_n_times'][k]
   return output_dict
 
-#data = load_data('output_2020-04-25T04_48_36_1.zip')
+
+def query_self_citation(data, csvs):
+  df_issn = csvs['df_issn']
+  df_asjc = csvs['df_asjc']
+  results = {}
+  with alive_bar(len(data)) as bar:
+    for value in data:
+      self_citations = 0
+      partial_self_citations = 0
+      not_self_citations = 0
+      bar()
+      try:
+        search_issn = value['issn']
+        citing_code = df_issn.at[search_issn, 'ASJC']
+        citing_code = citing_code.split(';')[0]
+        citing_field =  df_asjc.at[int(citing_code.strip()), 'Description'].lower()         
+        for search_cited in value['has_cited_n_times'].keys():  
+          try:         
+            cited_code = df_issn.at[search_cited, 'ASJC']
+            cited_code = cited_code.split(';')[0]
+            if citing_code == cited_code:
+              self_citations += value['has_cited_n_times'][search_cited]
+            elif citing_code[:1] == cited_code[:1]:
+              partial_self_citations += value['has_cited_n_times'][search_cited]
+            else:
+              not_self_citations += value['has_cited_n_times'][search_cited]
+          except KeyError:
+              continue
+        if citing_field not in results.keys():
+          results[citing_field] = {}
+          results[citing_field]['self'] = self_citations
+          results[citing_field]['partial self'] = partial_self_citations
+          results[citing_field]['not self']  = not_self_citations
+        else:
+          results[citing_field]['self'] += self_citations
+          results[citing_field]['partial self'] += partial_self_citations
+          results[citing_field]['not self'] += not_self_citations
+      except KeyError:
+        continue     
+       
+      
+
+  return results
+
+#data = load_data('prova_result_db.zip')
+#self = query_self_citation(data, csvs=load_csvs())
+#print(len(self), self)
 #network = citations_networks(data)
 #print(network)
 
