@@ -2,7 +2,6 @@ import json
 import pandas as pd
 import re
 from collections import Counter
-from streamlit.state.session_state import Value
 from zipfile import ZipFile
 import plotly.graph_objects as go
 import networkx as nx
@@ -290,21 +289,28 @@ def citations_flow(data, csvs, specific_field = None):
   output_dict['supergroups'] = dict(sorted(output_dict['supergroups'].items(), key=lambda item: item[1], reverse = True))
   return output_dict
   
-def citations_flow_journals(data, csvs, specific_fields = None):
+def citations_flow_journals(data, csvs):
   output_dict = {}
   df_issn = csvs['df_issn']
   df_asjc = csvs['df_asjc']
-  for item in data:
-    search_issn = item['issn']
-    try:
-      journal_citing = df_issn.at[search_issn, 'Title']
-      tmp = df_issn.at[search_issn, 'ASJC']
-    except KeyError:
-      continue
-    tmp = tmp.split(';')
-    field_citing =  df_asjc.at[int(tmp[0].strip()), 'Description']
-    if field_citing.lower() == specific_fields[0].lower():
-      for issn_cited in item['has_cited_n_times']: #corrispondono a DOI unici nel dataset citazione
+  fields_tmp = df_asjc['Description'].tolist()
+  tot_comb = []
+  for el in fields_tmp:
+      for f in fields_tmp:
+          tot_comb.append((el.lower(), f.lower())) 
+  with alive_bar(len(data)) as bar:
+    for item in data:
+      search_issn = item['issn']
+      try:
+        journal_citing = df_issn.at[search_issn, 'Title']
+        tmp = df_issn.at[search_issn, 'ASJC']
+      except KeyError:
+        continue
+      tmp = tmp.split(';')
+      field_citing =  df_asjc.at[int(tmp[0].strip()), 'Description']
+      citing_comb = [el for el in tot_comb if field_citing.lower() == el[0]]
+
+      for issn_cited in item['has_cited_n_times']: 
         try:
           tmp_cited= df_issn.at[issn_cited, 'ASJC']
           journal_cited = df_issn.at[issn_cited, 'Title']
@@ -312,17 +318,24 @@ def citations_flow_journals(data, csvs, specific_fields = None):
           continue
         tmp_cited = tmp_cited.split(';')
         field_cited =  df_asjc.at[int(tmp_cited[0].strip()), 'Description']
-        if field_cited.lower() == specific_fields[1].lower():
-          if journal_cited in output_dict.keys():
-            output_dict[journal_cited] += item['has_cited_n_times'][issn_cited]
-          else:
-            output_dict[journal_cited] = item['has_cited_n_times'][issn_cited]
+        cited_comb = [el for el in citing_comb if field_cited.lower() == el[1]]
+        comb = str(cited_comb[0])
+        if comb not in output_dict.keys():
+          output_dict[comb] = {}
+          output_dict[comb][journal_cited] = item['has_cited_n_times'][issn_cited]
         else:
-          continue
-    else:
-      continue
-  output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
+          if journal_cited in output_dict[comb].keys():
+            output_dict[comb][journal_cited] += item['has_cited_n_times'][issn_cited]
+          else:
+            output_dict[comb][journal_cited] = item['has_cited_n_times'][issn_cited]
+      bar()
+
+  #output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
   return output_dict
+
+#data = load_data('prova_result_db.zip')
+#comb = citations_flow_journals(data, csvs=load_csvs())
+#print(comb)
 
 def check_unmentioned(data):
   df_supergroups = pd.read_csv(r'supergroups.csv')
@@ -454,25 +467,8 @@ def query_self_citation(data, csvs):
 
   return results
 
-#data = load_data('prova_result_db.zip')
-#self = query_self_citation(data, csvs=load_csvs())
-#print(len(self), self)
-#network = citations_networks(data)
-#print(network)
 
-#data = load_data('output_2020-04-25T04_48_36_1.zip')
-#print(search_specific_journal(data, load_csvs(), 'Nature'))
-#print(citations_flow_journals(data, 'cell biology, philosophy'))
-#cit_flow = citations_flow(data, specific_field = 'philosophy')
-#supergroups = get_journal_issn(cit_flow, asjc=True, supergroups=True)
-#print(supergroups)
-#result = parse_data(data, asjc_fields=True, specific_field='philosophy')
-#print(result)
-#print(result['fields'])
-#print(result['groups'])
-#print(result['supergroups'])
-#print(self_citation(data, load_csvs(), asjc_fields=True, specific_field='Philosophy'))
-#print(spelling_mistakes('sads'))
+
 def make_edge(x, y, text, width):
     return  go.Scatter(x         = x,
                       y         = y,

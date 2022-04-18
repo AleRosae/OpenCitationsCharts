@@ -516,8 +516,8 @@ elif search_choice == 'Multiple fields':
           st.sidebar.write(f"Can't find {input_key}. Did you mean one of the following: {mistake_value} ?")
     else:
       input = str((input[0].lower(), input[1].lower()))
-      print(input)
       source_citflow_journal = data['cross_citations_flow_data'][input]
+      source_citflow_journal = dict(sorted(source_citflow_journal.items(), key=lambda item: item[1], reverse = True))
       df_source_citflow_journal = pd.DataFrame({'journals': list(source_citflow_journal.keys())[:10], 
         'number of citations': list(source_citflow_journal.values())[:10]})
       with col7:
@@ -548,39 +548,4 @@ elif search_choice == 'Multiple fields':
                 Here you can see some information about it, provided that 
                 there are records of the journal in the COCI dataset. If you are interested in another journal, you can always perform
                 the same search with the related tool in the left sidebar.''')
-      col13, col14 = st.columns([3, 1])
-      with col13:
-        result_journal = parse_COCI.search_specific_journal(data, csvs, specific_journal=top_journal)
-        if top_journal not in result_journal.keys():
-            st.header('Journal not found!')
-            st.write('''It looks like the journal you searched did not make any citation in 2020 according to the COCI dataset.
-                      This is probabily due to the fact that the Streamlit application is currently running on a partial subset of
-                      the 2020 data, which is in turn a small subset of the whole COCI dataset.
-                      Or maybe we need to open a little bit more this particular branch of science :)''')
-            st.markdown('***')
-        else:
-          source = pd.DataFrame({'journals': list(result_journal[top_journal]['citations'].keys())[:10], 
-                                  'number of citations': list(result_journal[top_journal]['citations'].values())[:10]})
-          bars = px.bar(source, y="number of citations", x="journals", color='number of citations', orientation='v',
-                        color_continuous_scale='purples',  color_continuous_midpoint=list(result_journal[top_journal]['citations'].values())[3], height=800)
-          bars.update_layout(title={
-          'text': f'<b>The journals that are cited the most by {top_journal.capitalize()}</b>',
-          'x': 0.5,
-          'xanchor':'center'
-        })
-          bars.update_coloraxes(showscale=False)
-          st.plotly_chart(bars, use_container_width=True)
-          st.markdown('***')
-        if top_journal not in result_journal.keys():
-          pass
-        else:
-          with col14:
-            st.write(f'''The bar chart displays which are the journals that received most citations from _{top_journal.capitalize()}_, 
-                        giving us the general idea of where it is most likely to find articles related to the same topic.''')
-            st.write(f'''_{top_journal.capitalize()}_ is a journal of {result_journal[top_journal]['field']}, which belongs to the
-                        {result_journal[top_journal]['group']} group.''')
-            st.write(f'''{len(list(result_journal[top_journal]['citations'].keys()))} unique journals have been cited by _{top_journal}_ for a total
-                    of {sum(list(result_journal[top_journal]['citations'].values()))} citations.
-                    The journal that has been cited the most by _{top_journal}_ is _{list(result_journal[top_journal]['citations'].keys())[0]}_ with
-                    {list(result_journal[top_journal]['citations'].values())[0]} mentions. ''')  
     st.markdown('***')

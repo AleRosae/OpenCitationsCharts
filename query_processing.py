@@ -57,21 +57,7 @@ def get_single_citationsflow_processing(data, csvs, folder):
 
 def get_cross_citationsflow_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
-    fields_tmp = csvs['df_asjc']['Description'].tolist()
-    fields_1 = [(fields_tmp[index].lower(), fields_tmp[index+1].lower()) for index, el in enumerate(fields_tmp) if index < len(fields_tmp)-1] #citing -> cited
-    fields_2 = [(fields_tmp[index+1], fields_tmp[index]) for index, el in enumerate(fields_tmp) if index < len(fields_tmp)-1] #cited -> citing
-    results = {}
-    print('processing cross citations flow by multiple fields...')
-    with alive_bar(len(fields_1)) as bar:
-        for input_field in fields_1:
-            source_citflow = parse_COCI.citations_flow_journals(data, csvs, specific_fields=input_field)
-            results[str(input_field)] = source_citflow
-            bar()
-    with alive_bar(len(fields_2)) as bar:
-        for input_field in fields_2:
-            source_citflow = parse_COCI.citations_flow_journals(data, csvs, specific_fields=input_field)
-            results[str(input_field)] = source_citflow
-            bar()
+    results = parse_COCI.citations_flow_journals(data, csvs)
     with open( folder + r'/cross_citations_flow_by_field_results.json', 'w') as fp:
         json.dump(results, fp)
     print('Done!')
@@ -80,11 +66,11 @@ def get_cross_citationsflow_processing(data, csvs, folder):
 def main(folder):
     data = parse_COCI.load_data('prova_result_db.zip') #the results of the first processing
     csvs = parse_COCI.load_csvs()
-    #get_cross_citationsflow_processing(data, csvs, folder)
+    get_cross_citationsflow_processing(data, csvs, folder)
     #get_single_field_processing(data, csvs, folder)
     #get_single_citationsflow_processing(data, csvs, folder)
     #get_single_selfcitations_processing(data, csvs, folder)
-    get_single_journal_processing(data, csvs, folder)
+    #get_single_journal_processing(data, csvs, folder)
 
 
 if __name__ == "__main__":
