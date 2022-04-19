@@ -1,6 +1,6 @@
 # OpenCitationsCharts
 Repository for a web application that displays statistics about the OpenCitations COCI dataset. Currently the application is limited to a subset of the COCI dataset which includes only citations made during year 2020. It is meant as a project for the final examination of the Electronic Publishing and Digital Storytelling course held by Prof. Marilena Daquino at the University of Bologna in the Digital Humanities and Digital Knowledge master's degree. 
-You can access the Streamlit application here: https://share.streamlit.io/alerosae/opencitationscharts/main/app.py
+You can access the Streamlit application here: https://share.streamlit.io/alerosae/opencitationscharts/web-oc/app.py
 
 
 # Project workflow
