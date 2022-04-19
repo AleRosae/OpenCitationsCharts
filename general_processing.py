@@ -86,6 +86,12 @@ def get_general_processing(data, csvs, folder):
 
     print('processing network data...')
     net_data = parse_COCI.citations_networks(data)
+    new_net = []
+    for key, value in net_data.items():
+        for k, v in value.items():
+            tmp = {'from':key, 'to': k, 'value': v}
+            new_net.append(tmp)
+    net_data = new_net
 
     results = {'init': init, 'self_cit_area': d_self_citations_asjc, 'self_cit_journals': d_self_citations,
                 'journals': source_journals, 'areas_fields': source_fields['fields'], 'areas_groups':source_fields['groups'],

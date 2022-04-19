@@ -1,4 +1,4 @@
-import jsonData from './final_results.json' assert { type: "json" };
+import jsonData from './results/final_results.json' assert { type: "json" };
 
 console.log(jsonData);
 
@@ -296,7 +296,6 @@ am5.ready(function() {
   am5.ready(function() {
 
     // Create root element
-    // https://www.amcharts.com/docs/v5/getting-started/#Root_element
     var root = am5.Root.new("chord-diagram");
     
     
