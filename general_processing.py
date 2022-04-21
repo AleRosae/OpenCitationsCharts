@@ -6,10 +6,10 @@ import pandas as pd
 #run this script only when you update the general dataset
 #It provides the .json files for the global statistics visualization
 
-data = parse_COCI.load_data('prova_result_db.zip')
-csvs = parse_COCI.load_csvs()
+#data = parse_COCI.load_data('prova_result_db.zip')
 
 
+#csvs = parse_COCI.load_csvs()
 
 def get_general_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
@@ -99,7 +99,7 @@ def get_general_processing(data, csvs, folder):
     with open( folder + r'/final_results.json', 'w') as fp:
         json.dump(results, fp)
 
-if __name__ == "__main__":
-    get_general_processing(data, csvs, sys.argv[1])
-    print('done!')
+#if __name__ == "__main__":
+ #   get_general_processing(data, csvs, sys.argv[1])
+  #  print('done!')
 

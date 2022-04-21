@@ -6,6 +6,7 @@ from zipfile import ZipFile
 import plotly.graph_objects as go
 import networkx as nx
 from alive_progress import alive_bar
+import os
 
 def initial_parsing(data, asjc_fields = None):
   output_dict = {}
@@ -198,12 +199,18 @@ def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente 
   #results['not_found'] = not_found
   return results
 
-def load_data(path):
-  with ZipFile(path, 'r') as zip:
-    f_json = path.replace('.zip', '.json')
-    with zip.open(f_json) as infile:
-      data = json.load(infile)
+def load_data(folder, zip=None):
+  path = os.path.join(folder, 'COCI_processed.json')
+  if zip == False:
+    with open(path, 'r') as fp:
+      data = json.load(fp)
       return data
+  else:
+    with ZipFile(path, 'r') as zip:
+      f_json = path.replace('.zip', '.json')
+      with zip.open(f_json) as infile:
+        data = json.load(infile)
+        return data
 
 def spelling_mistakes(input_data, journal = None):
     result = {}

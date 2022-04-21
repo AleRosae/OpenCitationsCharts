@@ -63,15 +63,15 @@ def get_cross_citationsflow_processing(data, csvs, folder):
     print('Done!')
 
 
-def main(folder):
-    data = parse_COCI.load_data('prova_result_db.zip') #the results of the first processing
-    csvs = parse_COCI.load_csvs()
+def main(data, csvs, folder):
+    #data = parse_COCI.load_data('prova_result_db.zip') #the results of the first processing
+    #csvs = parse_COCI.load_csvs()
     get_cross_citationsflow_processing(data, csvs, folder)
-    #get_single_field_processing(data, csvs, folder)
-    #get_single_citationsflow_processing(data, csvs, folder)
-    #get_single_selfcitations_processing(data, csvs, folder)
-    #get_single_journal_processing(data, csvs, folder)
+    get_single_field_processing(data, csvs, folder)
+    get_single_citationsflow_processing(data, csvs, folder)
+    get_single_selfcitations_processing(data, csvs, folder)
+    get_single_journal_processing(data, csvs, folder)
 
 
-if __name__ == "__main__":
-    main(sys.argv[1])
+#if __name__ == "__main__":
+ #   main(sys.argv[1])

@@ -6,60 +6,65 @@ import zipfile
 import json
 import os
 import time
+from alive_progress import alive_bar
 
-connection = sqlite3.connect("crossref_pulito.db")
-cursor = connection.cursor()
-rows = cursor.execute(
-                "SELECT Count() from articles").fetchall()  
-print(rows)
-
-connection.close()
-
-def get_issn_crossref(coci_files):
+def get_issn_crossref(coci_folder, db_path, results_folder): #usando il database del crossref pulito e indicizzato
+  #db_path = 'E:/Github desktop/crossref_pulito_indexed.db'
+  connection = sqlite3.connect(db_path)
+  cursor = connection.cursor()
   memory_dict = {}
   set_not_found_citing = set()
   set_not_found_cited = set()
+  coci_files = [coci_folder+'/'+el for el in os.listdir(coci_folder+'/') if '.csv' in el]
   for coci in coci_files:
     print(coci)
-    with open(coci, 'r') as csv_file: #read line by line the OC dataset and get citing and cited
+    with open(coci, 'r', encoding="utf8") as csv_file: #read line by line the OC dataset and get citing and cited
+      csv_reader = csv.reader(csv_file, delimiter=',')
+      row_count = sum(1 for row in csv_reader)  #count the number of rows for the progress bar
+      csv_file.seek(0) #reset file and interator
       csv_reader = csv.reader(csv_file, delimiter=',')
       next(csv_reader)
-      for row in csv_reader:
-        citing = row[1] #1 if using normal csv instead of 2021
-        cited = row[2] #2 if using normal csv instead of 2021
-        if citing in memory_dict.keys(): #check if citing has been already searched
-          try:
+      with alive_bar(row_count,force_tty=True) as bar:
+        for row in csv_reader:
+          citing = row[1] 
+          cited = row[2] 
+          if citing in memory_dict.keys(): #check if citing has been already searched
             rows = cursor.execute(
-                "SELECT doi, issn FROM articles WHERE doi = ?",
-                        (cited,),).fetchall()  
-            issn_cited = rows[0][1]
-            if issn_cited in memory_dict[citing]['has_cited_n_times']:
-              memory_dict[citing]['has_cited_n_times'][issn_cited.strip("''")] += 1
-            else:
-              memory_dict[citing]['has_cited_n_times'][issn_cited.strip("''")] = 1
-          except KeyError:
-            continue
-        elif citing not in set_not_found_citing:
-          try:
-            rows = cursor.execute(
-                "SELECT doi, issn FROM articles WHERE doi = ?",
-                        (citing,),).fetchall()  
-            issn_citing = rows[0][1]
-            if cited not in set_not_found_cited:
-              try:
-                rows = cursor.execute(
-                "SELECT doi, issn FROM articles WHERE doi = ?",
-                        (cited,),).fetchall()  
-                issn_cited = rows[0][1]
-                memory_dict[citing] = {} 
-                memory_dict[citing]['issn'] = issn_citing.strip("''")
-                memory_dict[citing]['has_cited_n_times'] = {}
+                  "SELECT doi, issn FROM articles WHERE doi = ?",
+                          (cited,),).fetchall()  
+            if len(rows) != 0:
+              issn_cited = rows[0][1]
+              issn_cited = issn_cited.split(', ')[0].strip("'").replace("-", "") #we are getting only the e-issn instead of the printed one
+              if issn_cited in memory_dict[citing]['has_cited_n_times']:
+                memory_dict[citing]['has_cited_n_times'][issn_cited.strip("''")] += 1
+              else:
                 memory_dict[citing]['has_cited_n_times'][issn_cited.strip("''")] = 1
-              except KeyError:
-                set_not_found_cited.add(cited)
-          except KeyError:
-            set_not_found_citing.add(citing)
-  with open('prova.json', 'w') as fp:
+            else:
+              continue
+          elif citing not in set_not_found_citing:
+            rows = cursor.execute(
+                  "SELECT doi, issn FROM articles WHERE doi = ?",
+                          (citing,),).fetchall() 
+            if len(rows) != 0: 
+              issn_citing = rows[0][1]
+              issn_citing = issn_citing.split(', ')[0].strip("'").replace("-", "")
+              if cited not in set_not_found_cited:
+                rows = cursor.execute(
+                  "SELECT doi, issn FROM articles WHERE doi = ?",
+                          (cited,),).fetchall()  
+                if len(rows) != 0:
+                  issn_cited = rows[0][1]
+                  issn_cited = issn_cited.split(', ')[0].strip("'").replace("-", "")
+                  memory_dict[citing] = {} 
+                  memory_dict[citing]['issn'] = issn_citing.strip("''")
+                  memory_dict[citing]['has_cited_n_times'] = {}
+                  memory_dict[citing]['has_cited_n_times'][issn_cited.strip("''")] = 1
+                else:
+                  set_not_found_cited.add(cited)
+            else:
+              set_not_found_citing.add(citing)
+          bar()
+  with open(results_folder+'/COCI_processed.json', 'w') as fp:
     json.dump(list(memory_dict.values()), fp) #transform the dict in a list of dicts to reduce the output size 
 
 #counters to check if everything works right
@@ -78,4 +83,7 @@ def get_issn_crossref(coci_files):
       writer.writerow([line])
   csvfile.close()
 
-#get_issn_crossref([r'E:/opencitation/6741422/2020-08-20T18_12_28_1-2/'+el for el in os.listdir('E:/opencitation/6741422/2020-08-20T18_12_28_1-2/') if '.csv' in el])
+  connection.close()
+  
+
+#get_issn_crossref([r'E:/opencitation/6741422/2020-11-22T17_48_01_1-3/'+el for el in os.listdir('E:/opencitation/6741422/2020-11-22T17_48_01_1-3/') if '.csv' in el])
