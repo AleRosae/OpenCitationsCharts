@@ -80,6 +80,13 @@ h6 {
     margin: 0
 }
 
+p {
+color: #7a7a7a;
+font-weight: 400;
+/*font-size: 18px;*/
+line-height: 30px;
+}
+
 h1 {
     font-size: 24px
 }
@@ -354,7 +361,7 @@ a img.aligncenter {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #9931fc; 
+    background-color: #8e31e8; 
     z-index: 0;
     opacity: .7;
 }
@@ -410,6 +417,7 @@ a img.aligncenter {
 	font-size: 20px;
 	padding: 20px 0px;
     /**width: 65%;**/
+    color: #fff;
 }
 .heading span{
     color: white;
@@ -484,13 +492,13 @@ xclip
 }
 
 #mainNav {
-    background-color: #3b21c4f2;;
+    background-color: #3d23c2f2;;
 }
 
 #mainNav.navbar-shrink {
     padding-top: 5px;
     padding-bottom: 5px;
-    background-color: #3b21c4f2
+    background-color: #3d23c2f2
 }
 
 #clouds{
@@ -585,10 +593,10 @@ xclip
 }
 
 .section-title p {
-    color: #999;
+    color: #7a7a7a;
     font-weight: 400;
     /*font-size: 18px;*/
-    line-height: 33px;
+    line-height: 30px;
     margin: 0;
 }
 
@@ -937,7 +945,6 @@ xclip
 }
 
 .footer {
-    padding: 90px 0 80px !important;
     color: #999;
     background-color: #1f1f1f;
 }
@@ -1196,4 +1203,8 @@ mark {
 
 p.charts-p {
     margin-top: 25px;
+}
+
+.social-icon {
+    font-size: 25px;
 }

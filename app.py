@@ -27,12 +27,14 @@ def load_data():
     single_field_data = json.load(fp)
   with open(r'results/journals_cited_by_journal_results.json', 'r') as fp:
     single_journals_data = json.load(fp)
+    print(len(single_journals_data))
   with open(r'results/self_citations_by_field_results.json', 'r') as fp:
     self_citations_data = json.load(fp)
   with open(r'results/citations_flow_by_field_results.json', 'r') as fp:
     citations_flow_data = json.load(fp)
   with open(r'results/cross_citations_flow_by_field_results.json', 'r') as fp:
     cross_citations_flow_data = json.load(fp)
+    print(len(cross_citations_flow_data))
   
   data = {"single_field_data": single_field_data, "single_journals_data" : single_journals_data, 
           "self_citations_data": self_citations_data, "citations_flow_data": citations_flow_data, 
