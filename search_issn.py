@@ -72,7 +72,7 @@ def get_issn_crossref(coci_folder, db_path, results_folder): #usando il database
   print('Number set not found citing: ', len(set_not_found_citing))
   print('Number set not found cited: ', len(set_not_found_cited))
 
-  with open('citing_not_found.csv', 'w') as csvfile:
+  with open('citing_not_found.csv', 'w') as csvfile: #dump dei non trovati (si possono provare a prendere tramite api?)
     writer = csv.writer(csvfile, delimiter=',')
     for line in set_not_found_citing:
       writer.writerow([line])
