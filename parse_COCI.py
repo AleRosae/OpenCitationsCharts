@@ -8,6 +8,7 @@ import networkx as nx
 from alive_progress import alive_bar
 import os
 
+
 def initial_parsing(data, asjc_fields = None):
   output_dict = {}
   list_citing= []
@@ -38,7 +39,7 @@ def initial_parsing(data, asjc_fields = None):
 
   return output_dict
 
-def load_csvs():
+def load_csvs(): #load the scopus csv files can are going to be used in the next functions
   df_issn = pd.read_csv(r'scopus_issn.csv')
   df_issn.drop_duplicates(subset='Print-ISSN', inplace=True)
   df_issn.set_index('Print-ISSN', inplace=True)
@@ -199,8 +200,9 @@ def get_issn_self_citation(data, csvs, specific_field = None): #particolarmente 
   #results['not_found'] = not_found
   return results
 
-def load_data(folder, zip=None):
-  path = os.path.join(folder, 'COCI_processed.json')
+def load_data(path, zip=None):
+  print("Loading data...")
+  #path = os.path.join(folder, 'COCI_processed.json')
   if zip == False:
     with open(path, 'r') as fp:
       data = json.load(fp)
@@ -340,9 +342,6 @@ def citations_flow_journals(data, csvs):
   #output_dict = dict(sorted(output_dict.items(), key=lambda item: item[1], reverse = True))
   return output_dict
 
-#data = load_data('prova_result_db.zip')
-#comb = citations_flow_journals(data, csvs=load_csvs())
-#print(comb)
 
 def check_unmentioned(data):
   df_supergroups = pd.read_csv(r'supergroups.csv')

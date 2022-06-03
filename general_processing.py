@@ -1,15 +1,19 @@
 import parse_COCI
 import json
-import sys
 import pandas as pd
+import argparse
 
-#run this script only when you update the general dataset
-#It provides the .json files for the global statistics visualization
+parser = argparse.ArgumentParser(description='''Process the results of the computation in order to get general statistics of COCI in terms of
+                                 academic fields or journals. ''')
 
-#data = parse_COCI.load_data('prova_result_db.zip')
+parser.add_argument("--data", required=True, type=str, help='''Data to process. It accepts a .json file in the format ISSN-a: {has_cited_n_times : {ISSN-b: 27, ISSN-c: 42}.
+                                            Data can the either a plain .json or a zipped file containing that .json file.''')
 
+parser.add_argument("--output", required=True, type=str, help="Path for the output results")
 
-#csvs = parse_COCI.load_csvs()
+args = parser.parse_args()
+
+csvs = parse_COCI.load_csvs()
 
 def get_general_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
@@ -99,7 +103,12 @@ def get_general_processing(data, csvs, folder):
     with open( folder + r'/final_results.json', 'w') as fp:
         json.dump(results, fp)
 
-#if __name__ == "__main__":
- #   get_general_processing(data, csvs, sys.argv[1])
-  #  print('done!')
+if __name__ == "__main__":
+    if "zip" in args.data:
+        data = parse_COCI.load_data(args.data)
+    else:
+        data = parse_COCI.load_data(args.data, zip=False)
+        
+    get_general_processing(data, csvs, args.output)
+    print('done!')
 

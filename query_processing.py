@@ -1,13 +1,17 @@
 import parse_COCI
 import json
-import sys
 from alive_progress import alive_bar
-import time
+import argparse
 
+parser = argparse.ArgumentParser(description='''Process the results of the computation in order to get general statistics related to all the specifc queries that can be
+                                 performed on the Streamlit application. ''')
 
-#run this script only when you update the general dataset
-#It provides the .json files for the global statistics visualization
+parser.add_argument("--data", required=True, type=str, help='''Data to process. It accepts a .json file in the format ISSN-a: {has_cited_n_times : {ISSN-b: 27, ISSN-c: 42}.
+                                            Data can the either a plain .json or a zipped file containing that .json file.''')
 
+parser.add_argument("--output", required=True, type=str, help="Path for the output results")
+
+args = parser.parse_args()
 
 def get_single_field_processing(data, csvs, folder):
     print(f'Saving results in {folder}...')
@@ -64,8 +68,7 @@ def get_cross_citationsflow_processing(data, csvs, folder):
 
 
 def main(data, csvs, folder):
-    #data = parse_COCI.load_data('prova_result_db.zip') #the results of the first processing
-    #csvs = parse_COCI.load_csvs()
+
     get_cross_citationsflow_processing(data, csvs, folder)
     get_single_field_processing(data, csvs, folder)
     get_single_citationsflow_processing(data, csvs, folder)
@@ -73,5 +76,12 @@ def main(data, csvs, folder):
     get_single_journal_processing(data, csvs, folder)
 
 
-#if __name__ == "__main__":
- #   main(sys.argv[1])
+if __name__ == "__main__":
+    if "zip" in args.data:
+        data = parse_COCI.load_data(args.data)
+    else:
+        data = parse_COCI.load_data(args.data, zip=False)
+        
+    csvs = parse_COCI.load_csvs()
+    
+    main(data, csvs, args.output)
