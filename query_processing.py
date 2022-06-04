@@ -3,7 +3,7 @@ import json
 from alive_progress import alive_bar
 import argparse
 
-parser = argparse.ArgumentParser(description='''Process the results of the computation in order to get general statistics related to all the specifc queries that can be
+parser = argparse.ArgumentParser(description='''Process the results of the computation in order to get statistics related to all the specifc queries that can be
                                  performed on the Streamlit application. ''')
 
 parser.add_argument("--data", required=True, type=str, help='''Data to process. It accepts a .json file in the format ISSN-a: {has_cited_n_times : {ISSN-b: 27, ISSN-c: 42}.
