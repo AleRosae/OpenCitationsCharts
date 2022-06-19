@@ -37,18 +37,18 @@ def clean_crossref(path_input, path_output, split = None):
       for record in file_content['items']:
         if 'ISSN' in record.keys():
           dois.append(record['DOI'])
-          issns.append(str(record['ISSN']).strip("']['"))
+          issns.append(str(record['ISSN']).strip("']['")) #issns.append(str(record['ISSN'][0]).strip("']['")) se vogliamo prendere solo un ISSN
         else:
           pass
-        if split != None: #splitta se non si ha abbastanza ram a disposizione
-          if len(dois) > split:
-            counter += 1
-            df = pd.DataFrame(data = list(zip(dois, issns)), columns=['doi', 'issn'])
-            df.to_csv(path_output + r'/prova_'+str(counter) + '.csv', index= False)
-            dois = []
-            issns = []
-            #print(f'number of csv: {str(counter)}')
-            break
+      #questo blocco si attiva dopo ogni elemento del for loop principale
+      if split != None: #splitta se non si ha abbastanza ram a disposizione
+        if len(dois) > split:
+          counter += 1
+          df = pd.DataFrame(data = list(zip(dois, issns)), columns=['doi', 'issn'])
+          df.to_csv(path_output + r'/prova_'+str(counter) + '.csv', index= False)
+          dois = []
+          issns = []
+          #print(f'number of csv: {str(counter)}')
   counter += 1
   df = pd.DataFrame(data = list(zip(dois, issns)), columns=['doi', 'issn']) #crea df finale
   df.to_csv(path_output + r'/prova_'+str(counter) + '.csv', index= False)
